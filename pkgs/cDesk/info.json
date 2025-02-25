@@ -1,0 +1,9 @@
+{
+    "name":"cDesk",
+    "author":"ThatBeaverDev",
+    "lang":"js",
+    "directory":"/usr/bin/cDesk",
+    "directories":[
+        "/usr/bin/cDesk"
+    ]
+}

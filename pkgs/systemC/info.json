@@ -1,0 +1,9 @@
+{
+    "name":"systemC",
+    "author":"ThatBeaverDev",
+    "lang":"js",
+    "directory":"/usr/bin/systemc",
+    "directories":[
+        "/usr/bin/systemc"
+    ]
+}
