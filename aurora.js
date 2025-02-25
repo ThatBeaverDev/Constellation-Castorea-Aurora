@@ -1,14 +1,23 @@
 // Aurora Package Manager for Constellinux Shell
 
 async function init(arguements) {
-    system.aurora = {...system.aurora, ...{version: 0.01, directory: "/usr/bin/aurora"}}
+    system.constellinux.aurora = "apmv0.1.1"
+    if (!system.aurora.init) {
+        system.aurora = {...system.aurora, ...{version: 0.01, directory: "/usr/bin/aurora", init: true, index: JSON.parse(system.files.get(system.aurora.directory + "/index.json") || "{}") } }
+    }
     const aurora = system.aurora
+    const index = system.aurora.index
+
     // test if system has aurora initialised already
     if (system.folders[aurora.directory] == undefined) {
         // aurora has not been used yet
         system.folders.writeFolder(aurora.directory)
     }
-    
+
+    if (system.files.get(aurora.directory + "/index.json") == undefined) {
+        system.files.writeFile(aurora.directory + "/index.json", JSON.stringify({}))
+    }
+
     if (!system.path.includes(aurora.directory)) {
         system.path.push(aurora.directory)
     }
@@ -31,21 +40,21 @@ async function init(arguements) {
     let file
     let id1
     let id2
+    let keys
 
     const isSilent = flags.includes("-s")
 
     switch(args[0]) {
         case "install":
             if (!isSilent) {
-                console.post("installing " + args[1] + " from aurora...")
-                id1 = console.post("installation: 0%")
+                id1 = console.post("install of " + args[1] + " 0% completed")
                 id2 = console.post("--------------------")
             }
             
             // download the package info
             data = await system.fetchURL(aurora.url + "/pkgs/" + args[1] + "/info.json")
             if (!isSilent) {
-                console.edit("installation: 50%", id1)
+                console.edit("install of " + args[1] + " 50% completed", id1)
                 console.edit("##########----------", id2)
             }
 
@@ -54,15 +63,24 @@ async function init(arguements) {
                 data = JSON.parse(data)
             } catch(e) {
                 if (e == 'SyntaxError: "undefined" is not valid JSON') {
-                    console.error("Installation has failed: package does not exist.")
+                    console.edit("Installation of " + args[1] + " has failed because the package does not exist.", id1, "error")
+                    console.edit("", id2, "error")
                 } else {
-                    console.error("Installation has failed: package info is not valid JSON:" + e)
+                    console.edit("Installation of " + args[1] + " has failed because the package info is invalid: " + e, id1, "error")
+                    console.edit("", id2, "error")
                 }
                 break;
             }
+
+            index[args[1]] = true
+
+            for (const i in data.directories) {
+                system.folders.writeFolder(data.directories)
+            }
+
             // download the file
             file = await system.fetchURL(aurora.url + "/pkgs/" + args[1] + "/src." + data.lang)
-
+            
             if (data.directory !== undefined) {
                 // write the file to it's specific directory
                 // I intend to require elevated permissions for this in future
@@ -73,22 +91,27 @@ async function init(arguements) {
             }
 
             if (!isSilent) {
-                console.edit("installation: 100%", id1)
+                console.edit("install of " + args[1] + " 100% completed", id1)
                 console.edit("####################", id2)
             }
             break;
         case "uninstall":
             data = await system.fetchURL(aurora.url + "/pkgs/" + args[1] + "/info.json")
             system.files.deleteFile(aurora.directory + "/" + args[1] + "." + data.lang)
+            delete index[args[1]]
             break;
         case "info":
-            const keys = Object.keys(aurora)
+            keys = Object.keys(aurora)
             for (const i in keys) {
                 console.post("   " + keys[i] + ": " + aurora[keys[i]])
             }
             break;
         case "list":
-            console.post(system.folders.listDirectory(aurora.directory).join("\n"))
+            console.log(index)
+            keys = Object.keys(index)
+            for (const i in keys) {
+                console.post("  -  " + keys[i])
+            }
             break;
         case undefined:
         case "":
@@ -103,4 +126,6 @@ async function init(arguements) {
         default:
             console.error("Error: Unknown command: aurora " + args[0])
     }
+
+    system.files.writeFile(aurora.directory + "/index.json", JSON.stringify(index))
 }
