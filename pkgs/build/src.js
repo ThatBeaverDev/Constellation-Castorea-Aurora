@@ -1,10 +1,10 @@
 // build a system in a file
 
 async function init() {
-    let html = await system.fetchURL("./index.html")
-    const styles = await system.fetchURL("/styles.css")
-    let ldr = system.files.get("/boot/loader.js")
-    let kernel = system.files.get("/boot/kernel.js")
+    let html = await csw.net.fetch("./index.html")
+    const styles = await csw.net.fetch("/styles.css")
+    let ldr = csw.fs.read("/boot/loader.js")
+    let kernel = csw.fs.read("/boot/kernel.js")
 
     // patch over kernel
     kernel = kernel.replaceAll('system.aurora.url = "../aurora" // aurora URL set', 'system.aurora.url = "https://raw.githubusercontent.com/ThatBeaverDev/aurora/refs/heads/main"')
@@ -17,7 +17,7 @@ async function init() {
     html = html.replaceAll('<script src="./boot/loader.js"></script><!--bootloader-->', '<script>' + ldr + '</script><!--modified origin bootloader! :D-->')
     html = html.replaceAll('<link rel="stylesheet" href="/styles.css"><!--styles-->', '<style>\n' + styles + '\n</style>')
 
-    system.files.writeFile(system.toDir("system.html"), html)
+    csw.fs.write(csw.fs.toDirectory("system.html"), html)
 
-    console.log("Build completed and placed at in " + system.toDir("system.html"))
+    console.log("Build completed and placed at in " + csw.fs.toDirectory("system.html"))
 }
