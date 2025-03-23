@@ -1,8 +1,8 @@
 // export files to host
 
 async function init(args) {
-    const dir = system.toDir(args[0])
-    const data = system.files.get(dir)
+    const dir = csw.fs.toDirectory(args[0])
+    const data = csw.fs.read(dir)
 
     const reversed = dir.split("").reverse().join("")
     const reversedName = reversed.substring(reversed.indexOf("/"), 0)
