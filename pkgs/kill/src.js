@@ -1,5 +1,5 @@
 // terminate processes
 
 function init(args) {
-    system.stopProcess(args[0])
+    csw.processes.terminate(args[0])
 }
