@@ -1,6 +1,8 @@
 // display system info
 
 async function init() {
+    const system = csw.permissions.elevate()
+
     function convertMiliseconds(miliseconds, format) {
         var days, hours, minutes, seconds, total_hours, total_minutes, total_seconds;
         
