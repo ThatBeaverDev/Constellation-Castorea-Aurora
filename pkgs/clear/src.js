@@ -1,6 +1,5 @@
 // Clear Logs
 
 function init() {
-    system.logs = []
-    system.refreshLogsPanel()
+    csw.terminal.clear()
 }
