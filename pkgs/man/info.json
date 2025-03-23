@@ -1,0 +1,8 @@
+{
+    "name":"man",
+    "author":"ThatBeaverDev",
+    "directory":"/usr/bin",
+    "directories": [
+        "/usr/share/man"
+    ]
+}

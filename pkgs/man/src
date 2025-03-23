@@ -1,0 +1,71 @@
+#! /usr/bin/node
+
+function exit(reason) {
+    const system = local.system
+    if (reason !== undefined) {
+        console.log(reason)
+    } else {
+        console.log("Exiting...")
+    }
+    system.stopProcess(PID)
+    local.stopped = true
+}
+
+function init(args) {
+    local.mandir = "/usr/share/man"
+
+    local.manPageDir = local.mandir + "/" + args[0] + ".1"
+    local.manPage = csw.fs.read(local.manPageDir)
+
+    if (local.manPage == undefined) {
+        exit(`${args[0]} has no manpage, sorry.`)
+    }
+
+    // remove all lines starting with "//"
+    const manpage = local.manPage.split("\n")
+    let result = []
+    for (const i in manpage) {
+        if (manpage[i].substring(0, 2) !== "//") {
+            result.push(manpage[i])
+        }
+    }
+    local.manPage = result.join("\n")
+
+    local.keys = {}
+    local.shortcuts = {}
+    local.shortcuts.q = "Quit"
+
+    local.system = csw.permissions.elevate()
+    const system = local.system
+    // sieze the screen
+    csw.terminal.fullscreen(PID)
+
+    csw.terminal.set(PID, local.manPage)
+}
+
+function frame() {
+    if (local.stopped) {
+        exit()
+    }
+    const system = local.system
+    system.preInput.innerHTML = ":"
+
+    const keys = Object.keys(local.shortcuts)
+    for (const i in keys) {
+        const key = keys[i]
+
+        if (system.keys[key]) {
+            if (!local.keys[key]) {
+                switch(key) {
+                    case "q":
+                        exit()
+                        break;
+                }
+            }
+            local.keys[key] = true
+        } else {
+            local.keys[key] = false
+        }
+
+    }
+}
