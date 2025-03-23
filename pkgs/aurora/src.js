@@ -1,7 +1,10 @@
 // Aurora Package Manager for Constellinux Shell
 
 async function init(arguements) {
-    system.constellinux.aurora = "apmv0.1.1"
+    const system = csw.permissions.elevate()
+
+    csw.versions.registerApp("aurora", "apmv0.1.1")
+    //csw.versions.registerApp("apmv0.1.1")
     if (!system.aurora.init) {
         system.aurora = {...system.aurora, ...{version: 0.01, directory: "/usr/bin/aurora", init: true, index: JSON.parse(system.files.get(system.aurora.directory + "/index.json") || "{}") } }
     }
@@ -70,6 +73,11 @@ async function init(arguements) {
                     console.edit("", id2, "error")
                 }
                 break;
+            }
+
+            // install dependencies
+            for (const i in data.dependencies) {
+                system.startProcess("/bin/aurora.js", ["install", data.dependencies[i]], true)
             }
 
             index[args[1]] = true
