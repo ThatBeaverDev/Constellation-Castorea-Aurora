@@ -1,5 +1,5 @@
 // run .js files
 
 async function init(args) {
-    system.startProcess(system.toDir(args[0]))
+    csw.processes.execute(csw.fs.toDirectory(args[0]))
 }
