@@ -1,3 +1,3 @@
 function init(args) {
-    system.startProcess(args[0])
+    csw.processes.execute(args[0])
 }
