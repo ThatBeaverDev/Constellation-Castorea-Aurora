@@ -1,5 +1,5 @@
 // LS
 
 function init(args) {
-    console.post(system.folders.listDirectory((args[0] || system.dir)).join(",   "))
+    console.post(csw.fs.listDir((args[0] || csw.terminal.dir)).join(",   "))
 }
