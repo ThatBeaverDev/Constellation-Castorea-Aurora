@@ -1,6 +1,8 @@
 // list processes
 
 function init(args) {
+    const system = csw.permissions.elevate()
+
     let data = "PID - NAME\n"
     for (const i in system.processes) {
         try {
