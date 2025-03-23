@@ -2,12 +2,12 @@
 
 function init(args) {
     if (args[0][0] == "/") {
-        system.folders.writeFolder(args[0])
+        csw.fs.createDir(args[0])
     } else {
-        let dir = system.dir
+        let dir = csw.terminal.dir
         if (dir[dir.length - 1] !== "/") {
             dir += "/"
         }
-        system.folders.writeFolder(dir + args[0])
+        csw.fs.createDir(dir + args[0])
     }
 }
