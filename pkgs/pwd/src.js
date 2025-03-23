@@ -1,5 +1,5 @@
 // print working Directory
 
 function init() {
-    console.post(system.dir,"pwd")
+    console.post(csw.terminal.dir)
 }
