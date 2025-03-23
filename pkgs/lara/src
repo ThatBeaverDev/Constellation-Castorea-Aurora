@@ -1,0 +1,135 @@
+#! /usr/bin/node
+
+async function saveText() {
+    const text = local.input.value
+
+    if (local.directory == undefined) {
+        local.directory = prompt("Directory to save to")
+    }
+
+    csw.fs.write(local.directory)
+    local.header.innerText = 'Saved to ' + local.directory + "."
+    setTimeout(function () {
+        local.header.innerText = "Lara Text Editor Version " + local.version
+    }, 1000)
+}
+
+function init(args) {
+    local.keys = {}
+    local.version = "1"
+    local.system = csw.permissions.elevate()
+    // sieze the screen
+    csw.terminal.fullscreen(PID)
+
+    // if there's a file selected, open it
+    let text = ""
+    if (args[0]) {
+        // convert file to actualy directory
+        args[0] = csw.fs.toDirectory(args[0])
+
+        // set the directory so we can save to it later
+        local.directory = args[0]
+
+        // read so the text  an be displayed
+        text = csw.fs.read(args[0])
+    }
+
+    // create header text to show status
+    local.header = document.createElement("p")
+    local.header.id = "laraHeader"
+    local.header.innerText = "Lara Text Editor Version " + local.version
+    // set styles
+    const hs = local.header.style
+    hs.margin = "0px"
+    hs.left = "0px"
+    hs.top = "0px"
+
+    // create textbox
+    local.inputBox = document.createElement("textarea")
+    local.inputBox.id = "laraInput"
+    // set styles
+    const s = local.inputBox.style
+    s.margin = "0px"
+    s.left = "0px"
+    s.width = "100%"
+    s.height = "80vh"
+    s.outline = "None"
+    s.backgroundColor = "rgba(0,0,0,0)"
+    s.color = "white"
+
+    // create bottom div
+    local.div = document.createElement("div")
+    local.div.id = "laraDiv"
+    local.div.style.width = "100%"
+    local.div.style.height = "20vh"
+
+    // setup shortcuts
+    const shortcuts = {}
+    shortcuts.x = "Exit"
+    shortcuts.s = "Save"
+    shortcuts.o = "Open"
+    local.shortcuts = shortcuts
+
+    // convert to strings to display
+    local.data = local.header.outerHTML + "\n" + local.inputBox.outerHTML + "\n" + local.div.outerHTML
+    csw.terminal.set(PID, local.data)
+    local.input = document.getElementById("laraInput")
+    local.input.value = text
+    local.input.focus()
+    local.liveDiv = document.getElementById("laraDiv")
+
+    // format shortcuts
+    const keys = Object.keys(local.shortcuts)
+    let result = ""
+    for (const i in keys) {
+        if (i !=="0") {result += "  -  "}
+
+        const key = keys[i]
+        result += "^"
+        result += key.toUpperCase()
+        result += ": "
+        result += local.shortcuts[key]
+    }
+
+    local.liveDiv.innerText = result
+}
+
+function frame() {
+    local.input = document.getElementById("laraInput")
+    local.input.focus()
+    local.liveDiv = document.getElementById("laraDiv")
+
+    const system = local.system
+
+    if (system.keys.Control) {
+
+        const keys = Object.keys(local.shortcuts)
+        for (const i in keys) {
+            const key = keys[i]
+
+            if (system.keys[key]) {
+                if (!local.keys[key]) {
+                    switch(key) {
+                        case "x":
+                            system.stopProcess(PID)
+                            console.log("Exiting...")
+                            break;
+                        case "o":
+                            break;
+                        case "s":
+                            saveText()
+                            break;
+                        default:
+                            throw new Error("Known keyboard shortcut fired but no code ran.")
+                    }
+                }
+                local.keys[key] = true
+            } else {
+                local.keys[key] = false
+            }
+
+        }
+    }
+
+    local.oldData = local.input.value
+}
