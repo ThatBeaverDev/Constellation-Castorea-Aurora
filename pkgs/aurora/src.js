@@ -49,6 +49,15 @@ async function init(arguements) {
 
     switch(args[0]) {
         case "install":
+
+            if (typeof args[1] == "object") {
+                for (const i in args[1]) {
+                    const package = args[1][i]
+                    await init(["install", package])
+                }
+                return
+            }
+
             if (!isSilent) {
                 id1 = console.post("install of " + args[1] + " 0% completed")
                 id2 = console.post("--------------------")
