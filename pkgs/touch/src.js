@@ -1,5 +1,5 @@
 // write blank to a file
 
 function init(args) {
-    system.files.writeFile(system.toDir(args[0]), "")
+    csw.fs.write(csw.fs.toDirectory(args[0]), "")
 }
