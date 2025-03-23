@@ -1,0 +1,8 @@
+{
+    "name":"tree",
+    "author":"ThatBeaverDev",
+    "directory":"/usr/bin",
+    "files": {
+        "/manpage.1": "/usr/share/man/tree.1"
+    }
+}

@@ -1,0 +1,61 @@
+TREE(1)                     General Commands Manual                    TREE(1)
+
+NAME
+       tree - list contents of directories in a tree-like format.
+
+SYNOPSIS
+       tree [-acdfghilnpqrstuvxACDFJQNSUX] [-L level [-R]] [-H [-]baseHREF]
+       [-T title] [-o filename] [-P pattern] [-I pattern] [--gitignore]
+       [--gitfile[=]file] [--matchdirs] [--metafirst] [--ignore-case]
+       [--nolinks] [--hintro[=]file] [--houtro[=]file] [--inodes] [--device]
+       [--sort[=]name] [--dirsfirst] [--filesfirst] [--filelimit[=]#] [--si]
+       [--du] [--prune] [--charset[=]X] [--timefmt[=]format] [--fromfile]
+       [--fromtabfile] [--fflinks] [--info] [--infofile[=]file] [--noreport]
+       [--hyperlink] [--scheme[=]schema] [--authority[=]hostname] [--opt-
+       toggle] [--version] [--help] [--] [directory ...]
+
+DESCRIPTION
+       Tree is a recursive directory listing program that produces a depth
+       indented listing of files, which is colorized ala dircolors if the
+       LS_COLORS environment variable is set and output is to tty.  With no
+       arguments, tree lists the files in the current directory.  When
+       directory arguments are given, tree lists all the files and/or
+       directories found in the given directories each in turn.  Upon
+       completion of listing all files/directories found, tree returns the
+       total number of files and/or directories listed.
+
+       By default, when a symbolic link is encountered, the path that the
+       symbolic link refers to is printed after the name of the link in the
+       format:
+
+           name -> real-path
+
+       If the `-l' option is given and the symbolic link refers to an actual
+       directory, then tree will follow the path of the symbolic link as if it
+       were a real directory.
+
+OPTIONS
+       Tree understands the following command line switches:
+
+LISTING OPTIONS
+       -a     All files are printed.  By default tree does not print hidden
+              files (those beginning with a dot `.').  In no event does tree
+              print the file system constructs `.' (current directory) and
+              `..' (previous directory).
+
+       -d     List directories only.
+
+//       -l     Follows symbolic links if they point to directories, as if they
+//              were directories. Symbolic links that will result in recursion
+//              are avoided when detected. [NOT SUPPORTED WHILE NO SYMBOLIC LINKS EXIST ON TCPCLI!]
+//
+       -f     Prints the full path prefix for each file.
+
+//       -x     Stay on the current file-system only.  Ala find -xdev. [NOT SUPPORTED SINCE WE HAVE NO EXTERNAL FILESYSTEMS]
+//
+       -L level
+              Max display depth of the directory tree.
+
+       -R     Recursively cross down the tree each level directories (see -L
+              option), and at each level outputting to a file named
+              00Tree.html (ala -o).

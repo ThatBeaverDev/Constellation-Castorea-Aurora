@@ -1,0 +1,89 @@
+#! /usr/bin/node
+
+// credit where credit is due, https://github.com/kddnewton/tree/blob/main/tree.js
+
+function init(args) {
+  let dir
+  const obj = {}
+  
+  // loop through parameters
+  for (let i = 0; i < args.length; i++) {
+    // check if the parameter is recognised
+    switch (args[i]) {
+      case "-L":
+        i++
+        obj.maxLevels = args[i]
+        break;
+
+      case "-f":
+        i++
+        obj.fullDir = true
+        break;
+
+      case "-d":
+        obj.dirOnly = true
+        i++
+        break;
+
+      case "-a":
+        obj.showHidden = true
+        i++
+        break;
+        
+      default:
+      // if the token is the first one, it's the directory
+      if (i == 0) {
+        dir = csw.fs.toDirectory(args[i])
+      } else {
+        console.warn("Unknown flag: " + args[i])
+      }
+      i++
+    }
+  }
+  
+  const counts = {
+    dirs: 0,
+    files: 0
+  };
+  
+  function walk(directory, prefix, maxDepth, depth) {
+    if (depth > maxDepth) {
+      console.log(depth)
+      console.log(maxDepth)
+      return
+    }
+    
+    const contents = csw.fs.listDir(directory, {
+      withFileTypes: true
+    })
+    
+    for (const i in contents) {
+      const file = contents[i]
+      if (file[0] != "." || obj.showHidden) {
+        const parts = i == contents.length - 1 ? ["└── ", "    "] : ["├── ", "│   "];
+
+        let dispFile = String(file)
+        if (obj.fullDir) {
+          dispFile = csw.fs.toDirectory(directory, file)
+        }
+
+        if (csw.fs.isDirectory(csw.fs.toDirectory(directory, file))) {
+          console.post(`${prefix}${parts[0]}${dispFile}`);
+          counts.dirs += 1;
+          walk(csw.fs.toDirectory(directory, file), `${prefix}${parts[1]}`, maxDepth, depth + 1);
+        } else {
+          if (!obj.dirOnly) {
+            console.post(`${prefix}${parts[0]}${dispFile}`);
+          }
+          counts.files += 1;
+        }
+        
+      }
+    };
+  }
+  const directory = (dir || csw.terminal.dir)
+  console.post("     " + directory)
+  
+  walk(directory, "     ", obj.maxLevels, 0);
+  console.log(`Tree generated for ${counts.dirs} directories, ${counts.files} files`);
+}
