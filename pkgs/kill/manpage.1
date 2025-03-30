@@ -1,0 +1,50 @@
+NAME
+     kill – terminate or signal a process
+
+SYNOPSIS
+     kill [-s signal_name] pid ...
+     kill -l [exit_status]
+     kill -signal_name pid ...
+     kill -signal_number pid ...
+
+DESCRIPTION
+     The kill utility sends a signal to the processes specified by the pid
+     operands.
+
+     Only the super-user may send signals to other users' processes.
+
+     The options are as follows:
+
+     -s signal_name
+             A symbolic signal name specifying the signal to be sent instead
+             of the default TERM.
+
+     -l [exit_status]
+             If no operand is given, list the signal names; otherwise, write
+             the signal name corresponding to exit_status.
+
+     -signal_name
+             A symbolic signal name specifying the signal to be sent instead
+             of the default TERM.
+
+     -signal_number
+             A non-negative decimal integer, specifying the signal to be sent
+             instead of the default TERM.
+
+     The following PIDs have special meanings:
+
+     -1      If superuser, broadcast the signal to all processes; otherwise
+             broadcast to all processes belonging to the user.
+
+     Some of the more commonly used signals:
+
+     1       HUP (hang up)
+     2       INT (interrupt)
+     3       QUIT (quit)
+     6       ABRT (abort)
+     9       KILL (non-catchable, non-ignorable kill)
+     14      ALRM (alarm clock)
+     15      TERM (software termination signal)
+
+     Some shells may provide a builtin kill command which is similar or
+     identical to this utility.  Consult the builtin(1) manual page.

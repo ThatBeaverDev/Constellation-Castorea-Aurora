@@ -2,5 +2,8 @@
     "name":"kill",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/bin"
+    "directory":"/bin",
+    "files": {
+        "/manpage.1": "/usr/share/man/kill.1"
+    }
 }
