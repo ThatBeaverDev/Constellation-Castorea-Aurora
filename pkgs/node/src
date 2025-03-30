@@ -1,6 +1,6 @@
 // /usr/bin/node
 
-// code gets provided 'dir' and 'safe'
+// code gets provided 'code' and 'safe'
 let script = code
 
 if (!script.includes("function init(")) {
@@ -9,21 +9,21 @@ if (!script.includes("function init(")) {
 
 if (system.forceSystemLog) {
 	if (system.systemWrapper) {
-		script = script.replaceAll("console.log(", "csw.console.log(Name,")
-		script = script.replaceAll("console.post(", "csw.console.post(Name,")
-		script = script.replaceAll("console.warn(", "csw.console.warn(Name,")
-		script = script.replaceAll("console.error(", "csw.console.error(Name,")
-		script = script.replaceAll("console.edit(", "csw.console.edit(Name,")
+		script = script.replaceAll("console.log(", "parent.log(Name,")
+		script = script.replaceAll("console.post(", "parent.post(Name,")
+		script = script.replaceAll("console.warn(", "parent.warn(Name,")
+		script = script.replaceAll("console.error(", "parent.error(Name,")
+		script = script.replaceAll("console.edit(", "parent.editLog(Name,")
 
 		for (const i in csw.functions) {
 			script = script.replaceAll(csw.functions[i] + "(", csw.functions[i] + "(token,")
 		}
 	} else {
-		script = script.replaceAll("console.log(", "system.log(Name,")
-		script = script.replaceAll("console.post(", "system.post(Name,")
-		script = script.replaceAll("console.warn(", "system.warn(Name,")
-		script = script.replaceAll("console.error(", "system.error(Name,")
-		script = script.replaceAll("console.edit(", "system.editLog(Name,")
+		script = script.replaceAll("console.log(", "parent.log(Name,")
+		script = script.replaceAll("console.post(", "parent.post(Name,")
+		script = script.replaceAll("console.warn(", "parent.warn(Name,")
+		script = script.replaceAll("console.error(", "parent.error(Name,")
+		script = script.replaceAll("console.edit(", "parent.editLog(Name,")
 	}
 }
 

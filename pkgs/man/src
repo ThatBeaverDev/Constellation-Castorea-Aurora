@@ -1,17 +1,19 @@
 #! /usr/bin/node
 
+try {
 function exit(reason) {
     const system = local.system
+    system.stopProcess(PID)
     if (reason !== undefined) {
         console.log(reason)
     } else {
         console.log("Exiting...")
     }
-    system.stopProcess(PID)
     local.stopped = true
 }
 
 function init(args) {
+
     local.mandir = "/usr/share/man"
 
     local.manPageDir = local.mandir + "/" + args[0] + ".1"
@@ -19,6 +21,7 @@ function init(args) {
 
     if (local.manPage == undefined) {
         exit(`${args[0]} has no manpage, sorry.`)
+        return
     }
 
     // remove all lines starting with "//"
@@ -35,8 +38,6 @@ function init(args) {
     local.shortcuts = {}
     local.shortcuts.q = "Quit"
 
-    local.system = csw.permissions.elevate()
-    const system = local.system
     // sieze the screen
     csw.terminal.fullscreen(PID)
 
@@ -44,11 +45,16 @@ function init(args) {
 }
 
 function frame() {
+    if (local.manPage == undefined) {
+        exit(`${args[0]} has no manpage, sorry.`)
+    }
+
     if (local.stopped) {
         exit()
+        return
     }
     const system = local.system
-    system.preInput.innerHTML = ":"
+    //system.preInput.innerHTML = ":"
 
     const keys = Object.keys(local.shortcuts)
     for (const i in keys) {
@@ -68,4 +74,7 @@ function frame() {
         }
 
     }
+}
+} catch(e) {
+    console["error"](e)
 }

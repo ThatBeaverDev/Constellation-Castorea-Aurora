@@ -43,7 +43,7 @@ function init(args) {
         default:
           // if the token is the last one, it's the dir
           if (i == args.length - 1) {
-            dir = csw.fs.toDirectory(args[i])
+            dir = csw.fs.toDirectory(args[i], parent.dir)
           } else {
             console.warn("Unknown flag: " + args[i])
           }
