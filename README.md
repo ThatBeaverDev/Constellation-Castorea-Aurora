@@ -1,2 +1,2 @@
 # Aurora
-Aurora is the package manager for [Constellinux CLI](https://thatbeaverdev.github.io/Constellinux).
+Aurora is the default package manager for [nordOS](https://thatbeaverdev.github.io/nordOS).
