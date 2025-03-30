@@ -1,0 +1,135 @@
+#! /usr/bin/node
+
+// fortune binary
+
+function refreshIndex() {
+    local.index = csw.fs.read("/usr/share/games/fortunes/index.json")
+
+    if (local.index == undefined) {
+        local.index = {}
+    }
+
+    // list the files
+    const files = csw.fs.listDir("/usr/share/games/fortunes")
+    if (files.includes("index.json")) {
+        files.splice(files.indexOf("index.json"), 1)
+    }
+    
+    local.index.totalFortunes = 0
+    local.index.percentMultiplier = 100000000 // 100,000,000
+    local.index.percentages = {}
+    local.index.fileAmounts = {}
+    local.index.fileContents = {}
+    local.index.allFortunes = []
+
+    for (const i in files) {
+        const file = files[i]
+        local.index.fileContents[file] = csw.fs.read("/usr/share/games/fortunes/" + file).split("%")
+
+        const itemFiles = local.index.fileContents[file]
+
+        for (const i in itemFiles) {
+            local.index.totalFortunes++
+
+            // remove newlines from the start
+            if (itemFiles[i].substring(0,1) == "\n") {
+                itemFiles[i] = itemFiles[i].substring(1)
+            }
+
+            // remove newlines from the end
+            if (itemFiles[i].at(-1) == "\n") {
+                itemFiles[i] = itemFiles[i].substring(0, itemFiles[i].length - 1)
+            }
+
+            local.index.allFortunes.push(itemFiles[i])
+        }
+
+        local.index.fileAmounts[file] = itemFiles.length
+    }
+
+    for (const i in files) {
+        const file = files[i]
+        local.index.percentages[file] = (local.index.fileAmounts[file] / local.index.totalFortunes) * local.index.percentMultiplier
+    }
+}
+
+
+function init(args) {
+    refreshIndex()
+
+    const obj = {
+        all: false,
+        printPercents: false,
+        longOnly: false,
+        shortOnly: false,
+        wait: false
+    }
+
+    let choice
+
+    let flags = ""
+    for (const i in args) {
+        if (args[i][0] == "-") {
+            const flag = String(args[i]).substring(1)
+            flags += flag
+        }
+    }
+
+    flags = flags.split("")
+
+    // loop through parameters
+    for (let i = 0; i < args.length; i++) {
+        // check if the parameter is recognised
+        switch (args[i][0]) {
+            case "-":
+                break;
+            default:
+                // if the token is the last one, it's the directory
+                choice = args[i]
+        }
+    }
+
+    for (const i in flags) {
+        switch (flags[i]) {
+            case "f":
+                obj.printPercents = true
+                break;
+            case "l":
+                obj.longOnly = true
+                break;
+            case "s":
+                obj.shortOnly = true
+                break;
+            case "w":
+                obj.wait = true
+                break;
+        }
+    }
+
+    const percentMult = local.index.percentMultiplier
+
+    if (obj.printPercents) {
+        const percentages = local.index.percentages
+        for (const i in percentages) {
+            let percent = Math.round((percentages[i] / percentMult) * 10000) / 100
+
+            console.post(`\t${percent}% ${i}`)
+        }
+        return
+    }
+
+    if (choice == undefined) {
+        const fortune = local.index.allFortunes[Math.round(Math.random() * local.index.totalFortunes)]
+        
+        console.post(fortune)
+    } else {
+        const choiceFile = local.index.fileContents[choice]
+
+        const fortune = choiceFile [ Math.round(Math.random() * choiceFile.length) ] 
+
+        console.post(fortune)
+    }
+
+    // commit index to filesystem (i don't know if this is actually necessary)
+    csw.fs.write("/usr/share/games/fortunes/index.json", local.index)
+}

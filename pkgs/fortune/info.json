@@ -1,0 +1,22 @@
+{
+    "name":"fortune",
+    "author":"ThatBeaverDev",
+    "directory":"/usr/games",
+    "directories": [
+        "/usr/games",
+        "/usr/share/games",
+        "/usr/share/games/fortunes"
+    ],
+    "files": {
+        "/fortunes/art": "/usr/share/games/fortunes/art",
+        "/fortunes/computers": "/usr/share/games/fortunes/computers",
+        "/fortunes/cookie": "/usr/share/games/fortunes/cookie",
+        "/fortunes/education": "/usr/share/games/fortunes/education",
+        "/fortunes/fortunes": "/usr/share/games/fortunes/fortunes",
+        "/fortunes/kids": "/usr/share/games/fortunes/kids",
+        "/fortunes/magic": "/usr/share/games/fortunes/magic",
+        "/fortunes/miscellaneous": "/usr/share/games/fortunes/miscellaneous",
+        "/fortunes/pets": "/usr/share/games/fortunes/pets",
+        "/fortunes/wisdom": "/usr/share/games/fortunes/wisdom"
+    }
+}
