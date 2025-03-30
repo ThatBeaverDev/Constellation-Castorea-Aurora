@@ -37,10 +37,14 @@ async function init() {
         try {
             switch(String(i)) {
                 case "1":
-                    toAdd = "<green>Constellinux</green>"
+                    toAdd = "<green>nordOS</green>"
                     break;
                 case "2":
                     toAdd = "-------------------"
+                    break;
+                case "3":
+                    key = "OS"
+                    val = system.name
                     break;
                 case "4":
                     key = 'Host OS'
@@ -48,12 +52,25 @@ async function init() {
                     break;
                 case "5":
                     key = "Kernel"
-                    val = system.constellinux.constellinux
+                    val = system.versions.castoreaKernel
                     break;
                 case "6":
                     let time = convertMiliseconds(Date.now() - system.startTime)
                     key = "Uptime"
                     val = time.d + " Days, " + time.h + " Hours, " + time.m + " Minutes."
+                    break;
+                case "7":
+                    const pkgInfo = csw.fs.read("/usr/bin/aurora/index.json")
+                    const packages = Object.keys(pkgInfo)
+
+                    if (packages.length !== 0) {
+                        key = "Packages"
+                        val = packages.length + " (Aurora)"
+                    }
+                    break;
+                case "8":
+                    key = "Shell"
+                    val = parent.name
                     break;
                 case "9":
                     key = "Resolution"
@@ -61,11 +78,11 @@ async function init() {
                     break;
                 case "10":
                     key = "DE"
-                    val = system.constellinux.desktop
+                    val = system.versions.desktop
                     break;
                 case "12":
                     key = "Terminal"
-                    val = system.constellinux.terminal
+                    val = system.versions.terminal
                     break;
                 case "14":
                     key = "CPU Cores"
@@ -85,5 +102,5 @@ async function init() {
         }
     }
     icon = icon.join("\n")
-    console.log(icon)
+    console.post(icon)
 }
