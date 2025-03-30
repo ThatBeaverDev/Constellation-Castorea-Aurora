@@ -1,0 +1,30 @@
+#! /usr/bin/node
+
+// setup the system
+
+async function init() {
+    const system = csw.permissions.elevate()
+
+    console.post(sse.asciiName)
+    console.post('Welcome to the nordOS Setup Manager!')
+    const username = await parent.getInput("Enter a username for your account: ")
+    const password1 = await parent.getInput("Enter a password for your account: ", false)
+    const password2 = await parent.getInput("Re-enter a password for your account: ", false)
+
+    // insure passwords match
+    if (password1 !== password2) {
+        console.error("passwords do not match, exiting...")
+        return
+    }
+
+    await parent.run(`useradd -p ${password1} ${username}`)
+
+    if (!Object.keys(system.users).includes(username)) {
+        console.error("User registration failed for an unknown reason, exiting...")
+        return
+    }
+
+    console.post("User Account Creation Successful.")
+
+    parent.changeUser(username, password1)
+}
