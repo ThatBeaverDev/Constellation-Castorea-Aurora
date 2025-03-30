@@ -2,5 +2,8 @@
     "name":"Aurora",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/bin"
+    "directory":"/bin",
+    "directories": [
+        "/usr/bin/aurora"
+    ]
 }
