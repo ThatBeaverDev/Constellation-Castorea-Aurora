@@ -3,6 +3,16 @@
 function init() {
     //const system = window[window["12hider for system"]]
     
+    local.permissionTokens = {}
+
+    class token {
+        constructor(PID) {
+            this.allowedPID = PID
+        }
+
+
+    }
+
     csw = {}
     
     // console logging functions
@@ -26,35 +36,65 @@ function init() {
     // files functions
     csw.fs = {}
         // files
-        csw.fs.read = function (token, directory) {
-            return system.files.get(directory)
+        csw.fs.read = function (token, directory, attribute) {
+            if (directory == undefined) {
+                return "directory must be defined!"
+            }
+            
+            return system.fs.readFile(directory, attribute)
         }
         csw.fs.write = function (token, directory, contents) {
-            return system.files.writeFile(directory, contents)
+            if (directory == undefined || contents == undefined) {
+                return "directory AND contents must be defined!"
+            }
+            
+            return system.fs.writeFile(directory, contents)
         }
         csw.fs.delete = function (token, directory) {
+            if (directory == undefined) {
+                return "directory must be defined!"
+            }
+            
             return system.files.deleteFile(directory)
         }
 
         // folders
         csw.fs.createDir = function (token, directory) {
-            return system.folders.writeFolder(directory)
+            if (directory == undefined) {
+                return "directory must be defined!"
+            }
+            
+            return system.fs.writeFolder(directory)
         }
         csw.fs.deleteDir = function (token, directory, recursive, verbose) {
-            return system.folders.deleteDirectory(directory, recursive, verbose)
-        }
-        csw.fs.listDir = function (token, directory) {
-            return system.folders.listDirectory(directory)
-        }
-        csw.fs.toDirectory = function (token, baseDir, directory) {
             if (directory == undefined) {
-                return system.toDir(baseDir)
-            } else {
-                return system.toDir(directory, baseDir)
+                return "directory must be defined!"
             }
+
+            return system.fs.deleteFolder(directory, recursive, verbose)
         }
+        csw.fs.listDir = async function (token, directory) {
+            if (directory == undefined) {
+                return "directory must be defined!"
+            }
+
+            return system.fs.rawFolder(directory).list()
+        }
+
         csw.fs.isDirectory = function (token, directory) {
-            return system.folders.isDirectory(directory)
+            if (directory == undefined) {
+                return "directory must be defined!"
+            }
+            
+            return system.fs.isFolder(directory)
+        }
+        
+        csw.fs.toDirectory = function (token, directory, baseDir) {
+            if (directory == undefined || baseDir == undefined) {
+                return "directory AND baseDir must be defined!"
+            }
+            
+            return system.toDir(directory, baseDir)
         }
 
     // process management
@@ -67,33 +107,27 @@ function init() {
         return system.stopProcess(PID)
     }
 
+
     // terminal CLI features
     csw.terminal = {}
-    csw.terminal.dir = system.dir
     csw.terminal.fullscreenApp = ""
-    csw.terminal.clear = function (token) {
-		system.logs = []
-		system.refreshLogsPanel()
-    }
-    csw.terminal.changeDir = function (token, dir) {
-        system.dir = system.toDir(dir)
-        csw.terminal.dir = system.toDir(dir)
-    }
     // terminal fullscreening support
     csw.terminal.fullscreen = function (token, PID) {
         csw.terminal.fullscreenApp = PID
-        system.logsFocus = PID
+        system.focus.push(PID)
     }
     csw.terminal.set = function (token, PID, data) {
-        if (PID == csw.terminal.fullscreenApp) {
-            system.refreshLogsPanel(data)
+        system.processes[PID].display = data
+
+        if (PID == system.fcs) {
+            system.refreshDisplay()
         }
     }
 
     // versions system
     csw.versions = {}
     csw.versions.registerApp = function (token, Name, Version) {
-        system.constellinux[Name] = Version
+        system.versions[Name] = Version
     }
 
     // networking
@@ -130,3 +164,5 @@ function init() {
     system.systemWrapper = true
 
 }
+
+function frame() {}
