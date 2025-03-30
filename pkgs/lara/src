@@ -25,7 +25,7 @@ function init(args) {
     let text = ""
     if (args[0]) {
         // convert file to actualy directory
-        args[0] = csw.fs.toDirectory(args[0])
+        args[0] = csw.fs.toDirectory(args[0], parent.dir)
 
         // set the directory so we can save to it later
         local.directory = args[0]
@@ -36,7 +36,7 @@ function init(args) {
 
     // create header text to show status
     local.header = document.createElement("p")
-    local.header.id = "laraHeader"
+    local.header.id = `laraHeader${ PID }`
     local.header.innerText = "Lara Text Editor Version " + local.version
     // set styles
     const hs = local.header.style
@@ -46,7 +46,7 @@ function init(args) {
 
     // create textbox
     local.inputBox = document.createElement("textarea")
-    local.inputBox.id = "laraInput"
+    local.inputBox.id = `laraInput${ PID }`
     // set styles
     const s = local.inputBox.style
     s.margin = "0px"
@@ -59,7 +59,7 @@ function init(args) {
 
     // create bottom div
     local.div = document.createElement("div")
-    local.div.id = "laraDiv"
+    local.div.id = `laraDiv${ PID }`
     local.div.style.width = "100%"
     local.div.style.height = "20vh"
 
@@ -72,34 +72,47 @@ function init(args) {
 
     // convert to strings to display
     local.data = local.header.outerHTML + "\n" + local.inputBox.outerHTML + "\n" + local.div.outerHTML
-    csw.terminal.set(PID, local.data)
-    local.input = document.getElementById("laraInput")
-    local.input.value = text
-    local.input.focus()
-    local.liveDiv = document.getElementById("laraDiv")
+    
+    local.setScreenData = function () {
+        csw.terminal.set(PID, local.data)
+        local.input = document.getElementById(`laraInput${ PID }`)
+        local.input.value = text
+        local.liveDiv = document.getElementById(`laraDiv${ PID }`)
 
-    // format shortcuts
-    const keys = Object.keys(local.shortcuts)
-    let result = ""
-    for (const i in keys) {
-        if (i !=="0") {result += "  -  "}
-
-        const key = keys[i]
-        result += "^"
-        result += key.toUpperCase()
-        result += ": "
-        result += local.shortcuts[key]
+        // format shortcuts
+        const keys = Object.keys(local.shortcuts)
+        let result = ""
+        for (const i in keys) {
+            if (i !=="0") {result += "  -  "}
+    
+            const key = keys[i]
+            result += "^"
+            result += key.toUpperCase()
+            result += ": "
+            result += local.shortcuts[key]
+        }
+    
+        local.liveDiv.innerText = result
     }
 
-    local.liveDiv.innerText = result
+    local.setScreenData()
 }
 
 function frame() {
-    local.input = document.getElementById("laraInput")
-    local.input.focus()
-    local.liveDiv = document.getElementById("laraDiv")
-
     const system = local.system
+
+    if (system.fcs !== PID) {
+        return
+    }
+
+    local.input = document.getElementById(`laraInput${ PID }`)
+
+    if (local.input == null) {
+        local.setScreenData()
+    }
+
+    local.input.focus()
+    local.liveDiv = document.getElementById(`laraDiv${ PID }`)
 
     if (system.keys.Control) {
 
@@ -130,6 +143,4 @@ function frame() {
 
         }
     }
-
-    local.oldData = local.input.value
 }
