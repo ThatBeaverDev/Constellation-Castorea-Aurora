@@ -1,0 +1,35 @@
+#! /usr/bin/node
+
+function init(args) {
+    try {
+
+        local.system = csw.permissions.elevate()
+        const system = local.system
+    
+        if (args[0] == undefined) {
+            args[0] = "root"
+        }
+        const user = args[0]
+
+        // make sure user exists
+        if (system.users[user] !== undefined) {
+            if (system.users[user].password == undefined) {
+                console.error(`User ${ user } does not have a password, login denied.`)
+                return
+            }
+        } else {
+            console.error(`User ${ user } does not exist.`)
+            return
+        }
+
+        const passwd = parent.changeUser(user)
+
+        if (!passwd) {
+            console.log("Sorry")
+        }
+
+
+    } catch(e) {
+        console.error(e)
+    }
+}
