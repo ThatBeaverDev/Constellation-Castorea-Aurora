@@ -1,0 +1,9 @@
+#! /usr/bin/node
+
+function init(args) {
+    const cmd = args.join(" ")
+
+    if (cmd == undefined) return
+
+    parent.run(cmd, true)
+}
