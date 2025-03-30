@@ -1,0 +1,12 @@
+[Unit]
+Description=Wrapper Functions
+StartCondition=always
+Restart=always
+
+[Service]
+User=user
+ExecStart=/lib/systemWrapper.js
+WorkingDirectory=/
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
