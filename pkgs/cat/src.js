@@ -1,5 +1,8 @@
 // CAT files
 
+
 function init(args) {
-    console.post(csw.fs.read(csw.fs.toDirectory(args[0])))
+    const dir = csw.fs.toDirectory(args[0], parent.dir)
+    const content = csw.fs.read(dir)
+    console.post(content)
 }
