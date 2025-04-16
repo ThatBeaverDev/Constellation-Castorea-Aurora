@@ -2,16 +2,15 @@
     "name":"systemC",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/usr/bin/systemc",
+    "directory":"/etc/systemc",
     "directories":[
-        "/usr/bin/systemc",
         "/etc/systemc",
         "/etc/systemc/system",
         "/etc/systemc/system/thatbeaverdev"
     ],
     "files": {
-        "/CLI.js": "/bin/systemc.js",
-        "/services/wrapper.service": "/etc/systemc/system/thatbeaverdev/wrapper.service",
-        "/services/aquila.service": "/etc/systemc/system/thatbeaverdev/aquila.service"
+        "/init.js": "/sbin/init.js",
+        "/sbin-nologin.js": "/sbin/nologin",
+        "/aquilaFile.js": "/bin/systemc.js"
     }
 }

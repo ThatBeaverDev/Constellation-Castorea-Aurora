@@ -20,7 +20,7 @@ function serviceInfo(name, inStack) {
 }
 
 function findSystemC(system) {
-    const proc = system.processes
+    const proc = csw.fs.read("/proc")
     const processes = Object.keys(proc)
     for (const i in processes) {
         const process = proc[processes[i]]
@@ -48,9 +48,16 @@ function init(args) {
                 break;
             }
 
-            console.post(serviceInfo(args[1], false))
+            std.out = serviceInfo(args[1], false)
             break;
         case "start":
             console.log(config.services)
+            break;
+        default:
+            std.out += `systemC CLI Utility
+    Commands:
+        - systemC status [service]
+        - systemC start [service]
+        - systemC stop [service]`
     }
 }
