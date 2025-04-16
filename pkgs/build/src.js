@@ -11,7 +11,7 @@ async function init() {
     kernel = kernel.replaceAll('system.aurora.url = "../aurora" // aurora URL set', 'system.aurora.url = "https://raw.githubusercontent.com/ThatBeaverDev/aurora/refs/heads/main"')
 
     // patch over loader
-    ldr = ldr.replaceAll('system.baseURI = "."', 'system.baseURI = "https://raw.githubusercontent.com/ThatBeaverDev/nordOS/refs/heads/main"')
+    ldr = ldr.replaceAll('system.baseURI = "."', 'system.baseURI = "https://raw.githubusercontent.com/ThatBeaverDev/Constellation/refs/heads/main"')
     ldr = ldr.replaceAll('const kern = await system.fetchURL(system.baseURI + "/boot/kernel.js") // kernel download', 'const kern = `' + kernel.replaceAll("\\", "\\\\") + '`')
 
     // patch over HTML page to include embedded styles and loader
@@ -20,5 +20,5 @@ async function init() {
 
     csw.fs.write(csw.fs.toDirectory("system.html", parent.dir), html)
 
-    console.log("Build completed and placed at in " + csw.fs.toDirectory("system.html", parent.dir))
+    std.out = "Build completed and placed at in " + csw.fs.toDirectory("system.html", parent.dir)
 }
