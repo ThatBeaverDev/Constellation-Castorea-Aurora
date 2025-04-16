@@ -11,7 +11,7 @@ function compile() {
 
 		if (line == "") continue;
 
-		line = `parent.run("${ script[i] }")`
+		line = `parent.run("${script[i]}")`
 
 		result.push(line)
 
@@ -23,6 +23,14 @@ function compile() {
 	return result.join("\n")
 }
 
+function Stringify(data) {
+	switch (typeof data) {
+		case "object":
+			return JSON.stringify(data, null, 4)
+		default:
+			return String(data)
+	}
+}
 
 function init() {
 	local.history = []
@@ -30,36 +38,84 @@ function init() {
 	local.user = system.user
 	local.shared.dir = "/"
 
-	local.run = async function(code, isUnsafe) {
-		const system = csw.permissions.elevate()
+	local.run = async function (code, isUnsafe, absorbLogs) {
 
-		let segments = String(code).split(" ")
-		segments[0] = segments[0].toLowerCase()
+		if ([null, undefined, ""].includes(code)) {
+			return
+		}
+
+		// setup args
+		let args = String(code).split(" ")
+		const binName = args[0].toLowerCase()
+
+		args = args.slice(0) // remove the command from the array
+
 		const path = system.path
-		local.history.push(code)
-		let cmd
-		for (const i in path) {
-			let temp = path[i] + "/" + segments[0]
-			if (system.fs.readFile(temp) !== undefined) {
-				cmd = String(temp)
-				break;
-			} else {
-				temp = path[i] + "/" + segments[0] + ".js"
+
+		local.history.push(code) // append to history
+
+		let cmd // going to store the path to the file we are running
+
+		if ([".", "/"].includes(binName[0])) {
+			cmd = system.toDir(binName, local.shared.dir)
+		} else {
+			for (const i in path) {
+				let temp = path[i] + "/" + binName
 				if (system.fs.readFile(temp) !== undefined) {
 					cmd = String(temp)
 					break;
+				} else {
+					temp = path[i] + "/" + binName + ".js"
+					if (system.fs.readFile(temp) !== undefined) {
+						cmd = String(temp)
+						break;
+					}
 				}
 			}
 		}
+
+		let result = {
+			PID: NaN,
+			stdout: ''
+		}
+
 		if (system.fs.readFile(cmd) == undefined) {
-			local.shared.post(Name, `command not found: ${ segments[0] }`)
+			local.logging.post(Name, `command not found: ${binName}`)
 		} else {
-			await system.startProcess(PID, cmd, segments.slice(1), isUnsafe)
+			result = await system.startProcess(PID, cmd, args.slice(1), isUnsafe)
+
+			const stdout = Stringify(result.stdout).split("\n")
+
+			for (const i in stdout) {
+				let process = result.process
+
+				let type
+				let first = 0
+
+				switch (stdout[i].substring(0, 5)) {
+					case "[LOG]":
+						type = "log"
+						first = 5
+						break;
+					case "[WRN]":
+						type = "warn"
+						first = 5
+						break;
+					case "[ERR]":
+						type = "error"
+						first = 5
+						break;
+					default:
+						type = "post"
+				}
+
+				local.logging[type](process.name, stdout[i].substring(first, Infinity))
+			}
 		}
 	}
 
 	local.shared.run = local.run
-	
+
 	function destring(string) {
 		let str = string
 		str = str.trimLeft()
@@ -67,10 +123,14 @@ function init() {
 		return str
 	}
 
-	local.splitAndRun = async function(code, pre, silent, isUnsafe) {
+	local.formatRun = async function (code, pre, silent, isUnsafe) {
 		// log to console
-		if (!silent) local.shared.post("", pre + code)
+		if (!silent) local.logging.post("", pre + code)
 		const split = code.split(";")
+
+		if (code == "exit") {
+			system.stopProcess(PID)
+		}
 
 		for (const i in split) {
 			split[i] = destring(split[i])
@@ -82,52 +142,51 @@ function init() {
 
 	local.logs = []
 
-	local.logsDiv = document.createElement("div")
-	local.logsDiv.id = `aquilaLogs${PID}`
+	local.logsDiv = document.createElement("div");
+	local.logsDiv.id = `aquilaLogs${PID}`;
 
-	local.input = document.createElement("input")
-	local.input.id = `aquilaInput${PID}`
-	local.input.init = false
-	local.input.style.width = "90%"
-	local.input.style.height = "auto"
-	local.input.style.color = "white"
-	local.input.style.backgroundColor = "rgba(0, 0, 0, 0)"
-	local.input.style.border = "0px"
-	local.input.style.left = "0px"
-	local.input.style.outline = "None"
-	local.input.style.fontFamily = "Source Code Pro"
-	local.input.style.fontOpticalSizing = "auto"
-	local.input.style.fontWeight = "450"
-	local.input.style.fontSize = "16px"
+	local.input = document.createElement("input");
+	local.input.id = `aquilaInput${PID}`;
+	local.input.init = false;
+	local.input.style.width = "90%";
+	local.input.style.height = "auto";
+	local.input.style.color = "white";
+	local.input.style.backgroundColor = "rgba(0, 0, 0, 0)";
+	local.input.style.border = "0px";
+	local.input.style.left = "0px";
+	local.input.style.outline = "None";
+	local.input.style.fontFamily = "Source Code Pro";
+	local.input.style.fontOpticalSizing = "auto";
+	local.input.style.fontWeight = "450";
+	local.input.style.fontSize = "16px";
 
-	local.pretext = document.createElement("pretext")
-	local.pretext.id = `aquilaPretext${PID}`
+	local.pretext = document.createElement("pretext");
+	local.pretext.id = `aquilaPretext${PID}`;
 
-	local.inputContainer = document.createElement('div')
-	local.inputContainer.id = `aquilaInputContainer${PID}`
-	local.inputContainer.style.marginTop = "0px"
-	local.inputContainer.style.display = "flex"
-	local.inputContainer.style.justiftContent = "space-around"
+	local.inputContainer = document.createElement('div');
+	local.inputContainer.id = `aquilaInputContainer${PID}`;
+	local.inputContainer.style.display = "flex";
+	local.inputContainer.style.justifyContent = "space-around";
 
-	local.container = document.createElement('div')
-	local.container.id = `aquilaContainer${PID}`
-	local.container.style.display = "grid"
-	local.container.style.marginBottom = "0px"
-	local.container.style.lineHeight = "20px"
-	local.container.style.whiteSpace = "pre"
-	local.container.style.marginTop = "75px"
-	local.container.style.marginLeft = "25px"
+	local.container = document.createElement('div');
+	local.container.id = `aquilaContainer${PID}`;
+	local.container.style.display = "grid";
+	local.container.style.marginBottom = "0px";
+	local.container.style.lineHeight = "20px";
+	local.container.style.whiteSpace = "pre";
+	local.container.style.marginLeft = "10px";
+	local.container.style.marginTop = "10px";
 
 	local.style = document.createElement('style');
 	local.style.textContent = ""
 
-	const colours = [`AliceBlue`,`AntiqueWhite`,`Aqua`,`Aquamarine`,`Azure`,`Beige`,`Bisque`,`Black`,`BlanchedAlmond`,`Blue`,`BlueViolet`,`Brown`,`BurlyWood`,`CadetBlue`,`Chartreuse`,`Chocolate`,`Coral`,`CornflowerBlue`,`Cornsilk`,`Crimson`,`Cyan`,`DarkBlue`,`DarkCyan`,`DarkGoldenRod`,`DarkGray`,`DarkGrey`,`DarkGreen`,`DarkKhaki`,`DarkMagenta`,`DarkOliveGreen`,`Darkorange`,`DarkOrchid`,`DarkRed`,`DarkSalmon`,`DarkSeaGreen`,`DarkSlateBlue`,`DarkSlateGray`,`DarkSlateGrey`,`DarkTurquoise`,`DarkViolet`,`DeepPink`,`DeepSkyBlue`,`DimGray`,`DimGrey`,`DodgerBlue`,`FireBrick`,`FloralWhite`,`ForestGreen`,`Fuchsia`,`Gainsboro`,`GhostWhite`,`Gold`,`GoldenRod`,`Gray`,`Grey`,`Green`,`GreenYellow`,`HoneyDew`,`HotPink`,`IndianRed`,`Indigo`,`Ivory`,`Khaki`,`Lavender`,`LavenderBlush`,`LawnGreen`,`LemonChiffon`,`LightBlue`,`LightCoral`,`LightCyan`,`LightGoldenRodYellow`,`LightGray`,`LightGrey`,`LightGreen`,`LightPink`,`LightSalmon`,`LightSeaGreen`,`LightSkyBlue`,`LightSlateGray`,`LightSlateGrey`,`LightSteelBlue`,`LightYellow`,`Lime`,`LimeGreen`,`Linen`,`Magenta`,`Maroon`,`MediumAquaMarine`,`MediumBlue`,`MediumOrchid`,`MediumPurple`,`MediumSeaGreen`,`MediumSlateBlue`,`MediumSpringGreen`,`MediumTurquoise`,`MediumVioletRed`,`MidnightBlue`,`MintCream`,`MistyRose`,`Moccasin`,`NavajoWhite`,`Navy`,`OldLace`,`Olive`,`OliveDrab`,`Orange`,`OrangeRed`,`Orchid`,`PaleGoldenRod`,`PaleGreen`,`PaleTurquoise`,`PaleVioletRed`,`PapayaWhip`,`PeachPuff`,`Peru`,`Pink`,`Plum`,`PowderBlue`,`Purple`,`Red`,`RosyBrown`,`RoyalBlue`,`SaddleBrown`,`Salmon`,`SandyBrown`,`SeaGreen`,`SeaShell`,`Sienna`,`Silver`,`SkyBlue`,`SlateBlue`,`SlateGray`,`SlateGrey`,`Snow`,`SpringGreen`,`SteelBlue`,`Tan`,`Teal`,`Thistle`,`Tomato`,`Turquoise`,`Violet`,`Wheat`,`White`,`WhiteSmoke`,`Yellow`,`YellowGreen`,]
+	const colours = [`AliceBlue`, `AntiqueWhite`, `Aqua`, `Aquamarine`, `Azure`, `Beige`, `Bisque`, `Black`, `BlanchedAlmond`, `Blue`, `BlueViolet`, `Brown`, `BurlyWood`, `CadetBlue`, `Chartreuse`, `Chocolate`, `Coral`, `CornflowerBlue`, `Cornsilk`, `Crimson`, `Cyan`, `DarkBlue`, `DarkCyan`, `DarkGoldenRod`, `DarkGray`, `DarkGrey`, `DarkGreen`, `DarkKhaki`, `DarkMagenta`, `DarkOliveGreen`, `Darkorange`, `DarkOrchid`, `DarkRed`, `DarkSalmon`, `DarkSeaGreen`, `DarkSlateBlue`, `DarkSlateGray`, `DarkSlateGrey`, `DarkTurquoise`, `DarkViolet`, `DeepPink`, `DeepSkyBlue`, `DimGray`, `DimGrey`, `DodgerBlue`, `FireBrick`, `FloralWhite`, `ForestGreen`, `Fuchsia`, `Gainsboro`, `GhostWhite`, `Gold`, `GoldenRod`, `Gray`, `Grey`, `Green`, `GreenYellow`, `HoneyDew`, `HotPink`, `IndianRed`, `Indigo`, `Ivory`, `Khaki`, `Lavender`, `LavenderBlush`, `LawnGreen`, `LemonChiffon`, `LightBlue`, `LightCoral`, `LightCyan`, `LightGoldenRodYellow`, `LightGray`, `LightGrey`, `LightGreen`, `LightPink`, `LightSalmon`, `LightSeaGreen`, `LightSkyBlue`, `LightSlateGray`, `LightSlateGrey`, `LightSteelBlue`, `LightYellow`, `Lime`, `LimeGreen`, `Linen`, `Magenta`, `Maroon`, `MediumAquaMarine`, `MediumBlue`, `MediumOrchid`, `MediumPurple`, `MediumSeaGreen`, `MediumSlateBlue`, `MediumSpringGreen`, `MediumTurquoise`, `MediumVioletRed`, `MidnightBlue`, `MintCream`, `MistyRose`, `Moccasin`, `NavajoWhite`, `Navy`, `OldLace`, `Olive`, `OliveDrab`, `Orange`, `OrangeRed`, `Orchid`, `PaleGoldenRod`, `PaleGreen`, `PaleTurquoise`, `PaleVioletRed`, `PapayaWhip`, `PeachPuff`, `Peru`, `Pink`, `Plum`, `PowderBlue`, `Purple`, `Red`, `RosyBrown`, `RoyalBlue`, `SaddleBrown`, `Salmon`, `SandyBrown`, `SeaGreen`, `SeaShell`, `Sienna`, `Silver`, `SkyBlue`, `SlateBlue`, `SlateGray`, `SlateGrey`, `Snow`, `SpringGreen`, `SteelBlue`, `Tan`, `Teal`, `Thistle`, `Tomato`, `Turquoise`, `Violet`, `Wheat`, `White`, `WhiteSmoke`, `Yellow`, `YellowGreen`,]
 
 
 	for (const i in colours) {
 		const colour = colours[i]
-		local.style.textContent += `${ colour } { color: ${ colour } }`
-		local.style.textContent += `${ colour }Background { background-color: ${ colour } }`
+		local.style.textContent += `${colour} { color: ${colour} }`
+		local.style.textContent += `${colour}Background { background-color: ${colour} }`
 	}
 
 	local.inputContainer.innerHTML = local.style.outerHTML + "\n" + local.pretext.outerHTML + "\n" + local.input.outerHTML
@@ -135,12 +194,12 @@ function init() {
 	local.containerBackup = local.container
 
 
-	csw.terminal.fullscreen(PID)
-	csw.terminal.set(PID, local.container.outerHTML)
+	csw.display.fullscreen(PID)
+	csw.display.set(PID, local.container.outerHTML)
+	csw.display.rename(PID, "Aquila")
 
-
-	local.updateLogs = function() {
-		if (system.fcs !== PID) {
+	local.updateLogs = function () {
+		if (!csw.display.visible(PID)) {
 			return
 		}
 
@@ -155,40 +214,40 @@ function init() {
 		local.input = document.getElementById(`aquilaInput${PID}`)
 		local.container = document.getElementById(`aquilaContainer${PID}`)
 
-		
+
 		if (system.fcs == PID) {
 			if (local.container == null) {
-				csw.terminal.set(PID, local.containerBackup.outerHTML)
+				csw.display.set(PID, local.containerBackup.outerHTML)
+				csw.display.rename(PID, "Aquila")
+				return
 			}
 		}
-		
+
 		// pretext
-		local.pretext.innerText = `${ local.user }@${ system.hostname } ${local.shared.dir} % `
-		
+		local.pretext.innerText = `${local.user}@${csw.fs.read("/etc/hostname")} ${local.shared.dir} % `
+
 		// input
 		local.input.style.color = "rgba(255, 255, 255, 255)"
 		if (!local.input.init) {
 			local.input.init = true
 			local.input.addEventListener('keydown', async function (event) {
-				switch(event.key) {
+				switch (event.key) {
 					case "Enter":
 						if (local.readingInput == true) {
 							local.readingInputEnter = true
-							console["log"]("Input taken.")
 						} else {
 
 							local.historyPos = 0
 							const text = local.pretext.innerText
-							
-							console["log"]("Command Submitted to run")
+
 							const selection = String(local.input.value)
 							local.input.value = ""
 							if (csw) {
-								await local.splitAndRun(selection, text)
+								await local.formatRun(selection, text)
 							} else {
-								await local.splitAndRun(selection, text)
+								await local.formatRun(selection, text)
 							}
-		
+
 						}
 						break;
 					case "ArrowUp":
@@ -220,10 +279,21 @@ function init() {
 		// logs
 		let data = ""
 
-		for (const i in local.logs) {
-			let temp = "<p id='" + local.logs[i].type + "' style='margin-top: 0px; margin-bottom: 0px;'>"
-			temp += local.logs[i].content
-			temp += "</p>"
+		const logs = JSON.parse(JSON.stringify(local.logs))
+
+		for (const i in logs) {
+			let prefix = "p"
+			switch (logs[i].type) {
+				case "warn":
+					prefix = "orange"
+					break;
+				case "error":
+					prefix = "red"
+					break;
+			}
+			let temp = `<${prefix} id='${logs[i].type}' style='margin-top: 0px; margin-bottom: 0px;'>`
+			temp += logs[i].content
+			temp += `</${prefix}>`
 			data += temp
 		}
 
@@ -233,54 +303,61 @@ function init() {
 	// logging functions
 
 	const log = local.shared
+	local.logging = {}
 
-	log.log = function(name, content) {
+	local.logging.log = function (name, content) {
 		const obj = {
 			type: "log",
 			origin: name,
 			content: `${name}: ${content}`
 		}
-		console.log(obj.content)
 		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		console.log(obj.content)
 		local.logs.push(obj)
 		local.updateLogs()
 		return local.logs.length - 1
 	}
 
-	log.post = function(name, content) {
+	local.logging.post = function (name, content) {
 		const obj = {
 			type: "post",
 			origin: name,
 			content: content
 		}
-		console.log(obj.content)
 		obj.content = system.cast.Stringify(content, true)
+		console.log(obj.content)
 		local.logs.push(obj)
 		local.updateLogs()
 		return local.logs.length - 1
 	}
 
-	log.warn = function(name, content) {
-		local.logs.push({
+	local.logging.warn = function (name, content) {
+		const obj = {
 			type: "warn",
 			origin: name,
 			content: name + ": " + content
-		})
+		}
+		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		console.warn(obj.content)
+		local.logs.push(obj)
 		local.updateLogs()
 		return local.logs.length - 1
 	}
 
-	log.error = function(name, content) {
-		local.logs.push({
+	local.logging.error = function (name, content) {
+		const obj = {
 			type: "error",
 			origin: name,
 			content: name + ": " + content
-		})
+		}
+		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		console.error(obj.content)
+		local.logs.push(obj)
 		local.updateLogs()
 		return local.logs.length - 1
 	}
 
-	log.editLog = function(origin, str, id, newType) {
+	local.logging.editLog = function (origin, str, id, newType) {
 		let obj = ""
 		switch (local.logs[id].type) {
 			case "post":
@@ -305,7 +382,7 @@ function init() {
 		}
 	}
 
-	log.getInput = function(str, showAsTyping) {
+	log.getInput = function (str, showAsTyping) {
 		local.readingInput = true
 		local.readingInputEnter = false
 
@@ -328,9 +405,9 @@ function init() {
 					local.input.style.color = undefined
 
 					if (showAsTyping !== false) {
-						local.shared.post(Name, str + val)
+						local.logging.post(Name, str + val)
 					} else {
-						local.shared.post(Name, str)
+						local.logging.post(Name, str)
 					}
 
 					delete local.readingInput
@@ -345,15 +422,15 @@ function init() {
 		})
 	}
 
-	log.changeUser = async function(username, password) {
+	log.changeUser = async function (username, password) {
 		const user = username
-		const userData = system.users[user]
+		const userData = csw.fs.read("/etc/passwd")[user]
 
 		// make sure the user exists
 		if (userData == undefined) {
-			throw new Error(`User ${ user } does not exist.`)
+			throw new Error(`User ${user} does not exist.`)
 		} else if (userData.password == undefined) {
-			throw new Error(`User ${ user } has no assigned password`)
+			throw new Error(`User ${user} has no assigned password`)
 		}
 
 		// get the user password input
@@ -362,49 +439,57 @@ function init() {
 		}
 
 		// hash it
-		const passHash = system.cryptography.sha_256(password)
+		const passHash = window.cryptography.sha_256(password)
 		// mid
 
 		if (passHash == userData.password) {
 			local.user = user
 		}
 
-		if (typeof login == "object") {
-			return login
-		}
-
 		if (local.user == username) {
-			local.shared.dir = system.users[username].homeDir
-			return true
+			local.shared.dir = userData.homeDir
+			const newUser = csw.permissions.changeUser(PID, username, password)
+
+			console.log(newUser)
+
+			if (newUser.ok == true) {
+				return true
+			} else {
+				throw newUser
+			}
 		} else {
 			return false
 		}
-
 	}
 
-	log.clear = function() {
+	log.getUser = () => {
+		return local.user
+	}
+
+	log.clear = function () {
 		local.logs = []
 		local.updateLogs()
 	}
 
-	log.changeDir = function(dir) {
-		local.shared.dir = csw.fs.toDirectory(dir, log.dir)
+	log.changeDir = function (directory) {
+		const dir = csw.fs.toDirectory(directory, log.dir)
+		if (sse.fs.isFolder(dir)) {
+			local.shared.dir = dir
+		} else {
+			return `not a directory: ${directory}`
+		}
 	}
 
-	local.updateLogs()
-
-	local.interval = setInterval(function() {
+	local.interval = setInterval(function () {
 		local.updateLogs()
 
 		try {
 			local.input.focus()
-		} catch (e) {}
+		} catch (e) { }
 	}, 100)
-
-	local.updateLogs()
 }
 
-function frame() {}
+function frame() { }
 
 function terminate() {
 	clearInterval(local.interval)
