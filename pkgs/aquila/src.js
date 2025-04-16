@@ -38,6 +38,40 @@ function init() {
 	local.user = system.user
 	local.shared.dir = "/"
 
+	local.stdToLogs = function (std) {
+		const stdout = Stringify(std).split("\n")
+
+		const result = []
+
+		for (const i in stdout) {
+			let type
+			let first = 0
+
+			switch (stdout[i].substring(0, 5)) {
+				case "[LOG]":
+					type = "log"
+					first = 5
+					break;
+				case "[WRN]":
+					type = "warn"
+					first = 5
+					break;
+				case "[ERR]":
+					type = "error"
+					first = 5
+					break;
+				default:
+					type = "post"
+			}
+
+			result.push({
+				type: type,
+				text: stdout[i].substring(first, Infinity)
+			})
+		}
+		return result
+	}
+
 	local.run = async function (code, isUnsafe, absorbLogs) {
 
 		if ([null, undefined, ""].includes(code)) {
@@ -82,34 +116,22 @@ function init() {
 		if (system.fs.readFile(cmd) == undefined) {
 			local.logging.post(Name, `command not found: ${binName}`)
 		} else {
+			local.runner = system.maxPID
+
 			result = await system.startProcess(PID, cmd, args.slice(1), isUnsafe)
 
-			const stdout = Stringify(result.stdout).split("\n")
+			delete local.runner
+
+			const stdout = local.stdToLogs(result.stdout)
 
 			for (const i in stdout) {
+
 				let process = result.process
 
-				let type
-				let first = 0
-
-				switch (stdout[i].substring(0, 5)) {
-					case "[LOG]":
-						type = "log"
-						first = 5
-						break;
-					case "[WRN]":
-						type = "warn"
-						first = 5
-						break;
-					case "[ERR]":
-						type = "error"
-						first = 5
-						break;
-					default:
-						type = "post"
-				}
-
-				local.logging[type](process.name, stdout[i].substring(first, Infinity))
+				const type = stdout[i].type
+				const text = stdout[i].text
+				
+				local.logging[type](process.name, text)
 			}
 		}
 	}
@@ -279,7 +301,22 @@ function init() {
 		// logs
 		let data = ""
 
-		const logs = JSON.parse(JSON.stringify(local.logs))
+		let logsTMP = JSON.parse(JSON.stringify(local.logs))
+
+		if (local.runner !== undefined) {
+			const stdout = system.processes[local.runner].std.out
+
+			const stdlogs = local.stdToLogs(stdout)
+
+			for (const i in stdlogs) {
+				const obj = stdlogs[i]
+
+				const pcsName = system.processes[local.runner].name
+
+				local.logging[obj.type] (pcsName, obj.text, logsTMP, false)
+			}
+		}
+		const logs = logsTMP
 
 		for (const i in logs) {
 			let prefix = "p"
@@ -305,56 +342,64 @@ function init() {
 	const log = local.shared
 	local.logging = {}
 
-	local.logging.log = function (name, content) {
+	local.logging.log = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "log",
 			origin: name,
 			content: `${name}: ${content}`
 		}
 		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
-		console.log(obj.content)
-		local.logs.push(obj)
-		local.updateLogs()
-		return local.logs.length - 1
+		logArr.push(obj)
+		if (updateLogs) {
+			system.log(name, obj.content)
+			local.updateLogs()
+		}
+		return logArr.length - 1
 	}
 
-	local.logging.post = function (name, content) {
+	local.logging.post = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "post",
 			origin: name,
 			content: content
 		}
 		obj.content = system.cast.Stringify(content, true)
-		console.log(obj.content)
-		local.logs.push(obj)
-		local.updateLogs()
-		return local.logs.length - 1
+		logArr.push(obj)
+		if (updateLogs) {
+			system.log(name, obj.content)
+			local.updateLogs()
+		}
+		return logArr.length - 1
 	}
 
-	local.logging.warn = function (name, content) {
+	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "warn",
 			origin: name,
 			content: name + ": " + content
 		}
 		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
-		console.warn(obj.content)
-		local.logs.push(obj)
-		local.updateLogs()
-		return local.logs.length - 1
+		logArr.push(obj)
+		if (updateLogs) {
+			system.warn(name, obj.content)
+			local.updateLogs()
+		}
+		return logArr.length - 1
 	}
 
-	local.logging.error = function (name, content) {
+	local.logging.error = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "error",
 			origin: name,
 			content: name + ": " + content
 		}
 		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
-		console.error(obj.content)
-		local.logs.push(obj)
-		local.updateLogs()
-		return local.logs.length - 1
+		logArr.push(obj)
+		if (updateLogs) {
+			sysetm.error(name, obj.content)
+			local.updateLogs()
+		}
+		return logArr.length - 1
 	}
 
 	local.logging.editLog = function (origin, str, id, newType) {
@@ -383,6 +428,9 @@ function init() {
 	}
 
 	log.getInput = function (str, showAsTyping) {
+
+		local.updateLogs()
+
 		local.readingInput = true
 		local.readingInputEnter = false
 
@@ -403,12 +451,6 @@ function init() {
 
 					// make input visible again
 					local.input.style.color = undefined
-
-					if (showAsTyping !== false) {
-						local.logging.post(Name, str + val)
-					} else {
-						local.logging.post(Name, str)
-					}
 
 					delete local.readingInput
 					delete local.readingInputEnter
