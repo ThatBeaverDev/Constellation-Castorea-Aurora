@@ -4,7 +4,8 @@ function init(args) {
     const system = csw.permissions.elevate()
 
     if (args[0] == undefined) {
-        console.post("usage: killall [processDirectory]\nYou must specify the process directory to kill.")
+        std.out = "usage: killall [processDirectory]\nYou must specify the process directory to kill."
+        return
     }
 
     let toKill = []
