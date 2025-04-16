@@ -1,13 +1,9 @@
 #! /usr/bin/node
 
-try {
 function exit(reason) {
-    const system = local.system
-    system.stopProcess(PID)
+    csw.processes.terminate(PID)
     if (reason !== undefined) {
-        console.log(reason)
-    } else {
-        console.log("Exiting...")
+        std.out = reason
     }
     local.stopped = true
 }
@@ -39,9 +35,9 @@ function init(args) {
     local.shortcuts.q = "Quit"
 
     // sieze the screen
-    csw.terminal.fullscreen(PID)
+    csw.display.fullscreen(PID)
 
-    csw.terminal.set(PID, local.manPage)
+    csw.display.set(PID, local.manPage)
 }
 
 function frame() {
@@ -53,8 +49,7 @@ function frame() {
         exit()
         return
     }
-    const system = local.system
-    //system.preInput.innerHTML = ":"
+    const system = csw.permissions.elevate()
 
     const keys = Object.keys(local.shortcuts)
     for (const i in keys) {
@@ -72,9 +67,5 @@ function frame() {
         } else {
             local.keys[key] = false
         }
-
     }
-}
-} catch(e) {
-    console["error"](e)
 }
