@@ -1,0 +1,50 @@
+#! /usr/bin/node
+
+function init(args) {
+    const system = csw.permissions.elevate()
+
+    const config = csw.fs.read("/etc/pgext.json")
+
+    if (parent.name == "aquila.js") {
+        // CLI mode
+
+        switch (args[0]) {
+            case "mode":
+                switch (args[1]) {
+                    case "processes":
+                        config.text = " (%s Tasks)"
+                        config.js = "Object.keys(system.processes).length"
+                        break;
+                    case "display":
+                        config.text = " - %s"
+                        config.js = "system.processes[system.fcs].name"
+                        break;
+                    default:
+                        std.out += "Options are as follows:\n- processes\n- display\n"
+                }
+                break;
+            default:
+                std.out += "Options are as follows:\n- mode\n"
+        }
+
+        system.stopProcess(PID)
+        return
+    }
+
+    // Service mode (background process)
+
+    if (config == undefined) {
+        const cfg = {}
+        cfg.text = " (%s Tasks)"
+        cfg.js = "Object.keys(system.processes).length"
+
+        csw.fs.write("/etc/pgext.json", cfg)
+    }
+}
+
+function frame() {
+    const config = csw.fs.read("/etc/pgext.json")
+    const system = csw.permissions.elevate()
+
+    document.title = csw.fs.read("/etc/hostname") + config.text.replaceAll("%s", eval(config.js))
+}

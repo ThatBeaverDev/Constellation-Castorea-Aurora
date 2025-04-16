@@ -1,0 +1,6 @@
+{
+    "desc": "Updates the page title with different information.",
+    "restart": "always",
+    "entrypoint": "/usr/bin/pgext",
+    "dir": "/"
+}

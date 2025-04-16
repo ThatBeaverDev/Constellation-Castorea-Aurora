@@ -1,0 +1,8 @@
+{
+    "name":"pgext",
+    "author":"ThatBeaverDev",
+    "directory":"/usr/bin",
+    "files": {
+        "PARSE/pgext.service": "/etc/systemc/system/thatbeaverdev/pgext.service"
+    }
+}
