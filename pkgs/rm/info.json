@@ -1,9 +1,0 @@
-{
-    "name":"rm",
-    "author":"ThatBeaverDev",
-    "lang":"js",
-    "directory":"/bin",
-    "files": {
-        "/manpage.1": "/usr/share/man/rm.1"
-    }
-}

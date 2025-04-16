@@ -1,9 +1,0 @@
-{
-    "name":"whoami",
-    "author":"ThatBeaverDev",
-    "lang":"js",
-    "directory":"/usr/bin",
-    "files": {
-        "/manpage.1": "/usr/share/man/whoami.1"
-    }
-}
