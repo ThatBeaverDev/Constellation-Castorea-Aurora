@@ -3,28 +3,29 @@
 // setup the system
 
 async function init() {
-    const system = csw.permissions.elevate()
+    const users = csw.fs.read("/etc/passwd")
 
-    console.post(sse.asciiName)
-    console.post('Welcome to the nordOS Setup Manager!')
+    std.out += sse.asciiName;
+    std.out += "\n";
+    std.out += 'Welcome to the Constellation Setup Manager!\n';
     const username = await parent.getInput("Enter a username for your account: ")
     const password1 = await parent.getInput("Enter a password for your account: ", false)
     const password2 = await parent.getInput("Re-enter a password for your account: ", false)
 
     // insure passwords match
     if (password1 !== password2) {
-        console.error("passwords do not match, exiting...")
+        throw new Error("passwords do not match, exiting...")
         return
+    } else {
+        await parent.run(`useradd -p ${password1} ${username}`)
+    
+        if (!Object.keys(users).includes(username)) {
+            throw new Error("User registration failed for an unknown reason, exiting...")
+            return
+        }
+    
+        std.out += "User Account Creation Successful."
+    
+        parent.changeUser(username, password1)
     }
-
-    await parent.run(`useradd -p ${password1} ${username}`)
-
-    if (!Object.keys(system.users).includes(username)) {
-        console.error("User registration failed for an unknown reason, exiting...")
-        return
-    }
-
-    console.post("User Account Creation Successful.")
-
-    parent.changeUser(username, password1)
 }
