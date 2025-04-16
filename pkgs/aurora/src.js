@@ -1,10 +1,30 @@
-// Aurora Package Manager for nordOS
+// Aurora Package Manager for Constellation
+
+async function downloadAndConvert(URL) {
+	try {
+		const response = await fetch(URL);
+		if (!response.ok) {
+			throw new Error('Failed to download the file.');
+		}
+		const blob = await response.blob();
+		const dataURL = await this.blobToDataURL(blob);
+		return dataURL;
+	} catch (error) {
+		std.out = '[ERR]Error:' + error
+		return null;
+	}
+}
+
+if (local.logs == undefined) {
+	local.logs = []
+}
 
 async function init(arguements) {
+
 	try {
 		system
 	} catch (e) {
-		console.warn("Aurora needs sudo to run!")
+		std.out = "[ERR]Aurora needs sudo to run!"
 		return
 	}
 
@@ -53,22 +73,33 @@ async function init(arguements) {
 	local.id2 = undefined
 	let keys
 
+	function handleStdOut() {
+		std.out = local.logs.join("\n")
+	}
+
+	handleStdOut()
+
 	function editLogs(first, second, patchType) {
 		try {
 			if (local.isSilent) {
 				return
 			}
 
+			
 			if (local.id1 == undefined) {
-				local.id1 = console.post(first)
+				local.logs.push(first)
+				local.id1 = local.logs.length
 			}
-
+			
 			if (local.id2 == undefined) {
-				local.id2 = console.post(second)
+				local.logs.push(second)
+				local.id2 = local.logs.length
 			}
+			
+			local.logs[local.id1] = first
+			local.logs[local.id2] = second
 
-			console.edit(first, local.id1, patchType)
-			console.edit(second, local.id2, patchType)
+			handleStdOut()
 		} catch (e) { }
 	}
 
@@ -78,7 +109,7 @@ async function init(arguements) {
 		case "source":
 
 			if (args[2] !== "as" || args[3] == undefined) {
-				console.post("You must source to as a term.")
+				local.logs.push("You must source a location to a term.")
 				return
 			}
 
@@ -88,6 +119,15 @@ async function init(arguements) {
 
 			local.sources[args[3]] = args[1]
 			break;
+		case "update":
+			if ([undefined, "", null].includes(args[1])) {
+
+				for (const i in index) {
+					await init(["update", i])
+				}
+
+				break;
+			}
 		case "install":
 
 			if (typeof args[1] == "object") {
@@ -126,7 +166,7 @@ async function init(arguements) {
 
 			// install dependencies
 			for (const i in data.dependencies) {
-				system.startProcess("/bin/aurora.js", ["install", data.dependencies[i]], true)
+				init(["install", data.dependencies[i]])
 			}
 
 			for (const i in data.directories) {
@@ -134,14 +174,49 @@ async function init(arguements) {
 			}
 
 			// download other files the package needs
-			const files = Object.keys(data.files || {})
+			const files = Object.keys(data.files || {});
 			for (const i in files) {
-				const file = files[i]
-				const uri = url + args[1] + file
+				const file = files[i];
+				let uri = url + args[1] + file;
+
+				const type = file.substring(0, 5);
+				const afterType = file.substring(5, Infinity);
+
+				switch(type) {
+					case "PARSE":
+						uri = url + args[1] + afterType;
+						break;
+					case "DATAU":
+						uri = url + args[1] + afterType;
+						const response = await fetch(uri);
+						const blob = await response.blob();
+						const dataURL = await new Promise((resolve, reject) => {
+							const reader = new FileReader();
+							reader.onloadend = () => resolve(reader.result);
+							reader.onerror = reject;
+							reader.readAsDataURL(blob);
+						});
+	
+						const dir = data.files[file];
+	
+						system.fs.writeFile(dir, dataURL);
+						continue;
+						break;
+					case "https":
+					case "HTTPS":
+					case "http:":
+					case "HTTP:":
+						uri = file
+						break;
+				}
 
 				// download
-				const content = await system.fetchURL(uri)
+				let content = await system.fetchURL(uri)
 				const dir = data.files[file]
+				if (file.substring(0, 5) == "PARSE") {
+					content = JSON.parse(content)
+				}
+
 				system.fs.writeFile(dir, content)
 			}
 
@@ -154,16 +229,18 @@ async function init(arguements) {
 				data.lang = "." + data.lang
 			}
 
-			// download the file
-			file = await system.fetchURL(url + packageName + "/src" + data.lang)
-
 			if (data.directory !== undefined) {
-				// write the file to it's specific directory
-				// I intend to require elevated permissions for this in future
-				system.fs.writeFile(data.directory + "/" + data.name + data.lang, file)
-			} else {
-				// write the file
-				system.fs.writeFile(local.aurora.directory + "/" + data.name + data.lang, file)
+				// download the file
+				file = await system.fetchURL(url + packageName + "/src" + data.lang)
+	
+				if (data.directory !== undefined) {
+					// write the file to it's specific directory
+					// I intend to require elevated permissions for this in future
+					system.fs.writeFile(data.directory + "/" + data.name + data.lang, file)
+				} else {
+					// write the file
+					system.fs.writeFile(local.aurora.directory + "/" + data.name + data.lang, file)
+				}
 			}
 
 			editLogs("installation of " + args[1] + " 100% completed", `####################`)
@@ -179,30 +256,31 @@ async function init(arguements) {
 		case "info":
 			keys = Object.keys(aurora)
 			for (const i in keys) {
-				console.post("   " + keys[i] + ": " + aurora[keys[i]])
+				local.logs.push("   " + keys[i] + ": " + aurora[keys[i]])
 			}
 			break;
 		case "list":
-			console.log(index)
 			keys = Object.keys(index)
 			for (const i in keys) {
-				console.post("  -  " + keys[i])
+				local.logs.push("  -  " + keys[i])
 			}
 			break;
 		case undefined:
 		case "":
-			console.post("Example Usage:")
-			console.post("   - aurora install [package-name]")
-			console.post("   - aurora uninstall [package-name]")
-			console.post("   - aurora list")
-			console.post("   - aurora info")
-			console.post("")
-			console.post("   - aurora -s:     runs aurora silently")
+			local.logs.push("Example Usage:")
+			local.logs.push("   - aurora install [package-name]")
+			local.logs.push("   - aurora uninstall [package-name]")
+			local.logs.push("   - aurora list")
+			local.logs.push("   - aurora info")
+			local.logs.push("")
+			local.logs.push("   - aurora -s:     runs aurora silently")
 			break;
 		default:
-			console.error("Error: Unknown command: aurora " + args[0])
+			std.out = "[ERR]Error: Unknown command: aurora " + args[0]
 	}
 
 	system.fs.writeFile(local.aurora.directory + "/state.json", local.aurora)
 	system.isInstalling = false
+
+	handleStdOut()
 }
