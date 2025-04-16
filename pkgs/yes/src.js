@@ -5,5 +5,5 @@ function init(args) {
 }
 
 function frame() {
-    console.post(local.yes)
+    std.out += local.yes
 }
