@@ -1,0 +1,8 @@
+{
+    "name":"export",
+    "author":"ThatBeaverDev",
+    "lang":"js",
+    "files": {
+        "/export.js": "/bin/export.js"
+    }
+}
