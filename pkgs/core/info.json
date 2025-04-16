@@ -1,0 +1,27 @@
+{
+    "name":"core",
+    "author":"ThatBeaverDev",
+    "directories": [
+        "/bin",
+        "/usr",
+        "/usr/bin"
+    ],
+    "files": {
+        "/src/basename.js": "/usr/bin/basename",
+        "/src/cat.js": "/bin/cat.js",
+        "/src/cd.js": "/usr/bin/cd.js",
+        "/src/clear.js": "/usr/bin/clear.js",
+        "/src/dirname.js": "/usr/bin/dirname",
+        "/src/du.js": "/usr/bin/du",
+        "/src/echo.js": "/bin/echo.js",
+        "/src/hostname.js": "/bin/hostname.js",
+        "/src/ls.js": "/bin/ls.js",
+        "/src/mkdir.js": "/usr/bin/mkdir.js",
+        "/src/mv.js": "/bin/mv.js",
+        "/src/pwd.js": "/bin/pwd.js",
+        "/src/rm.js": "/bin/rm.js",
+        "/src/touch.js": "/usr/bin/touch.js",
+        "/src/users.js": "/usr/bin/users",
+        "/src/whoami.js": "/usr/bin/whoami"
+    }
+}
