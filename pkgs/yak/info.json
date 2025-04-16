@@ -1,0 +1,12 @@
+{
+    "name":"yak",
+    "author":"ThatBeaverDev",
+    "directory":"/usr/bin",
+    "directories": [
+        "/var/lib/yak",
+        "/var/lib/yak/languages"
+    ],
+    "files": {
+        "/lang/js.yakLang":"/var/lib/yak/languages/js.yakLang"
+    }
+}

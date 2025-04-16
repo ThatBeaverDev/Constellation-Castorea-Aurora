@@ -1,0 +1,296 @@
+#! /usr/bin/node
+
+// yak programming language
+
+function compile(code, safe, targetLanguage = "js") {
+	// code gets provided 'code' and 'safe'
+
+	yak = start(targetLanguage)
+	yak.code = code
+
+	const src = (code || codee)
+
+	const tokens = tokenise(src.replaceAll("\t", "    "))
+
+	const compiled = []
+
+	for (const i in tokens) {
+		compiled[i] = compileBit(tokens[i])
+	}
+
+	let varData = ""
+	for (const i in yak.variables) {
+		varData += `let YAKVARIABLE${yak.variables[i]};\n`
+	}
+
+	const done = `//SSM_COMPILED_RESULT\nlocal.functions = {};\n\n${varData}\n\n${yak.others.pre}${compiled.join("\n")}\n\n${yak.others.post}`
+
+	console.debug("Compilation of YAK code finished.")
+
+	return done
+}
+
+function tokenise(input) {
+	const result = []
+
+	const lines = input.split("\n")
+
+	for (const i in lines) {
+
+		const line = String(lines[i]).replaceAll("\t", "    ").trimStart().trimEnd()
+
+		result.push(tokeniseLine(line))
+	}
+	return result
+}
+
+function tokeniseLine(input) {
+	const tokens = [];
+	let current = '';
+	let i = 0;
+
+	let quoteChar = null;
+	let roundDepth = 0;
+	let squareDepth = 0;
+	let curlyDepth = 0;
+
+	while (i < input.length) {
+		const char = input[i];
+
+		// within quotes
+		if (quoteChar) {
+			current += char;
+			if (char === quoteChar && input[i - 1] !== '\\') {
+				quoteChar = null;
+			}
+			i++;
+			continue;
+		}
+
+		// quote starts
+		if ((char === '"' || char === "'" || char === '`') && !quoteChar) {
+			quoteChar = char;
+			current += char;
+			i++;
+			continue;
+		}
+
+		// square brackets
+		if (char === '[') {
+			squareDepth++;
+		} else if (char === ']') {
+			squareDepth--;
+		}
+
+		// curly brackets
+		if (char === '{') {
+			curlyDepth++;
+		} else if (char === '}') {
+			curlyDepth--;
+		}
+
+		// brackets
+		if (char === '(') {
+			if (roundDepth === 0 && current.trim() !== '') {
+				tokens.push(current.trim());
+				current = '';
+			}
+			roundDepth++;
+			current += char;
+			i++;
+			continue;
+		} else if (char === ')') {
+			roundDepth--;
+			current += char;
+			i++;
+			if (roundDepth === 0) {
+				const inner = current.slice(1, -1);
+				const innerTokens = tokeniseLine(inner);
+				tokens.push(innerTokens);
+				current = '';
+			}
+			continue;
+		}
+
+		// split if outside brackets or quotes
+		if (char === ' ' && !quoteChar && roundDepth === 0 && squareDepth === 0 && curlyDepth === 0) {
+			if (current.trim() !== '') {
+				tokens.push(current.trim());
+				current = '';
+			}
+			i++;
+			continue;
+		}
+
+		// append if no cases are met.
+		current += char;
+		i++;
+	}
+
+	// Push any remaining token
+	if (current.trim() !== '') {
+		tokens.push(current.trim());
+	}
+
+	return tokens;
+}
+
+function compileBit(array) {
+	const arr = JSON.parse(JSON.stringify(array))
+
+	const cmd = String(arr[0])
+
+	if (cmd.substring(0, 2) == "//" || array.length == 0) {
+		return ""
+	}
+
+	arr.splice(0, 1)
+
+	const args = []
+
+	for (const i in arr) {
+		const inp = arr[i]
+
+		const comp = compileToken(inp)
+
+		args.push(comp)
+	}
+
+	if (yak.functions[cmd] == undefined) {
+		throw new Error(`Command '${cmd}' is not a valid yak command.
+			
+yakSRC:
+${yak.code}`)
+	}
+
+	switch (typeof yak.functions[cmd]) {
+		case "function":
+			return yak.functions[cmd](...args)
+		case "string":
+			return yak.functions[cmd]
+		default:
+			throw new Error(`Compilation Error: error with type of command ${cmd}`)
+	}
+}
+
+function compileToken(token) {
+	const type = typeOfToken(token)
+
+	if (type == "code") {
+		return compileBit(token)
+	} else {
+		return yak.others[type](token)
+	}
+}
+
+function typeOfToken(token) {
+	if (typeof token == "object") {
+		return "code"
+	}
+
+	if (token[0] == "$") {
+		return "variable"
+	}
+
+	if (token[0] == "#") {
+		return "scopedVariable"
+	}
+
+	if (token[0] = '"' && token.at(-1) == '"') {
+		return "string"
+	}
+
+	if (!isNaN(Number(token))) {
+		return "number"
+	}
+	return "string"
+}
+
+
+function start(lang = "js") {
+	const file = csw.fs.read(csw.permissions.newToken(0), "/var/lib/yak/languages/" + lang + ".yakLang")
+
+	const func = Function(file)
+
+	const data = func()
+
+	return {
+		...data,
+		variables: []
+	}
+}
+
+// yak command line
+async function init(args) {
+	switch (args[0]) {
+		case "compile":
+
+			yak = start()
+
+			let code = csw.fs.read(args[1]).split("\n")
+			if (code[0].substring(0, 2) == "#!") {
+				delete code[0]
+			}
+
+			code = code.join("\n")
+
+			const directory = cliCompile(code, args[2])
+
+			std.out += `Compilation complete, output placed in ${directory}`
+			break;
+		case "lib":
+			std.out += "Recompiling YAK Libraries"
+			const libraries = await csw.fs.listDir("/lib")
+
+			for (const i in libraries) {
+				const lib = libraries[i]
+				if (getFileExtension(lib) == ".yakl") {
+
+					const code = csw.fs.read("/lib/" + lib)
+
+					cliCompile(code, "/lib/" + getOnlyName(lib) + ".yakl.js")
+					std.out += "Library " + lib + " compiled."
+				}
+			}
+
+			break;
+		default:
+			std.out += `yak command line
+options:
+    - compile: compiles a .yak script to JavaScript, where it can be ran.
+    - lib: compiles libraries so they are up to date and all available. should be ran after installing any modules.`
+	}
+}
+
+function cliCompile(src, output = "compilation.js") {
+	console.time("yakCompile")
+	const code = String(src)
+
+	const dir = csw.fs.toDirectory(output, parent.dir)
+
+	const compiled = compile(code)
+
+	csw.fs.write(dir, compiled)
+
+	console.timeEnd("yakCompile")
+
+	return dir
+}
+
+function reverse(string) {
+	return String(string).split("\n").reverse().join("")
+}
+
+function getFileExtension(dir) {
+	const index = dir.lastIndexOf(".")
+	const extension = dir.substring(index, Infinity)
+	return extension
+}
+
+function getOnlyName(dir) {
+	const index = dir.lastIndexOf(".")
+	const name = dir.substring(0, index)
+	return name
+}
+
+let yak

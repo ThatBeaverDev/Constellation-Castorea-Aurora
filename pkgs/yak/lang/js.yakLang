@@ -1,0 +1,313 @@
+function removeQuotes(string, quotes = '"') {
+	let str = String(string)
+	if (str[0] == quotes) {
+		str = str.substring(1, Infinity)
+	}
+
+	if (str.at(-1) == quotes) {
+		str = str.substring(0, str.length - 1)
+	}
+
+	return str
+}
+
+function insureQuotes(string, quotes = '"') {
+	let str = String(string)
+	if (str[0] !== quotes) {
+		str = quotes + str
+	}
+
+	if (str.at(-1) !== quotes) {
+		str = str + quotes
+	}
+
+	return str
+}
+
+return {
+	others: {
+		pre: "const YAKlocal = {};\nasync function init(YAKVARIABLEargs) {",
+		post: "}",
+		variable: (VARNAME) => {
+			return `YAKlocal['${VARNAME.substring(1)}']`
+		},
+		scopedVariable: (VARNAME) => {
+			return "YAKVARIABLE" + VARNAME.substring(1)
+		},
+		number: (VALUE) => {
+			return VALUE
+		},
+		string: (VALUE) => {
+			return VALUE
+		}
+	},
+	functions: {
+		"BA": (VALUE) => {
+			return `console.log(${VALUE})`
+		},
+
+		// VARIABLES
+		"VAR:SET": (VARNAME, VALUE) => {
+			return `${VARNAME} = ${VALUE}`
+		},
+		"VAR:LET": (VARNAME, VALUE) => {
+			return `let ${VARNAME} = ${VALUE}`
+		},
+		"VAR:CONST": (VARNAME, VALUE) => {
+			return `const ${VARNAME} = ${VALUE}`
+		},
+
+		"VAR:ADD": (VARNAME, VALUE) => {
+			return `${VARNAME} += ${VALUE}`
+		},
+		"VAR:MINUS": (VARNAME, VALUE) => {
+			return `${VARNAME} -= ${VALUE}`
+		},
+		"VAR:MULT": (VARNAME, VALUE) => {
+			return `${VARNAME} *= ${VALUE}`
+		},
+		"VAR:DIV": (VARNAME, VALUE) => {
+			return `${VARNAME}/+= ${VALUE}`
+		},
+
+		// standard input / output
+		"STD:OUT": "std.out",
+		"STD:IN": "std.in",
+
+		// OPERATORS
+		"OP:ADD": (VALUE1, VALUE2) => {
+			return `${VALUE1} + ${VALUE2}`
+		},
+		"OP:MINUS": (VALUE1, VALUE2) => {
+			return `${VALUE1} - ${VALUE2}`
+		},
+		"OP:MULT": (VALUE1, VALUE2) => {
+			return `${VALUE1} * ${VALUE2}`
+		},
+		"OP:DIV": (VALUE1, VALUE2) => {
+			return `${VALUE1} / ${VALUE2}`
+		},
+
+		"OP:MOD": (VALUE1, VALUE2) => {
+			return `mod(${VALUE1},${VALUE2})`
+		},
+		"OP:ABS": (VALUE) => {
+			return `Math.abs(${VALUE})`
+		},
+
+		"OP:SIN": (VALUE) => {
+			return `Math.sin(${VALUE})`
+		},
+		"OP:COS": (VALUE) => {
+			return `Math.cos(${VALUE})`
+		},
+		"OP:TAN": (VALUE) => {
+			return `Math.tan(${VALUE})`
+		},
+
+		"OP:TERNARY": (BOOLEAN, VALUE1, VALUE2) => {
+			return `${BOOLEAN} ? ${VALUE1} : ${VALUE2}`
+		},
+
+		"OP:ASIN": (VALUE) => {
+			return `Math.asin(${VALUE})`
+		},
+		"OP:ACOS": (VALUE) => {
+			return `Math.acos(${VALUE})`
+		},
+		"OP:ATAN": (VALUE) => {
+			return `Math.atan(${VALUE})`
+		},
+
+		"OP:SQR": (VALUE) => {
+			return `${VALUE} ** 2`
+		},
+		"OP:SQRT": (VALUE) => {
+			return `Math.sqrt(${VALUE})`
+		},
+		"OP:ABS": (VALUE) => {
+			return `Math.abs(${VALUE})`
+		},
+		"OP:FLR": (VALUE) => {
+			return `Math.floor(${VALUE})`
+		},
+		"OP:CLN": (VALUE) => {
+			return `Math.ceil(${VALUE})`
+		},
+		"OP:RND": (VALUE) => {
+			return `Math.round(${VALUE})`
+		},
+		"OP:TRNC": (VALUE) => {
+			return `Math.trunc(${VALUE})`
+		},
+
+		"OP:AND": (VALUE1, VALUE2) => {
+			return `${VALUE1} && ${VALUE2}`
+		},
+		"OP:OR": (VALUE1, VALUE2) => {
+			return `${VALUE1} || ${VALUE2}`
+		},
+
+		"OP:NOT": (VALUE) => {
+			return `!(${VALUE})`
+		},
+
+		"OP:TYPE": (VALUE) => {
+			return `typeof ${VALUE}`
+		},
+
+		"OP:EQUL": (VALUE1, VALUE2) => {
+			return `${VALUE1} == ${VALUE2}`
+		},
+		"OP:DIFF": (VALUE1, VALUE2) => {
+			return `${VALUE1} != ${VALUE2}`
+		},
+
+		"OP:GREATER": (VALUE1, VALUE2) => {
+			return `${VALUE1} > ${VALUE2}`
+		},
+		"OP:LESS": (VALUE1, VALUE2) => {
+			return `${VALUE1} < ${VALUE2}`
+		},
+		"OP:GREATER-EQ": (VALUE1, VALUE2) => {
+			return `${VALUE1} >= ${VALUE2}`
+		},
+		"OP:LESS-EQ": (VALUE1, VALUE2) => {
+			return `${VALUE1} <= ${VALUE2}`
+		},
+
+		MAIN: "}\n\nfunction frame() {",
+
+		// static values
+		"VAL:PI": "Math.PI",
+		"VAL:E": "Math.E",
+		"VAL:DATE": "Date.now()",
+		"TRUE": "true",
+		"FALSE": "false",
+
+		// filesystem
+		"FS:DIR": "local.dir",
+		"FS:CD": (DIR) => {
+			return `local.dir = csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir)`
+		},
+		"FS:GET": (DIR, ATT) => {
+			return `csw.fs.read(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir), ${ATT})`
+		},
+		"FS:SET": (DIR, VALUE) => {
+			return `csw.fs.write(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir), ${VALUE})`
+		},
+		"FS:RM": (DIR) => {
+			return `csw.fs.delete(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+		},
+		"FS:MKDIR": (DIR) => {
+			return `csw.fs.createDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+		},
+		"FS:RMDIR": (DIR) => {
+			return `csw.fs.deleteDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+		},
+		"FS:LS": (DIR) => {
+			return `csw.fs.listDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+		},
+		"FS:ISDIR": (DIR) => {
+			return `csw.fs.isDirectory(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+		},
+		"FS:ASDIR": (DIR, BASEDIR) => {
+			return `csw.fs.toDirectory(token, ${DIR || '"."'}, ${BASEDIR || "local.dir"})`
+		},
+		"FS:EXEC": (DIR, ARGS = []) => {
+			return `csw.processes.execute(token, ${DIR}, ${ARGS}, false)`
+		},
+
+
+
+		"NET:FETCH": (URL) => {
+			return `csw.net.fetch(token, ${URL})`
+		},
+
+
+
+		"GUI:DEFINE": () => {
+			return `csw.display.fullscreen(token, PID)`
+		},
+		"GUI:SET": (DATA) => {
+			return `csw.display.set(token, PID, ${DATA})`
+		},
+		"GUI:RENAME": (VALUE) => {
+			return `csw.display.rename(token, PID, ${VALUE})`
+		},
+		"GUI:VISIBLE": () => {
+			return `csw.display.visible(token, PID)`
+		},
+
+
+		// libraries
+		IMPORT: (name) => {
+			return `const ${removeQuotes(name)} = new Function("const local = {};\\n" + csw.lib(${name}.yakl.js"))()`;
+		},
+
+		IF: (CONDITION) => {
+			return `if (${CONDITION}) {`
+		},
+		ELSE: `} else {`,
+		ELSEIF: (CONDITION) => {
+			return `} else if (${CONDITION}) {`
+		},
+
+		END: "}",
+
+		WHILE: (CONDITION) => {
+			return `while (${CONDITION}) {`
+		},
+
+		REPEAT: (VALUE) => {
+			return `for (let i = 0; i < ${VALUE}; i++) {`
+		},
+
+		WITH: (LOOPVAR, VALUE) => {
+			return `for (const ${LOOPVAR} in ${VALUE}) {`
+		},
+
+		SWITCH: (VALUE) => {
+			return `switch (${VALUE}) {`
+		},
+		CASE: (VALUE) => {
+			return `case ${VALUE}:`
+		},
+		DEFAULT: "default:",
+
+		EXIT: "break",
+		PASS: "continue",
+
+		// Functions
+
+		"FUNC:DEF": (VALUE1, ...VALUE2) => {
+			return `local.functions[${insureQuotes(VALUE1)}] = function (${VALUE2}) {`
+		},
+		"FUNC:CALL": (VALUE1, ...VALUE2) => {
+			return `local.functions[${insureQuotes(VALUE1)}] (${VALUE2})`
+		},
+
+		RETURN: (VALUE = "") => {
+			return `return ${VALUE}`
+		},
+
+		// ARRAYS
+		"ARR:SORT": (VALUE) => {
+			return `${VALUE}.sort()`
+		},
+
+		// OBJECTS
+		"OBJ:KEY": (VAR, KEY) => {
+			return `${VAR}[ ${KEY} ]`
+		},
+		PARENT: (KEY) => {
+			return `parent[${KEY}]`
+		},
+
+		// STRINGS
+		STRING: (STRING) => `String(${STRING})`,
+		"STR:LENGTH": (STRING) => {
+			return `${STRING}.length`
+		}
+	}
+}
