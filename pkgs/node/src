@@ -1,30 +1,29 @@
-// /usr/bin/node
+#! /usr/bin/node
 
-// code gets provided 'code' and 'safe'
-let script = code
 
-if (!script.includes("function init(")) {
-    script = "function init() {\n" + script + "\n}"
-}
+function compile(code, safe) {
+	// code gets provided 'code' and 'safe'
+	let script = code
 
-if (system.forceSystemLog) {
-	if (system.systemWrapper) {
-		script = script.replaceAll("console.log(", "parent.log(Name,")
-		script = script.replaceAll("console.post(", "parent.post(Name,")
-		script = script.replaceAll("console.warn(", "parent.warn(Name,")
-		script = script.replaceAll("console.error(", "parent.error(Name,")
-		script = script.replaceAll("console.edit(", "parent.editLog(Name,")
+	if (!script.includes("function init(")) {
+		script = "function init() {\n" + script + "\n}"
+	}
 
+	if (system.forceSystemLog) {
 		for (const i in csw.functions) {
 			script = script.replaceAll(csw.functions[i] + "(", csw.functions[i] + "(token,")
 		}
-	} else {
-		script = script.replaceAll("console.log(", "parent.log(Name,")
-		script = script.replaceAll("console.post(", "parent.post(Name,")
-		script = script.replaceAll("console.warn(", "parent.warn(Name,")
-		script = script.replaceAll("console.error(", "parent.error(Name,")
-		script = script.replaceAll("console.edit(", "parent.editLog(Name,")
 	}
+
+	return script
 }
 
-return script
+function init(args) {
+	if (args[0] == undefined) {
+		return
+	}
+
+	const dir = csw.fs.toDirectory(args[0], parent.dir)
+
+	csw.processes.execute(PID, dir, [], system !== undefined)
+}
