@@ -1,14 +1,49 @@
 // list processes
 
 function init(args) {
-    const system = csw.permissions.elevate()
+    const pcs = csw.fs.read("/proc")
 
-    let data = "PID - NAME\n"
-    for (const i in system.processes) {
-        try {
-        const item = system.processes[i]
-        data += item.PID + " - " + item.name + "\n"
-        } catch(e) {}
+    const PIDLen = []
+    const pathLen = []
+    const userLen = []
+
+    for (const i in pcs) {
+        PIDLen.push(String(i).length)
+        pathLen.push(String(pcs[i].name).length)
+        userLen.push(String(pcs[i].token.user).length)
     }
-    console.post(data)
+
+    const longestPID = Math.max("PID".length, ...PIDLen)
+    const longestPath = Math.max("DIR".length, ...pathLen)
+    const longestUser = Math.max("DIR".length, ...userLen)
+
+    let data = "PID - USER - CMD\n"
+    for (const i in pcs) {
+        if (i == -1) {
+            continue;
+        }
+
+        try {
+            const item = pcs[i]
+            let PID = String(item.PID)
+            let user = String(item.token.user)
+            let path = String(item.name)
+
+            while (PID.length < longestPID) {
+                PID = "0" + PID
+            }
+
+            while (user.length < longestUser) {
+                user = user + " "
+            }
+
+            while (path.length < longestPath) {
+                path = path + " "
+            }
+
+            data += PID + " - " + user + " - " + path + "\n"
+        } catch (e) { }
+    }
+
+    std.out = data;
 }
