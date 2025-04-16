@@ -113,7 +113,7 @@ function init(args) {
         for (const i in percentages) {
             let percent = Math.round((percentages[i] / percentMult) * 10000) / 100
 
-            console.post(`\t${percent}% ${i}`)
+            std.out += `\t${percent}% ${i}`
         }
         return
     }
@@ -121,13 +121,13 @@ function init(args) {
     if (choice == undefined) {
         const fortune = local.index.allFortunes[Math.round(Math.random() * local.index.totalFortunes)]
         
-        console.post(fortune)
+        std.out += fortune
     } else {
         const choiceFile = local.index.fileContents[choice]
 
         const fortune = choiceFile [ Math.round(Math.random() * choiceFile.length) ] 
 
-        console.post(fortune)
+        std.out += fortune
     }
 
     // commit index to filesystem (i don't know if this is actually necessary)
