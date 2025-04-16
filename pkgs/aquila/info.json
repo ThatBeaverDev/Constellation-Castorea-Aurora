@@ -2,5 +2,8 @@
     "name":"aquila",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/bin"
+    "directory":"/bin",
+    "files": {
+        "PARSE/aquila.service": "/etc/systemc/system/thatbeaverdev/aquila.service"
+    }
 }
