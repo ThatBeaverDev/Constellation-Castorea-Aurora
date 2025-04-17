@@ -3,6 +3,7 @@
     "author":"ThatBeaverDev",
     "lang":"js",
     "files": {
-        "/export.js": "/bin/export.js"
+        "/export.js": "/bin/export.js",
+        "/import.js": "/bin/import.js"
     }
 }
