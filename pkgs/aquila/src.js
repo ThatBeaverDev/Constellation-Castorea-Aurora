@@ -37,6 +37,7 @@ function init() {
 	local.historyPos = 0
 	local.user = system.user
 	local.shared.dir = "/"
+	local.shared.PID = PID
 
 	local.stdToLogs = function (std) {
 		const stdout = Stringify(std).split("\n")
@@ -478,6 +479,7 @@ function init() {
 		// get the user password input
 		if (password == undefined) {
 			password = await log.getInput("Password: ", false)
+			
 		}
 
 		// hash it
