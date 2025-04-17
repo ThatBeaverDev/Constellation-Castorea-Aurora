@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 // return username
 
 function init() {

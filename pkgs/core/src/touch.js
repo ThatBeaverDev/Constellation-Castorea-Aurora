@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 // write blank to a file
 
 function init(args) {

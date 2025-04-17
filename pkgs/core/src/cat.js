@@ -12,6 +12,11 @@ function stringify(thing) {
 }
 
 function init(args) {
+
+    if (args.length == 0) {
+        return
+    }
+
     const obj = {
         lineNumbers: false
     }

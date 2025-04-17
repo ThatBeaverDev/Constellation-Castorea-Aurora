@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 // Create Directories
 
 function init(args) {
