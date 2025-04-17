@@ -396,7 +396,7 @@ function init() {
 		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
 		logArr.push(obj)
 		if (updateLogs) {
-			sysetm.error(name, obj.content)
+			system.error(name, obj.content)
 			local.updateLogs()
 		}
 		return logArr.length - 1
