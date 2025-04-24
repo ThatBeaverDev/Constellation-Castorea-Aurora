@@ -35,7 +35,7 @@ function Stringify(data) {
 function init() {
 	local.history = []
 	local.historyPos = 0
-	local.user = system.user
+	local.user = csw.permissions.getUser()
 	local.shared.dir = "/"
 	local.shared.PID = PID
 
@@ -73,36 +73,40 @@ function init() {
 		return result
 	}
 
-	local.run = async function (code, isUnsafe, absorbLogs) {
+	local.run = async function (code, isUnsafe) {
+		local.shared.user = String(local.user);
 
 		if ([null, undefined, ""].includes(code)) {
-			return
+			return;
 		}
 
 		// setup args
-		let args = String(code).split(" ")
-		const binName = args[0].toLowerCase()
+		let args = String(code).split(" ");
 
-		args = args.slice(0) // remove the command from the array
+		console.log(args);
 
-		const path = system.path
+		const binName = args[0].toLowerCase();
 
-		local.history.push(code) // append to history
+		args = args.slice(0); // remove the command from the array
 
-		let cmd // going to store the path to the file we are running
+		const path = csw.fs.read("/etc/path.json");
 
-		if ([".", "/"].includes(binName[0])) {
-			cmd = system.toDir(binName, local.shared.dir)
+		local.history.push(code); // append to history
+
+		let cmd; // going to store the path to the file we are running
+
+		if ([".", "/", "~"].includes(binName[0])) {
+			cmd = csw.fs.toDirectory(binName, local.shared.dir);
 		} else {
 			for (const i in path) {
-				let temp = path[i] + "/" + binName
-				if (system.fs.readFile(temp) !== undefined) {
-					cmd = String(temp)
+				let temp = path[i] + "/" + binName;
+				if (csw.fs.read(temp) !== undefined) {
+					cmd = String(temp);
 					break;
 				} else {
 					temp = path[i] + "/" + binName + ".js"
-					if (system.fs.readFile(temp) !== undefined) {
-						cmd = String(temp)
+					if (csw.fs.read(temp) !== undefined) {
+						cmd = String(temp);
 						break;
 					}
 				}
@@ -114,27 +118,30 @@ function init() {
 			stdout: ''
 		}
 
-		if (system.fs.readFile(cmd) == undefined) {
+		if (cmd == undefined || csw.fs.read(cmd) == undefined) {
 			local.logging.post(Name, `command not found: ${binName}`)
 		} else {
-			local.runner = system.maxPID
+			local.runner = csw.permissions.elevate().maxPID + 1
 
-			result = await system.startProcess(PID, cmd, args.slice(1), isUnsafe)
+			const stdin = undefined;
 
-			delete local.runner
+			result = await csw.processes.execute(cmd, args.slice(1), isUnsafe, stdin, true);
 
-			const stdout = local.stdToLogs(result.stdout)
+			delete local.runner;
+
+			const stdout = local.stdToLogs(result.stdout);
 
 			for (const i in stdout) {
 
-				let process = result.process
+				let process = result.process;
 
-				const type = stdout[i].type
-				const text = stdout[i].text
-				
-				local.logging[type](process.name, text)
+				const type = stdout[i].type;
+				const text = stdout[i].text;
+
+				local.logging[type](process.name, text, local.logs, false, true);
 			}
 		}
+		local.updateLogs()
 	}
 
 	local.shared.run = local.run
@@ -152,7 +159,7 @@ function init() {
 		const split = code.split(";")
 
 		if (code == "exit") {
-			system.stopProcess(PID)
+			csw.processes.terminate(PID)
 		}
 
 		for (const i in split) {
@@ -173,7 +180,7 @@ function init() {
 	local.input.init = false;
 	local.input.style.width = "90%";
 	local.input.style.height = "auto";
-	local.input.style.color = "white";
+	//local.input.style.color = "white";
 	local.input.style.backgroundColor = "rgba(0, 0, 0, 0)";
 	local.input.style.border = "0px";
 	local.input.style.left = "0px";
@@ -217,37 +224,56 @@ function init() {
 	local.containerBackup = local.container
 
 
-	csw.display.fullscreen(PID)
-	csw.display.set(PID, local.container.outerHTML)
-	csw.display.rename(PID, "Aquila")
+	local.sky = csw.msgs.pidOfName("skylightWindowSystem");
+
+	if (isNaN(local.sky)) {
+		csw.display.fullscreen(PID)
+		csw.display.set(PID, local.container.outerHTML)
+		csw.display.rename(PID, "Aquila")
+	} else {
+		csw.msgs.send(local.sky, {
+			intent: "newWindow"
+		});
+	}
+
 
 	local.updateLogs = function () {
-		if (!csw.display.visible(PID)) {
-			return
+		if (csw.display.visible(PID) !== true) {
+			return;
 		}
-
-		if (local.readingInput) {
-			return
+		
+		if (local.readingInput == true) {
+			return;
 		}
 
 
 		// make sure elements are properly inplace
-		local.logsDiv = document.getElementById(`aquilaLogs${PID}`)
-		local.pretext = document.getElementById(`aquilaPretext${PID}`)
-		local.input = document.getElementById(`aquilaInput${PID}`)
-		local.container = document.getElementById(`aquilaContainer${PID}`)
+		local.logsDiv = document.getElementById(`aquilaLogs${PID}`);
+		local.pretext = document.getElementById(`aquilaPretext${PID}`);
+		local.input = document.getElementById(`aquilaInput${PID}`);
+		local.container = document.getElementById(`aquilaContainer${PID}`);
 
-
-		if (system.fcs == PID) {
+		if (csw.display.visible(PID)) {
 			if (local.container == null) {
-				csw.display.set(PID, local.containerBackup.outerHTML)
-				csw.display.rename(PID, "Aquila")
+				csw.msgs.send(local.sky, {
+					intent: "setWindowContents",
+					contents: local.containerBackup.outerHTML
+				});
+				csw.msgs.send(local.sky, {
+					intent: "renameWindow",
+					text: "Aquila"
+				});
+				setTimeout(local.updateLogs, 25)
 				return
+
 			}
 		}
 
 		// pretext
-		local.pretext.innerText = `${local.user}@${csw.fs.read("/etc/hostname")} ${local.shared.dir} % `
+		const pretextData = `${local.user}@${csw.fs.read("/etc/hostname")} ${local.shared.dir} % `
+		if (local.pretext.innerText !== pretextData) {
+			local.pretext.innerText = pretextData
+		}
 
 		// input
 		local.input.style.color = "rgba(255, 255, 255, 255)"
@@ -304,17 +330,21 @@ function init() {
 
 		let logsTMP = JSON.parse(JSON.stringify(local.logs))
 
-		if (local.runner !== undefined) {
-			const stdout = system.processes[local.runner].std.out
+		//const proc = csw.fs.read("/proc")
+		const proc = csw.permissions.elevate().processes
+		const mem = csw.permissions.elevate().memory.processes
+
+		if (proc[local.runner] !== undefined) {
+			const stdout = mem[local.runner].std.out
 
 			const stdlogs = local.stdToLogs(stdout)
 
 			for (const i in stdlogs) {
 				const obj = stdlogs[i]
 
-				const pcsName = system.processes[local.runner].name
+				const pcsName = proc[local.runner].name
 
-				local.logging[obj.type] (pcsName, obj.text, logsTMP, false)
+				local.logging[obj.type](pcsName, obj.text, logsTMP, false, false)
 			}
 		}
 		const logs = logsTMP
@@ -335,7 +365,9 @@ function init() {
 			data += temp
 		}
 
-		local.logsDiv.innerHTML = data
+		if (local.logsDiv.innerHTML !== data) {
+			local.logsDiv.innerHTML = data
+		}
 	}
 
 	// logging functions
@@ -343,61 +375,69 @@ function init() {
 	const log = local.shared
 	local.logging = {}
 
-	local.logging.log = function (name, content, logArr = local.logs, updateLogs = true) {
+	local.logging.log = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
 		const obj = {
 			type: "log",
 			origin: name,
 			content: `${name}: ${content}`
 		}
-		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
+		if (consoleLog) {
+			csw.log(obj.content)
+		}
 		if (updateLogs) {
-			system.log(name, obj.content)
 			local.updateLogs()
 		}
 		return logArr.length - 1
 	}
 
-	local.logging.post = function (name, content, logArr = local.logs, updateLogs = true) {
+	local.logging.post = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
 		const obj = {
 			type: "post",
 			origin: name,
 			content: content
 		}
-		obj.content = system.cast.Stringify(content, true)
-		logArr.push(obj)
+		obj.content = window.stringify(content, true)
+		logArr.push(obj);
+		if (consoleLog) {
+			csw.log(obj.content);
+		};
 		if (updateLogs) {
-			system.log(name, obj.content)
-			local.updateLogs()
-		}
+			local.updateLogs();
+		};
 		return logArr.length - 1
 	}
 
-	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true) {
+	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
 		const obj = {
 			type: "warn",
 			origin: name,
 			content: name + ": " + content
 		}
-		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
+		if (consoleLog) {
+			csw.warn(obj.content)
+		}
 		if (updateLogs) {
-			system.warn(name, obj.content)
 			local.updateLogs()
 		}
 		return logArr.length - 1
 	}
 
-	local.logging.error = function (name, content, logArr = local.logs, updateLogs = true) {
+	local.logging.error = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
 		const obj = {
 			type: "error",
 			origin: name,
 			content: name + ": " + content
 		}
-		obj.content = `${name}: ${system.cast.Stringify(content, true)}`
+		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
+		if (consoleLog) {
+			csw.error(obj.content)
+		}
 		if (updateLogs) {
-			system.error(name, obj.content)
 			local.updateLogs()
 		}
 		return logArr.length - 1
@@ -409,14 +449,14 @@ function init() {
 			case "post":
 				obj = {
 					type: (newType || "post"),
-					content: system.cast.Stringify(str),
+					content: window.stringify(str),
 					origin: origin
 				}
 				break;
 			default:
 				obj = {
 					type: (newType || local.logs[id].type),
-					content: (origin || Name) + ": " + system.cast.Stringify(str),
+					content: (origin || Name) + ": " + window.stringify(str),
 					origin: origin
 				}
 		}
@@ -465,7 +505,7 @@ function init() {
 		})
 	}
 
-	log.changeUser = async function (username, password) {
+	log.changeUser = async function (username, pass) {
 		const user = username
 		const userData = csw.fs.read("/etc/passwd")[user]
 
@@ -477,32 +517,22 @@ function init() {
 		}
 
 		// get the user password input
+		let password = pass
 		if (password == undefined) {
 			password = await log.getInput("Password: ", false)
-			
 		}
 
-		// hash it
-		const passHash = window.cryptography.sha_256(password)
-		// mid
+		const newUser = await csw.permissions.changeUser(PID, username, password)
+		local.user = user
+		local.shared.user = String(local.user)
+		local.shared.dir = userData.homeDir
 
-		if (passHash == userData.password) {
-			local.user = user
-		}
+		console.log(newUser)
 
-		if (local.user == username) {
-			local.shared.dir = userData.homeDir
-			const newUser = csw.permissions.changeUser(PID, username, password)
-
-			console.log(newUser)
-
-			if (newUser.ok == true) {
-				return true
-			} else {
-				throw newUser
-			}
+		if (newUser.ok == true) {
+			return true
 		} else {
-			return false
+			throw newUser
 		}
 	}
 
@@ -512,7 +542,6 @@ function init() {
 
 	log.clear = function () {
 		local.logs = []
-		local.updateLogs()
 	}
 
 	log.changeDir = function (directory) {
@@ -525,16 +554,23 @@ function init() {
 	}
 
 	local.interval = setInterval(function () {
-		local.updateLogs()
-
 		try {
-			local.input.focus()
+			if (csw.display.focused(PID) == true) {
+				local.input.focus()
+			}
 		} catch (e) { }
 	}, 100)
+
+	local.interval2 = setInterval(function () {
+		local.updateLogs()
+	}, 1000)
+
+	setTimeout(local.updateLogs, 0)
 }
 
 function frame() { }
 
 function terminate() {
 	clearInterval(local.interval)
+	clearInterval(local.interval2)
 }
