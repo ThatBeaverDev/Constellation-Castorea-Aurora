@@ -2,7 +2,7 @@
 
 // credit where credit is due, https://github.com/kddnewton/tree/blob/main/tree.js
 
-FUNC:DEF walk #directory #prefix #maxDepth #depth
+FUNC:DEF "WALK" #directory #prefix #maxDepth #depth
 	IF (OP:GREATER #depth #maxDepth)
 		VAR:ADD (STD:OUT) #depth
 		VAR:ADD (STD:OUT) #maxDepth
@@ -20,7 +20,7 @@ FUNC:DEF walk #directory #prefix #maxDepth #depth
 		IF (OP:OR (OP:DIFF (OBJ:KEY #file 0) ".") (OBJ:KEY $OBJ "showhidden"))
 			VAR:SET #parts (OP:TERNARY (OP:EQUL (OP:MINUS (OBJ:KEY #contents "length") 1) #i) ["└── ", "    "] ["├── ", "│   "])
 
-			VAR:SET #dispFile (STRING #file)
+			VAR:SET #dispFile (STR #file)
 
 			VAR:SET #asDir (FS:ASDIR #file #directory)
 
@@ -31,7 +31,7 @@ FUNC:DEF walk #directory #prefix #maxDepth #depth
 			IF (FS:ISDIR #asDir)
 				VAR:ADD (STD:OUT) (OP:ADD #prefix (OP:ADD (OBJ:KEY #parts 0) (OP:ADD #dispFile "\n")))
 				VAR:ADD (OBJ:KEY $counts "dirs") 1
-				FUNC:CALL walk #asDir (OP:ADD #prefix (OBJ:KEY #parts 1)) #maxDepth (OP:ADD #depth 1)
+				FUNC:CALL "WALK" #asDir (OP:ADD #prefix (OBJ:KEY #parts 1)) #maxDepth (OP:ADD #depth 1)
 			ELSE
 				IF (OP:NOT (OBJ:KEY $OBJ "dirOnly"))
 					VAR:ADD (STD:OUT) (OP:ADD #prefix (OP:ADD (OBJ:KEY #parts 0) (OP:ADD #dispFile "\n")))
@@ -75,10 +75,10 @@ VAR:SET $counts {}
 VAR:SET (OBJ:KEY $counts "dirs") 0
 VAR:SET (OBJ:KEY $counts "files") 0
 
-VAR:SET $directory (STRING $dir)
+VAR:SET $directory (STR $dir)
 VAR:ADD (STD:OUT) (OP:ADD $directory "\n")
 
-FUNC:CALL walk $directory "" (OBJ:KEY $OBJ "maxLevels") 1
+FUNC:CALL "WALK" $directory "" (OBJ:KEY $OBJ "maxLevels") 1
 
 VAR:SET $MSG "Tree Generated for "
 VAR:ADD $MSG (OBJ:KEY $counts "dirs")
