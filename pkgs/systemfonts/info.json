@@ -1,0 +1,12 @@
+{
+    "name":"sysfont",
+    "author":"ThatBeaverDev",
+    "directory": "/usr/bin",
+    "directories": [
+        "/usr/share/fonts"
+    ],
+    "files": {
+        "DATAU/SourceCodePro-VariableFont_wght.ttf": "/usr/share/fonts/Source Code Pro.ttf",
+        "DATAU/NotoSans-VariableFont_wdth,wght.ttf": "/usr/share/fonts/Noto Sans.ttf"
+    }
+}
