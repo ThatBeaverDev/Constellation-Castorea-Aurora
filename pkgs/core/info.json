@@ -13,16 +13,19 @@
         "/src/clear.js": "/usr/bin/clear",
         "/src/dirname.js": "/usr/bin/dirname",
         "/src/du.js": "/usr/bin/du",
-        "/src/echo.js": "/bin/echo.js",
-        "/src/hostname.js": "/bin/hostname.js",
-        "/src/ls.js": "/bin/ls.js",
-        "/src/mkdir.js": "/usr/bin/mkdir",
+        "/src/echo.yak": "/bin/echo",
+        "/src/hostname.yak": "/bin/hostname",
+        "/src/ls.yak": "/bin/ls",
+        "/src/mkdir.yak": "/usr/bin/mkdir",
         "/src/mv.js": "/bin/mv.js",
         "/src/pwd.js": "/bin/pwd.js",
         "/src/rm.js": "/bin/rm.js",
         "/src/touch.js": "/usr/bin/touch",
         "/src/users.js": "/usr/bin/users",
         "/src/whoami.js": "/usr/bin/whoami",
-        "/src/chroot.js": "/usr/sbin/chroot.js"
+        "/src/chroot.yak": "/usr/sbin/chroot.yak",
+
+        "/man/rm.1": "/usr/share/man/rm.1",
+        "/man/whoami.1": "/usr/share/man/whoami.1"
     }
 }
