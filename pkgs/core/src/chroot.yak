@@ -1,0 +1,5 @@
+#! /usr/bin/yak
+
+// change process' root
+
+SYS:CHROOT (PARENT "PID") (OBJ:KEY (ARGS) 0)
