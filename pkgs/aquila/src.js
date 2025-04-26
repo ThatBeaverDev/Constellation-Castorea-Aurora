@@ -32,11 +32,11 @@ function Stringify(data) {
 	}
 }
 
-function init() {
+function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 	local.history = []
 	local.historyPos = 0
 	local.user = csw.permissions.getUser()
-	local.shared.dir = "/"
+	local.shared.dir = directory
 	local.shared.PID = PID
 
 	local.stdToLogs = function (std) {
