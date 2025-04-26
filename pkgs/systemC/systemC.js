@@ -1,6 +1,6 @@
 // systemC
 
-const processes = csw.fs.read("/proc")
+const processes = system.processes
 
 function getServices(firstTime = false) {
     local.services = {}
@@ -18,7 +18,6 @@ function getServices(firstTime = false) {
             if (firstTime) {
                 delete data.PID
                 delete data.ran
-                console.debug(data)
             }
 
             local.services[company + "." + services[j]] = data
@@ -32,7 +31,9 @@ async function init() {
     console.log("systemC starting.")
 
     local.shared = parent
-    local.aliases = {}
+    local.aliases = {},
+    local.starting = {},
+    local.up = {},
 
     getServices(true)
 
@@ -40,9 +41,17 @@ async function init() {
 }
 
 local.startService = async function startService(name) {
+
+    if (local.starting[name] == true) {
+        return
+    }
+
+    local.starting[name] = true
+
     const service = local.services[name]
     if (service.waitFor !== undefined) {
-        if (local.up[service.waitFor] == false) {
+        if (local.up[service.waitFor] !== true) {
+            local.starting[name] = false
             return false
         }
     }
@@ -56,28 +65,30 @@ local.startService = async function startService(name) {
     service.PID = String(service.PID)
 }
 
-function frame() {
+async function frame() {
     const processesKeys = Object.keys(processes)
-
-    local.up = {}
 
     // make sure the required services are running
     for (const i in local.services) {
         if (i == undefined) continue;
         const service = local.services[i]
 
+        if (processesKeys.includes(service.PID)) {
+            local.up[i] = true
+        } else {
+            local.up[i] = false
+        }
+
         switch(service.restart) {
             case "always":
-                if (processesKeys.includes(service.PID)) {
-                    local.up[i] = true
+                if (local.up[i] == true) {
                     // it's running
                 } else {
-                    local.up[i] = false
                     local.startService(i)
                 }
                 break;
             case "once":
-                if (!service.ran) {
+                if (service.ran !== true) {
                     service.ran = true
                     local.startService(i)
                 }
