@@ -7,6 +7,7 @@
         "/var/lib/yak/languages"
     ],
     "files": {
-        "/lang/js.yakLang":"/var/lib/yak/languages/js.yakLang"
+        "/lang/js.yakLang":"/var/lib/yak/languages/js.yakLang",
+        "/lib/tokeniser.js": "/var/lib/yak/tokeniser"
     }
 }

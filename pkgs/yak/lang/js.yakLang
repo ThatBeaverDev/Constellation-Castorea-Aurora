@@ -24,9 +24,11 @@ function insureQuotes(string, quotes = '"') {
 	return str
 }
 
-return {
+const argsReducer = `const getArgs = (args) => args.reduce((args, arg) => {\n\tif (arg.slice(0, 2) === "--") {\n\t\t// specific values\n\t\tconst longArg = arg.split("=");\n\t\tconst longArgFlag = longArg[0].slice(2);\n\t\tconst longArgValue = longArg.length > 1 ? longArg[1] : true;\n\t\targs[longArgFlag] = longArgValue;\n\t} else if (arg[0] === "-") {\n\t\t// flags\n\t\tconst flags = arg.slice(1).split("");\n\t\tflags.forEach((flag) => {\n\t\t\targs[flag] = true;\n\t\t});\n\t} else {\n\t\t// text data\n\t\targs.data.push(arg);\n\t}\n\treturn args;\n}, {data: []});\nconst ARGUEMENTS = getArgs(args);\nif (ARGUEMENTS.data == undefined) {\n\tARGUEMENTS.data = [];\n};`
+
+const data =  {
 	others: {
-		pre: "const YAKlocal = {};\nasync function init(YAKVARIABLEargs) {",
+		pre: "const YAKlocal = {};\n\n" + argsReducer + "\n\nasync function init(YAKVARIABLEargs) {",
 		post: "}",
 		variable: (VARNAME) => {
 			return `YAKlocal['${VARNAME.substring(1)}']`
@@ -39,12 +41,32 @@ return {
 		},
 		string: (VALUE) => {
 			return VALUE
-		}
+		},
+		array: (VALUE) => {
+			return VALUE
+		},
+		object: (VALUE) => {
+			return VALUE
+		},
+		boolean: (VALUE) => {
+			switch (VALUE) {
+				case "TRUE":
+					return "true"
+				case "FALSE":
+					return "false"
+				default:
+					console.warn(VALUE);
+					return undefined
+			}
+		},
+		"not defined": () => "undefined"
 	},
 	functions: {
-		"BA": (VALUE) => {
+		BA: (VALUE) => {
 			return `console.log(${VALUE})`
 		},
+
+		ARGS: "ARGUEMENTS",
 
 		// VARIABLES
 		"VAR:SET": (VARNAME, VALUE) => {
@@ -75,17 +97,17 @@ return {
 		"STD:IN": "std.in",
 
 		// OPERATORS
-		"OP:ADD": (VALUE1, VALUE2) => {
-			return `${VALUE1} + ${VALUE2}`
+		"OP:ADD": (...VALUES) => {
+			return VALUES.join(" + ")
 		},
-		"OP:MINUS": (VALUE1, VALUE2) => {
-			return `${VALUE1} - ${VALUE2}`
+		"OP:MINUS": (...VALUES) => {
+			return VALUES.join(" - ")
 		},
-		"OP:MULT": (VALUE1, VALUE2) => {
-			return `${VALUE1} * ${VALUE2}`
+		"OP:MULT": (...VALUES) => {
+			return VALUES.join(" * ")
 		},
-		"OP:DIV": (VALUE1, VALUE2) => {
-			return `${VALUE1} / ${VALUE2}`
+		"OP:DIV": (...VALUES) => {
+			return VALUES.join(" / ")
 		},
 
 		"OP:MOD": (VALUE1, VALUE2) => {
@@ -125,16 +147,16 @@ return {
 		"OP:SQRT": (VALUE) => {
 			return `Math.sqrt(${VALUE})`
 		},
-		"OP:ABS": (VALUE) => {
-			return `Math.abs(${VALUE})`
+		"OP:EXP": (VALUE1, VALUE2) => {
+			return `${VALUE1} ** ${VALUE2})`
 		},
-		"OP:FLR": (VALUE) => {
+		"OP:FLOOR": (VALUE) => {
 			return `Math.floor(${VALUE})`
 		},
-		"OP:CLN": (VALUE) => {
+		"OP:CEIL": (VALUE) => {
 			return `Math.ceil(${VALUE})`
 		},
-		"OP:RND": (VALUE) => {
+		"OP:ROUND": (VALUE) => {
 			return `Math.round(${VALUE})`
 		},
 		"OP:TRNC": (VALUE) => {
@@ -186,33 +208,33 @@ return {
 		"FALSE": "false",
 
 		// filesystem
-		"FS:DIR": "local.dir",
+		"FS:DIR": "call.getcwd()",
 		"FS:CD": (DIR) => {
-			return `local.dir = csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir)`
+			return `call.chdir(${DIR})`
 		},
 		"FS:GET": (DIR, ATT) => {
-			return `csw.fs.read(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir), ${ATT})`
+			return `csw.fs.read(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()), ${ATT})`
 		},
 		"FS:SET": (DIR, VALUE) => {
-			return `csw.fs.write(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir), ${VALUE})`
+			return `csw.fs.write(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()), ${VALUE})`
 		},
 		"FS:RM": (DIR) => {
-			return `csw.fs.delete(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+			return `csw.fs.delete(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
 		},
 		"FS:MKDIR": (DIR) => {
-			return `csw.fs.createDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+			return `csw.fs.createDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
 		},
 		"FS:RMDIR": (DIR) => {
-			return `csw.fs.deleteDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+			return `csw.fs.deleteDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
 		},
 		"FS:LS": (DIR) => {
-			return `csw.fs.listDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+			return `csw.fs.listDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
 		},
 		"FS:ISDIR": (DIR) => {
-			return `csw.fs.isDirectory(token, csw.fs.toDirectory(token, ${DIR || '"."'}, local.dir))`
+			return `csw.fs.isDirectory(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
 		},
 		"FS:ASDIR": (DIR, BASEDIR) => {
-			return `csw.fs.toDirectory(token, ${DIR || '"."'}, ${BASEDIR || "local.dir"})`
+			return `csw.fs.toDirectory(token, ${DIR || '"."'}, ${BASEDIR || "call.getcwd()"})`
 		},
 		"FS:EXEC": (DIR, ARGS = []) => {
 			return `csw.processes.execute(token, ${DIR}, ${ARGS}, false)`
@@ -238,7 +260,6 @@ return {
 		"GUI:VISIBLE": () => {
 			return `csw.display.visible(token, PID)`
 		},
-
 
 		// libraries
 		IMPORT: (name) => {
@@ -281,10 +302,10 @@ return {
 		// Functions
 
 		"FUNC:DEF": (VALUE1, ...VALUE2) => {
-			return `local.functions[${insureQuotes(VALUE1)}] = function (${VALUE2}) {`
+			return `local.functions[${insureQuotes(VALUE1)}] = async function (${VALUE2.join(", ")}) {`
 		},
 		"FUNC:CALL": (VALUE1, ...VALUE2) => {
-			return `local.functions[${insureQuotes(VALUE1)}] (${VALUE2})`
+			return `await local.functions[${insureQuotes(VALUE1)}] (${VALUE2})`
 		},
 
 		RETURN: (VALUE = "") => {
@@ -292,8 +313,17 @@ return {
 		},
 
 		// ARRAYS
+		ARR: (VALUE) => {
+			return `Array(...${VALUE})`
+		},
 		"ARR:SORT": (VALUE) => {
 			return `${VALUE}.sort()`
+		},
+		"ARR:JOIN": (VALUE, JOINER) => {
+			return `Array(...${VALUE}).join(${JOINER})`
+		},
+		"ARR:APPEND": (ARRAY, VALUE) => {
+			return `${ARRAY}.push(${VALUE})`
 		},
 
 		// OBJECTS
@@ -305,9 +335,23 @@ return {
 		},
 
 		// STRINGS
-		STRING: (STRING) => `String(${STRING})`,
+		STR: (STRING) => `String(${STRING})`,
 		"STR:LENGTH": (STRING) => {
 			return `${STRING}.length`
+		},
+		"STR:PADSTART": (STRING, LENGTH, PADDER) => {
+			return `String(${STRING}).padStart(${LENGTH}, ${PADDER})`
+		},
+		"STR:PADEND": (STRING, LENGTH, PADDER) => {
+			return `String(${STRING}).padEnd(${LENGTH}, ${PADDER})`
 		}
 	}
-}
+};
+
+for (const i in window.call) {
+	data.functions["SYS:" + String(i).toUpperCase()] = (...args) => {
+		return "await call." + String(i) + "(" + args.join(", ") + ")";
+	}
+};
+
+return data;
