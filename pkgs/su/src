@@ -1,6 +1,6 @@
 #! /usr/bin/node
 
-function init(args) {
+async function init(args) {
     try {
         const users = csw.fs.read("/etc/passwd")
     
@@ -20,12 +20,13 @@ function init(args) {
             return
         }
 
-        const passwd = parent.changeUser(user)
-
-        if (!passwd) {
-            throw new Error("Sorry")
+        try {
+            const passwd = await parent.changeUser(user);
+            std.out = "Password:"
+        } catch(e) {
+            std.out = `Password:\n[ERR]${e}`;
+            return
         }
-
 
     } catch(e) {
         throw new Error(e)

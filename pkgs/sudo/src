@@ -1,8 +1,6 @@
 #! /usr/bin/node
 
 async function init(args) {
-    console.debug("")
-    
     const cmd = args.join(" ")
 
     if (cmd == undefined) return
@@ -10,10 +8,8 @@ async function init(args) {
     local.shared = parent
 
     const password = await parent.getInput("Password:", false)
-
+    std.out = "Password:"
     csw.permissions.changeUser(PID, "root", password)
 
     await local.shared.run(cmd, true)
-
-    std.out  = ""
 }
