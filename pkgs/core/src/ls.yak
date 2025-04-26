@@ -1,0 +1,165 @@
+#! /usr/bin/yak
+
+FUNC:DEF "folderPermissions" #DIRECTORY
+    // permissions data
+    VAR:CONST #PERMISSIONS (SYS:READDIR #DIRECTORY "permissions")
+
+    // owner data
+    VAR:CONST #OWNER (OBJ:KEY #PERMISSIONS "owner")
+
+    VAR:LET #READ "-"
+    IF (OP:EQUL (OBJ:KEY #OWNER "read") TRUE)
+        VAR:SET #READ "r"
+    END
+
+    VAR:LET #WRITE "-"
+    IF (OP:EQUL (OBJ:KEY #OWNER "write") TRUE)
+        VAR:SET #WRITE "w"
+    END
+
+    VAR:LET #EXEC "-"
+    IF (OP:EQUL (OBJ:KEY #OWNER "execute") TRUE)
+        VAR:SET #EXEC "x"
+    END
+
+    VAR:CONST #OWNERDATA (OP:ADD #READ #WRITE #EXEC)
+
+
+    // group data
+    VAR:CONST #GROUP (OBJ:KEY #PERMISSIONS "group")
+
+    VAR:SET #READ "-"
+    IF (OP:EQUL (OBJ:KEY #GROUP "read") TRUE)
+        VAR:SET #READ "r"
+    END
+
+    VAR:SET #WRITE "-"
+    IF (OP:EQUL (OBJ:KEY #GROUP "write") TRUE)
+        VAR:SET #WRITE "w"
+    END
+
+    VAR:SET #EXEC "-"
+    IF (OP:EQUL (OBJ:KEY #GROUP "execute") TRUE)
+        VAR:SET #EXEC "x"
+    END
+
+    VAR:CONST #GROUPDATA (OP:ADD #READ #WRITE #EXEC)
+
+    // others data
+    VAR:CONST #OTHERS (OBJ:KEY #PERMISSIONS "others")
+
+    VAR:SET #READ "-"
+    IF (OP:EQUL (OBJ:KEY #OTHERS "read") TRUE)
+        VAR:SET #READ "r"
+    END
+
+    VAR:SET #WRITE "-"
+    IF (OP:EQUL (OBJ:KEY #OTHERS "write") TRUE)
+        VAR:SET #WRITE "w"
+    END
+
+    VAR:SET #EXEC "-"
+    IF (OP:EQUL (OBJ:KEY #OTHERS "execute") TRUE)
+        VAR:SET #EXEC "x"
+    END
+
+    VAR:CONST #OTHERSDATA (OP:ADD #READ #WRITE #EXEC)
+
+    // get the owner and group
+    VAR:CONST #OWNERNAME (OBJ:KEY #OWNER "user")
+    VAR:CONST #GROUPNAME (OBJ:KEY #GROUP "group")
+
+    // combine
+    RETURN (OP:ADD #OWNERDATA #GROUPDATA #OTHERSDATA "  " #OWNERNAME "  " #GROUPNAME)
+END
+
+VAR:LET #DIR (FS:ASDIR (OBJ:KEY (OBJ:KEY (ARGS) "data") 0))
+
+IF (OP:EQUL #DIR (FS:ASDIR UNDEFINED))
+    VAR:SET #DIR (PARENT "dir")
+END
+
+VAR:LET #LS []
+VAR:CONST #OBJ {}
+VAR:SET (OBJ:KEY #OBJ "longFormat") FALSE
+VAR:SET (OBJ:KEY #OBJ "recursive") FALSE
+VAR:SET (OBJ:KEY #OBJ "hidden") FALSE
+
+FUNC:DEF "insureCorrectLength" #TEXT #LENGTH
+    RETURN (STR:PADEND #TEXT #LENGTH " ")
+END
+
+WITH #KEY (ARGS)
+	VAR:LET #DATA (OBJ:KEY (ARGS) #KEY)
+    IF #DATA
+        SWITCH #KEY
+            CASE "l"
+                VAR:SET (OBJ:KEY #OBJ "longFormat") TRUE
+                EXIT
+            CASE "r"
+                VAR:SET (OBJ:KEY #OBJ "recursive") TRUE
+                EXIT
+            CASE "h"
+                VAR:SET (OBJ:KEY #OBJ "hidden") TRUE
+                EXIT
+        END
+    END
+END
+
+FUNC:DEF "WALK" #DIRECTORY
+	VAR:CONST #LIS (SYS:READDIR #DIRECTORY)
+	BA #LIS
+
+    WITH #I #LIS
+        //IF (OP:OR (OP:EQUL (OBJ:KEY (OBJ:KEY #LIS #I) 0) ".") ((OP:EQUL (OBJ:KEY #OBJ "hidden") FALSE)))
+        //    PASS
+        //END
+
+        VAR:LET #ITEM (OP:ADD #DIRECTORY "/" (OBJ:KEY #LIS #I))
+        IF (OP:EQUL #DIRECTORY "/")
+            VAR:SET #ITEM (OP:ADD #DIRECTORY (OBJ:KEY #LIS #I))
+        END
+
+        VAR:CONST #ISDIR (FS:ISDIR #ITEM)
+
+        VAR:CONST #LOG []
+        IF (OBJ:KEY #OBJ "longFormat")
+            IF #ISDIR
+                ARR:APPEND #LOG "d"
+
+                VAR:CONST #PERMISSIONSDATA (FUNC:CALL "folderPermissions" #DIRECTORY)
+                ARR:APPEND #LOG #PERMISSIONSDATA
+            ELSE
+                ARR:APPEND #LOG "-"
+                ARR:APPEND #LOG "         "
+            END
+
+            IF #ISDIR
+                VAR:CONST #SIZE (FUNC:CALL "insureCorrectLength" "" 5)
+                ARR:APPEND #LOG #SIZE
+            ELSE
+                VAR:CONST #SIZE (FUNC:CALL "insureCorrectLength" (SYS:READ #ITEM "size") 5)
+                ARR:APPEND #LOG #SIZE
+            END
+
+            ARR:APPEND #LOG "    "
+
+            // file name
+            ARR:APPEND #LOG #ITEM
+        ELSE
+            // file name
+            ARR:APPEND #LOG (OBJ:KEY #LIS #I)
+        END
+
+		ARR:APPEND #LS (ARR:JOIN #LOG "")
+
+		IF (OP:AND #ISDIR (OBJ:KEY #OBJ "recursive"))
+			FUNC:CALL "WALK" #ITEM
+		END
+	END
+END
+
+
+FUNC:CALL "WALK" #DIR
+
+VAR:ADD (STD:OUT) (ARR:JOIN #LS "\n")
