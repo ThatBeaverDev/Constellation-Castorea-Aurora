@@ -1,0 +1,3 @@
+#! /usr/bin/yak
+
+VAR:SET (STD:OUT) (SYS:GETHOSTNAME)
