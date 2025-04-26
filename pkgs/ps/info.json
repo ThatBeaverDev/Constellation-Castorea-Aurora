@@ -2,5 +2,8 @@
     "name":"ps",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/bin"
+    "directory":"/bin",
+    "files": {
+        "/pstree": "/usr/bin/pstree"
+    }
 }

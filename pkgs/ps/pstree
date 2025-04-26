@@ -1,0 +1,29 @@
+#! /usr/bin/node
+
+async function init() {
+    async function walk(process, prefix, maxDepth, depth) {
+        const contents = process.children
+        console.debug(process)
+        contents.sort()
+
+        for (const i in contents) {
+            const procs = proc[contents[i]]
+            console.debug(contents[i])
+            console.debug(proc)
+            const parts = i == contents.length - 1 ? ["└── ", "    "] : ["├── ", "│   "];
+
+            std.out += `${prefix}${parts[0]}${procs.name}\n`;
+            processCount += 1;
+            await walk(procs, `${prefix}${parts[1]}`, maxDepth, depth + 1);
+        }
+    }
+
+    const proc = csw.fs.read("/proc")
+
+    const pcs = proc[1]
+
+    let processCount = 0
+
+    std.out = proc[1].name + "\n"
+    await walk(pcs, "", Infinity, 0)
+}
