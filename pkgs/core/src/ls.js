@@ -59,21 +59,21 @@ async function init(args) {
     }
 
     async function walk(directory) {
-        const lis = await csw.fs.listDir(directory)
+        const lis = await csw.fs.listDir(directory);
 
         for (const i in lis) {
             if (lis[i][0] == "." && obj.hidden == false) {
                 continue;
-            }
+            };
 
-            let item = directory + "/" + lis[i]
+            let item = directory + "/" + lis[i];
             if (directory == "/") {
-                item = directory + lis[i]
-            }
+                item = directory + lis[i];
+            };
 
-            const isDir = csw.fs.isDirectory(item)
+            const isDir = csw.fs.isDirectory(item);
 
-            const log = []
+            const log = [];
             if (obj.longFormat) {
                 // if file is a directory, add - to the start of the line
                 if (isDir) {
