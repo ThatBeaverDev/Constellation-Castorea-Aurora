@@ -1,0 +1,5 @@
+#! /usr/bin/yak
+
+SYS:CHDIR (PARENT "dir")
+
+SYS:MKDIR (FS:ASDIR (OBJ:KEY (OBJ:KEY (ARGS) "data") 0))
