@@ -5,7 +5,7 @@ function init(args) {
 
     const config = csw.fs.read("/etc/pgext.json")
 
-    if (parent.name == "aquila.js") {
+    if (parent.name == "/bin/aquila.js") {
         // CLI mode
 
         switch (args[0]) {
@@ -17,7 +17,7 @@ function init(args) {
                         break;
                     case "display":
                         config.text = " - %s"
-                        config.js = "system.processes[system.fcs].name"
+                        config.js = "system.processes[system.mainFcs].name"
                         break;
                     default:
                         std.out += "Options are as follows:\n- processes\n- display\n"
@@ -43,8 +43,12 @@ function init(args) {
 }
 
 function frame() {
-    const config = csw.fs.read("/etc/pgext.json")
-    const system = csw.permissions.elevate()
+    const config = csw.fs.read("/etc/pgext.json");
+    const system = csw.permissions.elevate();
 
-    document.title = csw.fs.read("/etc/hostname") + config.text.replaceAll("%s", eval(config.js))
+    const targetTitle = csw.fs.read("/etc/hostname") + config.text.replaceAll("%s", eval(config.js));
+
+    if (document.title !== targetTitle) {
+        document.title = targetTitle;
+    };
 }

@@ -1,7 +1,8 @@
 // list processes
 
 function init(args) {
-    const pcs = csw.fs.read("/proc")
+    //const pcs = csw.fs.read("/proc")
+    const pcs = csw.permissions.elevate().processes
 
     const PIDLen = []
     const pathLen = []
@@ -29,20 +30,12 @@ function init(args) {
             let user = String(item.token.user)
             let path = String(item.name)
 
-            while (PID.length < longestPID) {
-                PID = "0" + PID
-            }
-
-            while (user.length < longestUser) {
-                user = user + " "
-            }
-
-            while (path.length < longestPath) {
-                path = path + " "
-            }
+            PID.padStart(longestPID, "0")
+            user.padEnd(longestUser, " ")
+            path.padEnd(longestPath, " ")
 
             data += PID + " - " + user + " - " + path + "\n"
-        } catch (e) { }
+        } catch (e) {}
     }
 
     std.out = data;

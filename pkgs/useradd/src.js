@@ -2,7 +2,7 @@
 
 const users = csw.fs.read("/etc/passwd")
 
-function init(args) {
+async function init(args) {
 
     try {
         system
@@ -92,14 +92,14 @@ function init(args) {
     obj.homeDir = (obj.homeDir || obj.baseDir + "/" + (username || ""))
 
     try {
-        register(username, obj)
+        await register(username, obj)
     } catch (e) {
         throw new Error("Creating User: " + e)
         //return
     }
 }
 
-const register = function (name, object) {
+const register = async function (name, object) {
 
     const obj = JSON.parse(JSON.stringify(object))
 
@@ -112,7 +112,7 @@ const register = function (name, object) {
         std.out += "[WRN]User password was not defined: it is set to 'default'"
         obj.password = "default"
     }
-    obj.password = cryptography.sha_256(obj.password)
+    obj.password = await system.userPasswordHash(obj.password);
 
     if (obj.permissions == undefined) {
         obj.permissions = {}

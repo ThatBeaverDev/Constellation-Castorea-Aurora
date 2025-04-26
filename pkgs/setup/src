@@ -3,24 +3,41 @@
 // setup the system
 
 async function init() {
+
+
+    const text = {
+        welcome: 'Welcome to the Constellation Setup Manager!',
+        username: "Enter a username for your account: ",
+        pass1: "Enter a password for your account: ",
+        pass2: "Re-enter your password for your account: "
+    }
+
     const users = csw.fs.read("/etc/passwd")
 
     std.out += sse.asciiName;
     std.out += "\n";
     std.out += 'Welcome to the Constellation Setup Manager!\n';
-    const username = await parent.getInput("Enter a username for your account: ")
-    const password1 = await parent.getInput("Enter a password for your account: ", false)
-    const password2 = await parent.getInput("Re-enter a password for your account: ", false)
+    const username = await parent.getInput(text.username)
+    std.out += text.username + username + "\n"
+    const password1 = await parent.getInput(text.pass1, false)
+    std.out += text.pass1 + "\n"
+    const password2 = await parent.getInput(text.pass2, false)
+    std.out += text.pass2 + "\n"
 
     // insure passwords match
     if (password1 !== password2) {
-        throw new Error("passwords do not match, exiting...")
+        std.out += "[ERR]passwords do not match, exiting..."
         return
     } else {
-        await parent.run(`useradd -p ${password1} ${username}`)
+        try {
+            await parent.run(`useradd -p ${password1} ${username}`, true)
+        } catch(e) {
+            std.out += `[ERR]${e}`
+            return
+        }
     
         if (!Object.keys(users).includes(username)) {
-            throw new Error("User registration failed for an unknown reason, exiting...")
+            std.out += "[ERR]User registration failed for an unknown reason, exiting..."
             return
         }
     
