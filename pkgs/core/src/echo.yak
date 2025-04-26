@@ -1,0 +1,3 @@
+#! /usr/bin/yak
+
+VAR:SET (STD:OUT) (ARR:JOIN (ARGS) " ")
