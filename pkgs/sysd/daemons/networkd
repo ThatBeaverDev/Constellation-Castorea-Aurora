@@ -1,0 +1,29 @@
+#! /usr/bin/js
+
+async function init() {
+    await call.shout("networkd")
+
+    await call.claimDevice("eth0")
+}
+
+async function handleNetworkRequest(target, type, PID) {
+    const data = await call.deviceRope("eth0", String(type).toLowerCase(), [target])
+
+    await call.send(PID, data)
+}
+
+async function frame() {
+    const msgs = await call.readMsgs(true)
+
+    for (const i in msgs) {
+        const msg = msgs[i]
+
+        const payload = msg.content
+
+        switch(payload.intent) {
+            case "networkRequest":
+                handleNetworkRequest(payload.target, payload.type, msg.origin)
+                break;
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "desc": "daemon for making network requests",
+    "restart": "always",
+    "entrypoint": "/sbin/sysd/networkd",
+    "dir": "/"
+}

@@ -1,0 +1,21 @@
+{
+    "name":"sysd",
+    "author":"ThatBeaverDev",
+    "directories":[
+        "/etc/sysd",
+        "/etc/sysd/system",
+        "/etc/sysd/system/sysd",
+        "/etc/sysd/system/thatbeaverdev",
+        "/usr/lib/sysd",
+        "/usr/lib/sysd/system",
+        "/sbin/sysd"
+    ],
+    "files": {
+        "/sysd.js": "/sbin/init.js",
+        "/sbin-nologin.js": "/sbin/nologin",
+        "/sysdctl.js": "/usr/bin/sysdctl.js",
+
+        "/daemons/networkd": "/sbin/sysd/networkd",
+        "PARSE/daemons/networkd.service": "/etc/sysd/system/sysd/networkd.service"
+    }
+}

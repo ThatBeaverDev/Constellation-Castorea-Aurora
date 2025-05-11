@@ -1,5 +1,5 @@
 function serviceInfo(name, inStack) {
-    const services = local.systemC.variables.services
+    const services = local.sysd.variables.services
     for (const i in services) {
         if (i == name) {
             return services[i]
@@ -12,19 +12,19 @@ function serviceInfo(name, inStack) {
 
     // no process found
 
-    const aliases = local.systemC.variables.aliases
+    const aliases = local.sysd.variables.aliases
 
     if (aliases[name] !== undefined) {
         return services[aliases[name]]
     }
 }
 
-function findSystemC(system) {
+function findsysd(system) {
     const proc = csw.fs.read("/proc")
     const processes = Object.keys(proc)
     for (const i in processes) {
         const process = proc[processes[i]]
-        if (process.name == "/usr/bin/systemc/systemC.js") {
+        if (process.name == "/usr/bin/sysd/sysd.js") {
             return process
         }
     }
@@ -36,9 +36,9 @@ function init(args) {
     local.options = {}
     local.options
 
-    local.systemC = findSystemC(system)
+    local.systemC = findsysd(system)
 
-    local.config = csw.fs.read("/etc/systemc/cfg.json")
+    local.config = csw.fs.read("/etc/sysd/cfg.json")
     const config = local.config
 
     switch(args[0]) {
@@ -54,10 +54,10 @@ function init(args) {
             console.log(config.services)
             break;
         default:
-            std.out += `systemC CLI Utility
+            std.out += `sysd CLI Utility
     Commands:
-        - systemC status [service]
-        - systemC start [service]
-        - systemC stop [service]`
+        - sysd status [service]
+        - sysd start [service]
+        - sysd stop [service]`
     }
 }
