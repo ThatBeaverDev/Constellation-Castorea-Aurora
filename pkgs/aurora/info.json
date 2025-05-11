@@ -4,6 +4,7 @@
     "lang":"js",
     "directory":"/bin",
     "directories": [
-        "/usr/bin/aurora"
+        "/usr/bin/aurora",
+        "/etc/aurora"
     ]
 }

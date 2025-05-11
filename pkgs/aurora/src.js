@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 // Aurora Package Manager for Constellation
 
 async function downloadAndConvert(URL) {
@@ -15,42 +17,112 @@ async function downloadAndConvert(URL) {
 	}
 }
 
-if (local.logs == undefined) {
-	local.logs = []
-}
+async function fetchLocation(URL) {
+	const networkd = local.networkd
 
-async function init(arguements) {
+	if (isNaN(networkd)) {
+		return await call.deviceRope("eth0", "get", [URL]);
+	};
+
+	await call.send(networkd, {
+		intent: "networkRequest",
+		type: "GET",
+		target: URL
+	});
+
+	return new Promise(function (resolve) {
+		setInterval(async function () {
+			const msgs = await call.readMsgs(true);
+
+			for (const i in msgs) {
+				if (msgs[i].origin == networkd) {
+					const msg = msgs[i];
+
+					if (msg.origin == networkd) {
+						resolve(msg.data)
+					}
+				};
+			};
+		}, 50);
+	});
+};
+
+async function setup() {
+
+	local.fetch = fetchLocation;
+
+if (local.logs == undefined) {
+	local.logs = [];
+};
 
 	try {
-		system
-	} catch (e) {
-		std.out = "[ERR]Aurora needs sudo to run!"
-		return
-	}
+		await call.readdir("/var/lib/aurora")
+	} catch(e) {
+		const directories = [
+			"/etc/aurora",
+			"/var/lib/aurora",
+			"/var/lib/aurora/lists"
+		];
+	
+		for (const i in directories) {
+			await call.mkdir(directories[i]);
+		};
 
-	system.isInstalling = true
-	system.versions.aurora = "apmv0.1.1"
+		await call.write("/etc/aurora/sources.json", {});
+		await call.write("/var/lib/aurora/files.json", {});
+		await call.write("/var/lib/aurora/sourceInf.json", {});
+		await call.write("/var/lib/aurora/installed.json", []);
+	};
 
-	//csw.versions.registerApp("apmv0.1.1")
-	local.aurora = system.fs.readFile("/usr/bin/aurora/state.json")
+	local.networkd = await call.pidOfName("networkd");
+	if (isNaN(local.networkd)) {
+		// we need to claim the internet adapter to send requests
+
+		local.ownsNet = true;
+
+		await call.claimDevice("eth0");
+	};
+
+	local.aurora = await call.read("/usr/share/aurora/state.json");
+
 
 	if (local.aurora == undefined) {
-		local.aurora = {}
-		local.aurora.directory = "/usr/bin/aurora"
+		local.aurora = {};
+		local.aurora.directory = "/usr/share/aurora";
 
 		// set state
-		local.aurora.index = {}
-		local.aurora.sources = {}
+		local.aurora.index = {};
+		local.aurora.sources = [];
+	};
+	local.aurora.version = "v0.2.2";
+
+	const queue = [];
+
+	queue.push(call.write("/usr/share/aurora/state.json", local.aurora));
+
+	local.fileStorage = await call.read("/usr/share/aurora/files.json");
+
+
+	if (local.fileStorage == undefined) {
+		queue.push(call.write("/usr/share/aurora/files.json", {}));
+	};
+
+	for (const i in queue) {
+		await queue[i]
 	}
-	local.aurora.version = "v0.2.2"
 
-	if (system.fs.rawFolder(local.aurora.directory) == undefined) {
-		system.fs.writeFolder(local.aurora.directory)
-	}
+	local.fileStorage = await call.read("/usr/share/aurora/files.json");
 
+	local.index = local.aurora.index;
+	local.sources = local.aurora.sources;
+};
 
-	local.index = local.aurora.index
-	local.sources = local.aurora.sources
+async function init(arguements, startup = true, manualInstall = true, isForUpgrade = false) {
+
+	if (startup == true) {
+		await setup();
+	};
+
 	const index = local.index
 
 	const args = []
@@ -64,8 +136,6 @@ async function init(arguements) {
 			args.push(arguements[i])
 		}
 	}
-
-
 
 	let data
 	let file
@@ -85,17 +155,17 @@ async function init(arguements) {
 				return
 			}
 
-			
+
 			if (local.id1 == undefined) {
 				local.logs.push(first)
 				local.id1 = local.logs.length
 			}
-			
+
 			if (local.id2 == undefined) {
 				local.logs.push(second)
 				local.id2 = local.logs.length
 			}
-			
+
 			local.logs[local.id1] = first
 			local.logs[local.id2] = second
 
@@ -105,73 +175,160 @@ async function init(arguements) {
 
 	local.isSilent = flags.includes("-s")
 
+	const sources = await call.read("/etc/aurora/sources.json")
+
+	const packageName = args[1]
+
 	switch (args[0]) {
-		case "source":
-
-			if (args[2] !== "as" || args[3] == undefined) {
-				local.logs.push("You must source a location to a term.")
-				return
+		case "sources":
+			switch(args[1]) {
+				case "add":
+					const identifier = (args[3] || encodeURIComponent(args[2]))
+					sources[identifier] = args[2]
+					await call.write("/etc/aurora/sources.json", sources)
+					break;
+				case "list":
+					break;
+				default:
+					std.out = `[ERR]Unknown option of sources: "${args[1]}"`
 			}
-
-			if (args[1].at(-1) !== "/") {
-				args[1] += "/"
-			}
-
-			local.sources[args[3]] = args[1]
 			break;
 		case "update":
-			if ([undefined, "", null].includes(args[1])) {
+			const sourceInf = {}
 
-				for (const i in index) {
-					await init(["update", i])
-				}
-
-				break;
+			const sourceItems = await call.readdir("/var/lib/aurora/lists")
+			for (const i in sourceItems) {
+				const item = sourceItems[i]
+				await call.unlink("/var/lib/aurora/lists/" + item)
 			}
-		case "install":
 
-			if (typeof args[1] == "object") {
-				for (const i in args[1]) {
-					await init(["install", args[1][i]])
+			for (const i in sources) {
+				try {
+					const source = sources[i];
+					const sourceURI = encodeURIComponent(i)
+
+					const manifest = JSON.parse(await fetchLocation(source + "/repository.json"));
+
+					const packages = manifest.packages;
+					await call.write("/var/lib/aurora/lists/" + sourceURI + ".json", packages)
+	
+					const info = structuredClone(manifest);
+					delete info.packages;
+	
+					sourceInf[source] = info;
+				} catch(e) {};
+			};
+
+			await call.write("/var/lib/aurora/sourceInf.json", sourceInf);
+			break;
+		case "full-upgrade":
+			await init(["update"], false, false);
+			await init(["upgrade"], false, false);
+			break;
+		case "upgrade":
+			if (packageName == undefined) {
+				// update everything.
+				const installed = await call.read("/var/lib/aurora/installed.json");
+
+				for (const i in installed) {
+					const item = installed[i];
+					const localVersion = item.version
+
+					const itemSource = await call.read("/var/lib/aurora/lists/" + item.source + ".json");
+					const remoteVersion = itemSource[item.name];
+
+					if (remoteVersion !== localVersion) {
+						console.warn(item.name + " needs to be updated")
+						await init(["upgrade", packageName], false, false, true);
+					}
+				};
+				break;
+			};
+
+			// specific package to update!
+
+			await init(["uninstall", packageName], false, false, true);
+			await init(["install", packageName], false, false, true);
+
+			break;
+		case "install":
+			if (typeof packageName == "object") {
+				for (const i in packageName) {
+					await init(["install", packageName[i]], false);
+				};
+				return;
+			};
+
+			let repo;
+			let repoName;
+			let version;
+			for (const i in sources) {
+				const source = sources[i];
+				const sourceURI = encodeURIComponent(i);
+
+				const sourcePackages = await call.read("/var/lib/aurora/lists/" + sourceURI + ".json");
+
+				if (sourcePackages == undefined) {
+					continue;
 				}
+
+				if (sourcePackages[packageName] !== undefined) {
+					console.log("Package " + packageName + " found in repository " + source);
+					repo = source;
+					repoName = sourceURI;
+					version = sourcePackages[packageName];
+					break;
+				};
+			}
+
+			if (repo == undefined) {
+				editLogs("installation of " + packageName + " has failed because the package does not exist.", "", "error")
+				console.warn("Package " + packageName + " cannot be installed because it was not found in any repositories - are you sure your indexes are up to date?")
 				return
 			}
 
-			const dotPoint = args[1].indexOf(".")
-			let base = args[1].substring(0, dotPoint)
-			if ([undefined, "", null].includes(base)) {
-				base = "default"
+			if (manualInstall == true) {
+				const installed = await call.read("/var/lib/aurora/installed.json");
+				installed.push({
+					name: packageName,
+					source: repoName,
+					version: version
+				});
+				await call.write("/var/lib/aurora/installed.json", installed);
 			}
-			let packageName = args[1].substring(dotPoint + 1, Infinity)
-			const url = local.aurora.sources[base]
 
-			editLogs(`install of ${args[1]} 0% completed`, `--------------------`)
+			const url = repo + "/pkgs/"
+
+			local.fileStorage[packageName] = []
+
+			editLogs(`install of ${packageName} 0% completed`, `--------------------`)
 
 			// download the package info
-			data = await system.fetchURL(url + packageName + "/info.json")
+			data = await local.fetch(url + packageName + "/info.json")
 
-			editLogs(`install of ${args[1]} 50% completed`, `##########----------`)
+			editLogs(`install of ${packageName} 50% completed`, `##########----------`)
 
 			// parse it, and if it's invalid, catch and tell the user the package either doesn't exist OR is formatted wrong
 			try {
 				data = JSON.parse(data)
 			} catch (e) {
-				if (e == 'SyntaxError: "undefined" is not valid JSON') {
-					editLogs("installation of " + args[1] + " has failed because the package does not exist.", "", "error")
-				} else {
-					editLogs("installation of " + args[1] + " has failed because the package info is invalid: " + e, "", "error")
-				}
+					editLogs("installation of " + packageName + " has failed because the package info is invalid: " + e, "", "error")
 				break;
+			}
+
+			// create directories
+			for (const i in data.directories) {
+				await call.mkdir(data.directories[i])
 			}
 
 			// install dependencies
 			for (const i in data.dependencies) {
-				init(["install", data.dependencies[i]])
+				await init(["install", data.dependencies[i]], false, false)
 			}
 
-			for (const i in data.directories) {
-				system.fs.writeFolder(data.directories[i])
-			}
+			const queue = [];
+
+			const writtenFiles = []
 
 			// download other files the package needs
 			const files = Object.keys(data.files || {});
@@ -182,7 +339,7 @@ async function init(arguements) {
 				const type = file.substring(0, 5);
 				const afterType = file.substring(5, Infinity);
 
-				switch(type) {
+				switch (type) {
 					case "PARSE":
 						uri = url + args[1] + afterType;
 						break;
@@ -196,10 +353,11 @@ async function init(arguements) {
 							reader.onerror = reject;
 							reader.readAsDataURL(blob);
 						});
-	
+
 						const dir = data.files[file];
-	
-						system.fs.writeFile(dir, dataURL);
+
+						queue.push(call.write(dir, dataURL));
+						writtenFiles.push(dir)
 						continue;
 						break;
 					case "https":
@@ -208,17 +366,19 @@ async function init(arguements) {
 					case "HTTP:":
 						uri = file
 						break;
-				}
+				};
 
 				// download
-				let content = await system.fetchURL(uri)
-				const dir = data.files[file]
+				let content = await local.fetch(uri);
+				const dir = data.files[file];
 				if (file.substring(0, 5) == "PARSE") {
-					content = JSON.parse(content)
-				}
+					content = JSON.parse(content);
+				};
 
-				system.fs.writeFile(dir, content)
-			}
+				writtenFiles.push(dir)
+
+				queue.push(call.write(dir, content));
+			};
 
 			index[args[1]] = data
 
@@ -231,26 +391,50 @@ async function init(arguements) {
 
 			if (data.directory !== undefined) {
 				// download the file
-				file = await system.fetchURL(url + packageName + "/src" + data.lang)
-	
+				file = await local.fetch(url + packageName + "/src" + data.lang)
+
 				if (data.directory !== undefined) {
 					// write the file to it's specific directory
 					// I intend to require elevated permissions for this in future
-					system.fs.writeFile(data.directory + "/" + data.name + data.lang, file)
+					const dir = data.directory + "/" + data.name + data.lang
+
+					local.fileStorage[args[1]].push(dir)
+
+					writtenFiles.push(dir)
+					queue.push(call.write(dir, file));
 				} else {
 					// write the file
-					system.fs.writeFile(local.aurora.directory + "/" + data.name + data.lang, file)
+					const dir = local.aurora.directory + "/" + data.name + data.lang
+
+					local.fileStorage[args[1]].push(dir)
+
+					writtenFiles.push(dir)
+					queue.push(call.write(dir, file));
 				}
 			}
+
+			for (const i in queue) {
+				await queue[i]
+			}
+
+
+			const installationFiles = await call.read("/var/lib/aurora/files.json");
+
+			if (typeof installationFiles[args[1]] == "undefined") {
+				installationFiles[args[1]] = []
+			}
+
+			for (const i in writtenFiles) {
+				installationFiles[args[1]].push(writtenFiles[i])	
+			}
+			await call.write("/var/lib/aurora/files.json", installationFiles);
 
 			editLogs("installation of " + args[1] + " 100% completed", `####################`)
 
 			break;
 		case "uninstall":
-			data = index[args[1]]
-			const dir = `${data.directory}/${args[1]}${data.lang}`
-
-			system.fs.deleteFile(dir)
+			const toDelete = local.fileStorage[args[1]]
+			console.debug(toDelete)
 			delete index[args[1]]
 			break;
 		case "info":
@@ -261,6 +445,7 @@ async function init(arguements) {
 			break;
 		case "list":
 			keys = Object.keys(index)
+			keys.sort()
 			for (const i in keys) {
 				local.logs.push("  -  " + keys[i])
 			}
@@ -279,8 +464,20 @@ async function init(arguements) {
 			std.out = "[ERR]Error: Unknown command: aurora " + args[0]
 	}
 
-	system.fs.writeFile(local.aurora.directory + "/state.json", local.aurora)
-	system.isInstalling = false
+	if (startup == true) {
+		const queue = [
+			call.write(local.aurora.directory + "/state.json", local.aurora),
+			call.write(local.aurora.directory + "/files.json", local.fileStorage)
+		];
 
-	handleStdOut()
-}
+		for (const i in queue) {
+			await queue[i];
+		};
+
+		handleStdOut();
+
+		if (local.ownsNet == true) {
+			await call.releaseDevice("eth0")
+		}
+	};
+};
