@@ -1,0 +1,6 @@
+{
+    "subsystems": [
+        "/usr/lib/skylight/panelHandler",
+        "/usr/lib/skylight/fontsystem"
+    ]
+}

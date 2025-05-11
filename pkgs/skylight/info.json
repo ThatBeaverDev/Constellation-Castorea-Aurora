@@ -1,0 +1,28 @@
+{
+    "name":"skylight",
+    "author":"ThatBeaverDev",
+    "directories": [
+        "/etc/skylight",
+        "/usr/lib/skylight",
+        "/var/lib/skylight",
+        "/usr/share/skylight",
+        "/usr/share/skylight/svgs",
+        "/usr/share/icons/",
+        "/usr/share/icons/skylight"
+    ],
+    "files": {
+        "/init": "/usr/bin/skyinit",
+        "PARSE/config/main.json": "/etc/skylight/main.json",
+        "/styles.css": "/var/lib/skylight/styles.css",
+
+        "/skylight/panelHandler": "/usr/lib/skylight/panelHandler",
+        "/skylight/fontsystem": "/usr/lib/skylight/fontsystem",
+
+        "DATAU/svgs/box.svg": "/usr/share/skylight/svgs/box.svg",
+        "DATAU/svgs/close.svg": "/usr/share/skylight/svgs/close.svg",
+        "DATAU/svgs/minimise.svg": "/usr/share/skylight/svgs/minimise.svg"
+    },
+    "dependencies": [
+        "systemfonts"
+    ]
+}

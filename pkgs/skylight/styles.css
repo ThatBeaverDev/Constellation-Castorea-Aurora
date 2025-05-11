@@ -1,0 +1,68 @@
+.skylightTotal {
+    background: rgb(122, 122, 122);
+    color: black;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+    resize: both;
+    backdrop-filter: blur(10px);
+    background: rgb(18, 18, 19, 0.5);
+    scrollbar-width: none; /* Gecko &/or Firefox */
+}
+
+::-webkit-scrollbar {
+    display: none; /* WebKit + Chromium */
+}
+
+.skylightBody {
+    overflow: scroll;
+    margin-top: 0px;
+    background-color: rgb(214, 214, 214);
+    height: calc(100% - 30px);
+}
+
+.skylightTop {
+    background: rgb(232, 232, 232);
+    margin-top: 0px;
+    top: 0px;
+    cursor: grab;
+    height: 30px;
+}
+
+.skylightTop:active {
+    cursor: grabbing
+}
+
+.skylightWindowTitle {
+    margin-left: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 50%;
+    float: left;
+}
+
+.skylightWindowButton {
+    width: 25px;
+    height: 25px;
+    background-color: rgb(187, 187, 187);
+    float: right;
+    margin: 3px;
+}
+
+.skylightWindowButton:hover {
+    cursor: pointer;
+}
+
+body {
+    margin-top: 25px;
+}
+
+button {
+    padding: 0px;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    margin-left: 10px;
+    font-size: 12px;
+}
