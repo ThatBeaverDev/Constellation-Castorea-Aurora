@@ -1,9 +1,0 @@
-{
-    "name":"crl",
-    "author":"ThatBeaverDev",
-    "lang":"js",
-    "directory":"/usr/bin/crl",
-    "directories":[
-        "/usr/bin/crl"
-    ]
-}
