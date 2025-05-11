@@ -1,7 +1,0 @@
-{
-    "desc": "The Aquila Shell for Constellinux",
-    "restart": "always",
-    "waitFor": "thatbeaverdev.wrapper.service",
-    "entrypoint": "/bin/aquila.js",
-    "dir": "/"
-}

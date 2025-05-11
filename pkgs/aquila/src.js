@@ -14,8 +14,6 @@ function compile() {
 		line = `parent.run("${script[i]}")`
 
 		result.push(line)
-
-		console.log(line)
 	}
 
 	result.push("}")
@@ -32,10 +30,22 @@ function Stringify(data) {
 	}
 }
 
-function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
+async function init([dr]) {	
+
+	let directory = dr
+	
+	if (directory == undefined) {
+
+		let users = await call.read("/etc/passwd")
+		let user = await call.whoami()
+		
+		directory = users[user].homeDir
+	}
+
 	local.history = []
 	local.historyPos = 0
-	local.user = csw.permissions.getUser()
+	local.user = await call.whoami()
+	local.shared = {} // need to remove since shared is no longer accessible by child processes
 	local.shared.dir = directory
 	local.shared.PID = PID
 
@@ -83,29 +93,27 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		// setup args
 		let args = String(code).split(" ");
 
-		console.log(args);
-
 		const binName = args[0].toLowerCase();
 
 		args = args.slice(0); // remove the command from the array
 
-		const path = csw.fs.read("/etc/path.json");
+		const path = await call.read("/etc/path.json");
 
 		local.history.push(code); // append to history
 
 		let cmd; // going to store the path to the file we are running
 
 		if ([".", "/", "~"].includes(binName[0])) {
-			cmd = csw.fs.toDirectory(binName, local.shared.dir);
+			cmd = await call.fullDirectory(binName, local.shared.dir);
 		} else {
 			for (const i in path) {
 				let temp = path[i] + "/" + binName;
-				if (csw.fs.read(temp) !== undefined) {
+				if (await call.read(temp) !== undefined) {
 					cmd = String(temp);
 					break;
 				} else {
 					temp = path[i] + "/" + binName + ".js"
-					if (csw.fs.read(temp) !== undefined) {
+					if (await call.read(temp) !== undefined) {
 						cmd = String(temp);
 						break;
 					}
@@ -118,27 +126,26 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 			stdout: ''
 		}
 
-		if (cmd == undefined || csw.fs.read(cmd) == undefined) {
+		if (cmd == undefined || await call.read(cmd) == undefined) {
 			local.logging.post(Name, `command not found: ${binName}`)
 		} else {
-			local.runner = csw.permissions.elevate().maxPID + 1
+			//local.runner = csw.permissions.elevate().maxPID + 1
 
 			const stdin = undefined;
 
-			result = await csw.processes.execute(cmd, args.slice(1), isUnsafe, stdin, true);
+			result = await call.exec(cmd, args.slice(1), stdin, true);
 
 			delete local.runner;
 
 			const stdout = local.stdToLogs(result.stdout);
 
+			let process = result.process;
+			const name = String(process.name)
 			for (const i in stdout) {
-
-				let process = result.process;
-
 				const type = stdout[i].type;
 				const text = stdout[i].text;
 
-				local.logging[type](process.name, text, local.logs, false, true);
+				local.logging[type](name, text, local.logs, false, true);
 			}
 		}
 		local.updateLogs()
@@ -159,7 +166,7 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		const split = code.split(";")
 
 		if (code == "exit") {
-			csw.processes.terminate(PID)
+			await call.kill(PID)
 		}
 
 		for (const i in split) {
@@ -192,6 +199,17 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 
 	local.pretext = document.createElement("pretext");
 	local.pretext.id = `aquilaPretext${PID}`;
+	
+	local.style = document.createElement('style');
+	local.style.textContent = ""
+	
+	const colours = [`AliceBlue`, `AntiqueWhite`, `Aqua`, `Aquamarine`, `Azure`, `Beige`, `Bisque`, `Black`, `BlanchedAlmond`, `Blue`, `BlueViolet`, `Brown`, `BurlyWood`, `CadetBlue`, `Chartreuse`, `Chocolate`, `Coral`, `CornflowerBlue`, `Cornsilk`, `Crimson`, `Cyan`, `DarkBlue`, `DarkCyan`, `DarkGoldenRod`, `DarkGray`, `DarkGrey`, `DarkGreen`, `DarkKhaki`, `DarkMagenta`, `DarkOliveGreen`, `Darkorange`, `DarkOrchid`, `DarkRed`, `DarkSalmon`, `DarkSeaGreen`, `DarkSlateBlue`, `DarkSlateGray`, `DarkSlateGrey`, `DarkTurquoise`, `DarkViolet`, `DeepPink`, `DeepSkyBlue`, `DimGray`, `DimGrey`, `DodgerBlue`, `FireBrick`, `FloralWhite`, `ForestGreen`, `Fuchsia`, `Gainsboro`, `GhostWhite`, `Gold`, `GoldenRod`, `Gray`, `Grey`, `Green`, `GreenYellow`, `HoneyDew`, `HotPink`, `IndianRed`, `Indigo`, `Ivory`, `Khaki`, `Lavender`, `LavenderBlush`, `LawnGreen`, `LemonChiffon`, `LightBlue`, `LightCoral`, `LightCyan`, `LightGoldenRodYellow`, `LightGray`, `LightGrey`, `LightGreen`, `LightPink`, `LightSalmon`, `LightSeaGreen`, `LightSkyBlue`, `LightSlateGray`, `LightSlateGrey`, `LightSteelBlue`, `LightYellow`, `Lime`, `LimeGreen`, `Linen`, `Magenta`, `Maroon`, `MediumAquaMarine`, `MediumBlue`, `MediumOrchid`, `MediumPurple`, `MediumSeaGreen`, `MediumSlateBlue`, `MediumSpringGreen`, `MediumTurquoise`, `MediumVioletRed`, `MidnightBlue`, `MintCream`, `MistyRose`, `Moccasin`, `NavajoWhite`, `Navy`, `OldLace`, `Olive`, `OliveDrab`, `Orange`, `OrangeRed`, `Orchid`, `PaleGoldenRod`, `PaleGreen`, `PaleTurquoise`, `PaleVioletRed`, `PapayaWhip`, `PeachPuff`, `Peru`, `Pink`, `Plum`, `PowderBlue`, `Purple`, `Red`, `RosyBrown`, `RoyalBlue`, `SaddleBrown`, `Salmon`, `SandyBrown`, `SeaGreen`, `SeaShell`, `Sienna`, `Silver`, `SkyBlue`, `SlateBlue`, `SlateGray`, `SlateGrey`, `Snow`, `SpringGreen`, `SteelBlue`, `Tan`, `Teal`, `Thistle`, `Tomato`, `Turquoise`, `Violet`, `Wheat`, `White`, `WhiteSmoke`, `Yellow`, `YellowGreen`,]
+	
+	for (const i in colours) {
+		const colour = colours[i]
+		local.style.textContent += `${colour} { color: ${colour} }`
+		local.style.textContent += `${colour}Background { background-color: ${colour} }`
+	}
 
 	local.inputContainer = document.createElement('div');
 	local.inputContainer.id = `aquilaInputContainer${PID}`;
@@ -206,39 +224,26 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 	local.container.style.whiteSpace = "pre";
 	local.container.style.marginLeft = "10px";
 	local.container.style.marginTop = "10px";
-
-	local.style = document.createElement('style');
-	local.style.textContent = ""
-
-	const colours = [`AliceBlue`, `AntiqueWhite`, `Aqua`, `Aquamarine`, `Azure`, `Beige`, `Bisque`, `Black`, `BlanchedAlmond`, `Blue`, `BlueViolet`, `Brown`, `BurlyWood`, `CadetBlue`, `Chartreuse`, `Chocolate`, `Coral`, `CornflowerBlue`, `Cornsilk`, `Crimson`, `Cyan`, `DarkBlue`, `DarkCyan`, `DarkGoldenRod`, `DarkGray`, `DarkGrey`, `DarkGreen`, `DarkKhaki`, `DarkMagenta`, `DarkOliveGreen`, `Darkorange`, `DarkOrchid`, `DarkRed`, `DarkSalmon`, `DarkSeaGreen`, `DarkSlateBlue`, `DarkSlateGray`, `DarkSlateGrey`, `DarkTurquoise`, `DarkViolet`, `DeepPink`, `DeepSkyBlue`, `DimGray`, `DimGrey`, `DodgerBlue`, `FireBrick`, `FloralWhite`, `ForestGreen`, `Fuchsia`, `Gainsboro`, `GhostWhite`, `Gold`, `GoldenRod`, `Gray`, `Grey`, `Green`, `GreenYellow`, `HoneyDew`, `HotPink`, `IndianRed`, `Indigo`, `Ivory`, `Khaki`, `Lavender`, `LavenderBlush`, `LawnGreen`, `LemonChiffon`, `LightBlue`, `LightCoral`, `LightCyan`, `LightGoldenRodYellow`, `LightGray`, `LightGrey`, `LightGreen`, `LightPink`, `LightSalmon`, `LightSeaGreen`, `LightSkyBlue`, `LightSlateGray`, `LightSlateGrey`, `LightSteelBlue`, `LightYellow`, `Lime`, `LimeGreen`, `Linen`, `Magenta`, `Maroon`, `MediumAquaMarine`, `MediumBlue`, `MediumOrchid`, `MediumPurple`, `MediumSeaGreen`, `MediumSlateBlue`, `MediumSpringGreen`, `MediumTurquoise`, `MediumVioletRed`, `MidnightBlue`, `MintCream`, `MistyRose`, `Moccasin`, `NavajoWhite`, `Navy`, `OldLace`, `Olive`, `OliveDrab`, `Orange`, `OrangeRed`, `Orchid`, `PaleGoldenRod`, `PaleGreen`, `PaleTurquoise`, `PaleVioletRed`, `PapayaWhip`, `PeachPuff`, `Peru`, `Pink`, `Plum`, `PowderBlue`, `Purple`, `Red`, `RosyBrown`, `RoyalBlue`, `SaddleBrown`, `Salmon`, `SandyBrown`, `SeaGreen`, `SeaShell`, `Sienna`, `Silver`, `SkyBlue`, `SlateBlue`, `SlateGray`, `SlateGrey`, `Snow`, `SpringGreen`, `SteelBlue`, `Tan`, `Teal`, `Thistle`, `Tomato`, `Turquoise`, `Violet`, `Wheat`, `White`, `WhiteSmoke`, `Yellow`, `YellowGreen`,]
-
-
-	for (const i in colours) {
-		const colour = colours[i]
-		local.style.textContent += `${colour} { color: ${colour} }`
-		local.style.textContent += `${colour}Background { background-color: ${colour} }`
-	}
-
+	
 	local.inputContainer.innerHTML = local.style.outerHTML + "\n" + local.pretext.outerHTML + "\n" + local.input.outerHTML
 	local.container.innerHTML = local.logsDiv.outerHTML + "\n" + local.inputContainer.outerHTML
 	local.containerBackup = local.container
 
-
-	local.sky = csw.msgs.pidOfName("skylightWindowSystem");
+	local.sky = await call.pidOfName("skylightWindowSystem");
 
 	if (isNaN(local.sky)) {
 		csw.display.fullscreen(PID)
 		csw.display.set(PID, local.container.outerHTML)
 		csw.display.rename(PID, "Aquila")
 	} else {
-		csw.msgs.send(local.sky, {
+		call.send(local.sky, {
 			intent: "newWindow"
 		});
 	}
 
-
-	local.updateLogs = function () {
-		if (csw.display.visible(PID) !== true) {
+	local.updateLogs = async function () {
+		const visible = await call.visible()
+		if (!visible) {
 			return;
 		}
 		
@@ -253,24 +258,23 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		local.input = document.getElementById(`aquilaInput${PID}`);
 		local.container = document.getElementById(`aquilaContainer${PID}`);
 
-		if (csw.display.visible(PID)) {
-			if (local.container == null) {
-				csw.msgs.send(local.sky, {
-					intent: "setWindowContents",
-					contents: local.containerBackup.outerHTML
-				});
-				csw.msgs.send(local.sky, {
-					intent: "renameWindow",
-					text: "Aquila"
-				});
-				setTimeout(local.updateLogs, 25)
-				return
+		if (local.container == null) {
+			call.send(local.sky, {
+				intent: "setWindowContents",
+				contents: local.containerBackup.outerHTML
+			});
+			call.send(local.sky, {
+				intent: "renameWindow",
+				text: "Aquila"
+			});
+			setTimeout(local.updateLogs, 25)
+			return
 
-			}
 		}
 
 		// pretext
-		const pretextData = `${local.user}@${csw.fs.read("/etc/hostname")} ${local.shared.dir} % `
+		const hostname = await call.gethostname()
+		const pretextData = `${local.user}@${hostname} ${local.shared.dir} % `
 		if (local.pretext.innerText !== pretextData) {
 			local.pretext.innerText = pretextData
 		}
@@ -291,11 +295,7 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 
 							const selection = String(local.input.value)
 							local.input.value = ""
-							if (csw) {
-								await local.formatRun(selection, text)
-							} else {
-								await local.formatRun(selection, text)
-							}
+							await local.formatRun(selection, text)
 
 						}
 						break;
@@ -330,23 +330,23 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 
 		let logsTMP = JSON.parse(JSON.stringify(local.logs))
 
-		//const proc = csw.fs.read("/proc")
-		const proc = csw.permissions.elevate().processes
-		const mem = csw.permissions.elevate().memory.processes
-
-		if (proc[local.runner] !== undefined) {
-			const stdout = mem[local.runner].std.out
-
-			const stdlogs = local.stdToLogs(stdout)
-
-			for (const i in stdlogs) {
-				const obj = stdlogs[i]
-
-				const pcsName = proc[local.runner].name
-
-				local.logging[obj.type](pcsName, obj.text, logsTMP, false, false)
-			}
-		}
+		//const proc = await call.read("/proc")
+		//const proc = csw.permissions.elevate().processes
+		//const mem = csw.permissions.elevate().memory.processes
+		//
+		//if (proc[local.runner] !== undefined) {
+		//	const stdout = mem[local.runner].std.out
+		//
+		//	const stdlogs = local.stdToLogs(stdout)
+		//
+		//	for (const i in stdlogs) {
+		//		const obj = stdlogs[i]
+		//
+		//		const pcsName = proc[local.runner].name
+		//
+		//		local.logging[obj.type](pcsName, obj.text, logsTMP, false, false)
+		//	}
+		//}
 		const logs = logsTMP
 
 		for (const i in logs) {
@@ -365,8 +365,12 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 			data += temp
 		}
 
-		if (local.logsDiv.innerHTML !== data) {
-			local.logsDiv.innerHTML = data
+		if (data !== local.oldLogs) {
+			local.oldLogs = String(data)
+	
+			if (local.logsDiv.innerHTML !== data) {
+				local.logsDiv.innerHTML = data
+			}
 		}
 	}
 
@@ -375,7 +379,7 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 	const log = local.shared
 	local.logging = {}
 
-	local.logging.log = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
+	local.logging.log = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "log",
 			origin: name,
@@ -383,16 +387,13 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		}
 		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
-		if (consoleLog) {
-			csw.log(obj.content)
-		}
 		if (updateLogs) {
 			local.updateLogs()
 		}
 		return logArr.length - 1
 	}
 
-	local.logging.post = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
+	local.logging.post = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "post",
 			origin: name,
@@ -400,16 +401,13 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		}
 		obj.content = window.stringify(content, true)
 		logArr.push(obj);
-		if (consoleLog) {
-			csw.log(obj.content);
-		};
 		if (updateLogs) {
 			local.updateLogs();
 		};
 		return logArr.length - 1
 	}
 
-	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
+	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true, ) {
 		const obj = {
 			type: "warn",
 			origin: name,
@@ -417,16 +415,13 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		}
 		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
-		if (consoleLog) {
-			csw.warn(obj.content)
-		}
 		if (updateLogs) {
 			local.updateLogs()
 		}
 		return logArr.length - 1
 	}
 
-	local.logging.error = function (name, content, logArr = local.logs, updateLogs = true, consoleLog = true) {
+	local.logging.error = function (name, content, logArr = local.logs, updateLogs = true) {
 		const obj = {
 			type: "error",
 			origin: name,
@@ -434,9 +429,6 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		}
 		obj.content = `${name}: ${window.stringify(content, true)}`
 		logArr.push(obj)
-		if (consoleLog) {
-			csw.error(obj.content)
-		}
 		if (updateLogs) {
 			local.updateLogs()
 		}
@@ -507,7 +499,7 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 
 	log.changeUser = async function (username, pass) {
 		const user = username
-		const userData = csw.fs.read("/etc/passwd")[user]
+		const userData = await call.read("/etc/passwd")[user]
 
 		// make sure the user exists
 		if (userData == undefined) {
@@ -522,12 +514,10 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 			password = await log.getInput("Password: ", false)
 		}
 
-		const newUser = await csw.permissions.changeUser(PID, username, password)
+		const newUser = await call.chusr(username, password)
 		local.user = user
 		local.shared.user = String(local.user)
 		local.shared.dir = userData.homeDir
-
-		console.log(newUser)
 
 		if (newUser.ok == true) {
 			return true
@@ -544,8 +534,8 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		local.logs = []
 	}
 
-	log.changeDir = function (directory) {
-		const dir = csw.fs.toDirectory(directory, log.dir)
+	log.changeDir = async function (directory) {
+		const dir = await call.fullDirectory(directory, log.dir)
 		if (sse.fs.isFolder(dir)) {
 			local.shared.dir = dir
 		} else {
@@ -553,24 +543,27 @@ function init([directory = call.read("/etc/passwd")[call.whoami()].homeDir]) {
 		}
 	}
 
-	local.interval = setInterval(function () {
+	local.interval = setInterval(async function () {
 		try {
-			if (csw.display.focused(PID) == true) {
+			if (await call.visible() == true) {
+				local.updateLogs()
 				local.input.focus()
 			}
 		} catch (e) { }
 	}, 100)
 
-	local.interval2 = setInterval(function () {
-		local.updateLogs()
-	}, 1000)
+	await new Promise(function (resolve) {
+		setTimeout(resolve, 0)
+	})
 
-	setTimeout(local.updateLogs, 0)
+	local.updateLogs()
+
+	local.times = 0
 }
 
-function frame() { }
+function frame() {
+}
 
 function terminate() {
 	clearInterval(local.interval)
-	clearInterval(local.interval2)
 }
