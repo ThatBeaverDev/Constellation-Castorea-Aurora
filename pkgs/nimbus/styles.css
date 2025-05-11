@@ -1,0 +1,86 @@
+#header {
+    width: 100vw;
+    height: 25px;
+    left: 0px;
+    background-color: rgb(37, 27, 32);
+    color: white;
+    z-index: 5;
+}
+
+#mainHeader {
+    width: 100vw;
+    height: 25px;
+    top: 0px;
+    left: 0px;
+    background-color: rgb(20, 14, 33);
+    color: white;
+    text-decoration: none;
+    z-index: 10;
+    position: absolute;
+}
+
+button.nimbusHeaderInner {
+    float: left;
+    margin: 5px;
+    margin-top: 0px;
+    line-height: 25px;
+    border-radius: 0px;
+}
+
+.nimbusHeaderInnerWithinDropdown {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+div.nimbusHeaderInner {
+    float: left;
+    margin: 5px;
+    margin-top: 0px;
+    padding: 0px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 0px;
+}
+
+.nimbusHeaderInnerRight {
+    float: right;
+    margin: 5px;
+    margin-top: 0px;
+    line-height: 25px;
+    border-radius: 0px;
+}
+
+.nimbusHeaderInnerLeftDropdown {
+    display: none;
+}
+
+.skylightTotal {
+    color: white;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-radius: 10px;
+    overflow: hidden;
+    resize: both;
+    backdrop-filter: blur(10px);
+    background: rgb(18, 18, 19, 0.5);
+    scrollbar-width: none; /* Gecko &/or Firefox */
+}
+
+.skylightBody {
+    background-color: transparent;
+}
+
+.skylightWindowButton {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 20%;
+}
+
+.skylightWindowButtonImage {
+    filter: invert(100%) brightness(10000%);
+}
+
+.skylightTop {
+    background: rgb(51, 51, 51);
+}

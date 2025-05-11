@@ -1,0 +1,23 @@
+{
+    "author":"ThatBeaverDev",
+    "directories":[
+        "/usr/share/nimbus",
+        "/usr/share/backgrounds",
+        "/usr/share/applications"
+    ],
+    "files": {
+        "PARSE/nimbus.service": "/etc/sysd/system/thatbeaverdev/nimbus.service",
+        "PARSE/skylight.service": "/etc/sysd/system/thatbeaverdev/skylight.service",
+        "DATAU/backgrounds/saturn.jpg": "/usr/share/backgrounds/saturn.jpg",
+        "DATAU/backgrounds/Mountain Under Stars - Benjamin Voros.jpg": "/usr/share/backgrounds/Mountain Under Stars - Benjamin Voros.jpg",
+        "DATAU/backgrounds/Icelandic Mountain - Luca Micheli.jpg": "/usr/share/backgrounds/Icelandic Mountain - Luca Micheli.jpg",
+        "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/usr/share/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg",
+
+        "/nimbus.js": "/usr/bin/nimbus",
+        "/styles.css": "/usr/share/nimbus/styles.css",
+        "/nimbusctl.js": "/usr/bin/nimbusctl"
+    },
+    "dependencies": [
+        "skylight"
+    ]
+}
