@@ -193,7 +193,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					std.out = `[ERR]Unknown option of sources: "${args[1]}"`
 			}
 			break;
-		case "update":
+		case "index":
 			const sourceInf = {}
 
 			const sourceItems = await call.readdir("/var/lib/aurora/lists")
@@ -222,7 +222,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			await call.write("/var/lib/aurora/sourceInf.json", sourceInf);
 			break;
 		case "full-upgrade":
-			await init(["update"], false, false);
+			await init(["index"], false, false);
 			await init(["upgrade"], false, false);
 			break;
 		case "upgrade":
