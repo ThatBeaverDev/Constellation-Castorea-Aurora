@@ -4,7 +4,8 @@
     "directories": [
         "/bin",
         "/usr",
-        "/usr/bin"
+        "/usr/bin",
+        "/usr/share/man"
     ],
     "files": {
         "/src/basename.js": "/usr/bin/basename",
@@ -15,7 +16,7 @@
         "/src/du.js": "/usr/bin/du",
         "/src/echo.yak": "/bin/echo",
         "/src/hostname.yak": "/bin/hostname",
-        "/src/ls.yak": "/bin/ls",
+        "/src/ls.js": "/bin/ls",
         "/src/mkdir.yak": "/usr/bin/mkdir",
         "/src/mv.js": "/bin/mv.js",
         "/src/pwd.js": "/bin/pwd.js",

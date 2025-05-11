@@ -6,9 +6,9 @@ function reverse(string) {
     return string.split("").reverse().join("")
 }
 
-function init([dir, suffix = ""]) {
+async function init([dir, suffix = ""]) {
 
-    const pth = csw.fs.toDirectory(dir, parent.dir)
+    const pth = await call.fullDirectory(dir, parent.dir)
 
     if (pth == "/") {
         std.out = "/"

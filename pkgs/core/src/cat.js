@@ -3,7 +3,7 @@
 function stringify(thing) {
     if (typeof thing == "object") {
         try {
-            return JSON.stringify(thing)
+            return JSON.stringify(thing, null, 4)
         } catch (e) {
             return {}
         }
@@ -11,7 +11,7 @@ function stringify(thing) {
     return String(thing)
 }
 
-function init(args) {
+async function init(args) {
 
     if (args.length == 0) {
         return
@@ -53,8 +53,9 @@ function init(args) {
         }
     }
 
-    const dir = csw.fs.toDirectory(directory, parent.dir)
-    const content = stringify(csw.fs.read(dir))
+    const dir = await call.fullDirectory(directory, parent.dir)
+    const fileContents = await call.read(dir)
+    const content = stringify(fileContents)
 
     if (obj.lineNumbers) {
         const lines = content.split("\n")

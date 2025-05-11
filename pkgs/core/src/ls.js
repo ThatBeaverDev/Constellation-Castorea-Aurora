@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 // LS
 async function init(args) {
 
@@ -59,7 +61,7 @@ async function init(args) {
     }
 
     async function walk(directory) {
-        const lis = await csw.fs.listDir(directory);
+        const lis = await call.readdir(directory);
 
         for (const i in lis) {
             if (lis[i][0] == "." && obj.hidden == false) {
@@ -71,7 +73,11 @@ async function init(args) {
                 item = directory + lis[i];
             };
 
-            const isDir = csw.fs.isDirectory(item);
+            let isDir = false
+            try {
+                await call.readdir(item)
+                isDir = true
+            } catch(e) {}
 
             const log = [];
             if (obj.longFormat) {
@@ -93,7 +99,7 @@ async function init(args) {
                     log.push(size)
                 } else {
                     // file size
-                    const size = insureIsCorrectLength(csw.fs.read(item, "size"), 10)
+                    const size = insureIsCorrectLength(await call.read(item, "size"), 10)
                     log.push(size)
                 }
 
