@@ -22,7 +22,7 @@ async function frame() {
 
         switch(payload.intent) {
             case "networkRequest":
-                handleNetworkRequest(payload.target, payload.type, msg.origin)
+                await handleNetworkRequest(payload.target, payload.type, msg.origin)
                 break;
         }
     }
