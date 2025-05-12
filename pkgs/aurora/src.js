@@ -31,7 +31,7 @@ async function fetchLocation(URL) {
 	});
 
 	return new Promise(function (resolve) {
-		setInterval(async function () {
+		let interval = setInterval(async function () {
 			const msgs = await call.readMsgs(true);
 
 			for (const i in msgs) {
@@ -39,11 +39,12 @@ async function fetchLocation(URL) {
 					const msg = msgs[i];
 
 					if (msg.origin == networkd) {
-						resolve(msg.data)
+						clearInterval(interval)
+						resolve(msg.content)
 					}
 				};
 			};
-		}, 50);
+		}, 10);
 	});
 };
 
@@ -205,18 +206,22 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			for (const i in sources) {
 				try {
 					const source = sources[i];
+					console.debug("Indexing", source, "(" + i + ")")
 					const sourceURI = encodeURIComponent(i)
-
+					
 					const manifest = JSON.parse(await fetchLocation(source + "/repository.json"));
-
+					
 					const packages = manifest.packages;
 					await call.write("/var/lib/aurora/lists/" + sourceURI + ".json", packages)
-	
+					
 					const info = structuredClone(manifest);
 					delete info.packages;
-	
+					
+					console.debug(source, "(" + i + ")", "indexed")
 					sourceInf[source] = info;
-				} catch(e) {};
+				} catch(e) {
+					console.warn(e)
+				};
 			};
 
 			await call.write("/var/lib/aurora/sourceInf.json", sourceInf);
@@ -234,9 +239,11 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					const item = installed[i];
 					const localVersion = item.version
 
+					
 					const itemSource = await call.read("/var/lib/aurora/lists/" + item.source + ".json");
 					const remoteVersion = itemSource[item.name];
-
+					console.log(localVersion, remoteVersion)
+					
 					if (remoteVersion !== localVersion) {
 						console.warn(item.name + " needs to be updated")
 						await init(["upgrade", packageName], false, false, true);
@@ -457,6 +464,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			local.logs.push("   - aurora uninstall [package-name]")
 			local.logs.push("   - aurora list")
 			local.logs.push("   - aurora info")
+			local.logs.push("   - aurora index:  updates package listings")
 			local.logs.push("")
 			local.logs.push("   - aurora -s:     runs aurora silently")
 			break;
