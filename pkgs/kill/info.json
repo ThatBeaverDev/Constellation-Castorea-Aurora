@@ -1,9 +1,9 @@
 {
     "name":"kill",
     "author":"ThatBeaverDev",
-    "lang":"js",
-    "directory":"/bin",
     "files": {
-        "/manpage.1": "/usr/share/man/kill.1"
+        "/kill.js": "/bin/kill.js",
+        "/killall.js": "/usr/bin/killall",
+        "/killManpage.1": "/usr/share/man/kill.1"
     }
 }
