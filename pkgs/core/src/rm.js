@@ -3,7 +3,7 @@
 async function init(args) {
 
 	async function walk(directory, verbose) {
-		const list = await csw.fs.listDir(directory)
+		const list = await call.readdir(directory)
 
 		let dir = String(directory)
 
@@ -14,17 +14,17 @@ async function init(args) {
 		for (const i in list) {
 			const path = dir + list[i]
 
-			const isDir = csw.fs.isDirectory(path)
+			const isDir = await call.isFolder(path)
 
 			if (isDir) {
 				await walk(path, verbose)
 			} else {
 				std.out += "Deleting file " + path
-				csw.fs.delete(path)
+				await call.unlink(path)
 			}
 		}
 
-		const delDir = csw.fs.deleteDir(directory)
+		const delDir = await call.unlink(directory)
 	}
 
 	let dir
@@ -69,7 +69,7 @@ async function init(args) {
 			default:
 				// if the token is the last one, it's the dir
 				if (i == args.length - 1) {
-					dir = csw.fs.toDirectory(args[i], parent.dir)
+					dir = await call.fullDirectory(args[i], parent.dir)
 				} else {
 					std.out += "[WRN]Unknown flag: " + args[i];
 				}
@@ -78,14 +78,14 @@ async function init(args) {
 	}
 
 
-	const isDir = csw.fs.isDirectory(dir)
+	const isDir = await call.isFolder(dir)
 
 	let result = false
 
 	if (isDir) {
 		result = await walk(dir, obj.verbose)
 	} else {
-		result = csw.fs.delete(dir)
+		result = await call.unlink(dir)
 	}
 
 	std.out = result

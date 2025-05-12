@@ -2,9 +2,9 @@
 
 // write blank to a file
 
-function init(args) {
+async function init(args) {
     for (const i in args) {
-        const dir = csw.fs.toDirectory(args[i], parent.dir)
-        csw.fs.write(dir, "")
+        const dir = await call.fullDirectory(args[i], parent.dir)
+        await call.write(dir, "")
     }
 }

@@ -2,8 +2,8 @@
 
 // list  users.
 
-function init() {
-    const users = csw.fs.read("/etc/passwd")
+async function init() {
+    const users = await call.read("/etc/passwd")
 
     const keys = []
 

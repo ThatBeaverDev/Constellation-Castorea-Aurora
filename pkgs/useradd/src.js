@@ -1,9 +1,7 @@
 // create system users
 
-const users = csw.fs.read("/etc/passwd")
 
 async function init(args) {
-
     try {
         system
     } catch(e) {
@@ -101,6 +99,8 @@ async function init(args) {
 
 const register = async function (name, object) {
 
+    const users = await call.read("/etc/passwd")
+
     const obj = JSON.parse(JSON.stringify(object))
 
     if (users[name] !== undefined) {
@@ -124,13 +124,13 @@ const register = async function (name, object) {
     p.delete = (p.delete || false)
 
     users[name] = obj
-    if (!csw.fs.isDirectory(obj.baseDir)) {
+    if (!await call.isFolder(obj.baseDir)) {
         throw new Error(`User base directory (${obj.baseDir}) is not created`)
     } else {
         const d = obj.homeDir
-        csw.fs.createDir(d)
-        csw.fs.createDir(d + "/.profile")
-        csw.fs.createDir(d + "/.config")
+        await call.mkdir(d)
+        await call.mkdir(d + "/.profile")
+        await call.mkdir(d + "/.config")
     }
 
     return true

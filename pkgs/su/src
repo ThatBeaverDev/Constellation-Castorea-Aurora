@@ -2,7 +2,7 @@
 
 async function init(args) {
     try {
-        const users = csw.fs.read("/etc/passwd")
+        const users = await call.read("/etc/passwd")
     
         if (args[0] == undefined) {
             args[0] = "root"

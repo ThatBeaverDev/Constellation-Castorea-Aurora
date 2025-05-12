@@ -232,9 +232,8 @@ async function init([dr]) {
 	local.sky = await call.pidOfName("skylightWindowSystem");
 
 	if (isNaN(local.sky)) {
-		csw.display.fullscreen(PID)
-		csw.display.set(PID, local.container.outerHTML)
-		csw.display.rename(PID, "Aquila")
+		await call.claimDevice("display")
+		await call.deviceRope("display", "setInnerHTML", ["display", local.container.outerHTML])
 	} else {
 		call.send(local.sky, {
 			intent: "newWindow"

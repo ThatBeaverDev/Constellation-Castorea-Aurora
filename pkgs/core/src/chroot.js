@@ -2,6 +2,6 @@
 
 // change process' root
 
-function init([root]) {
-    csw.processes.chroot(parent.PID, root)
+async function init([root]) {
+    await call.chroot(parent.PID, root)
 }

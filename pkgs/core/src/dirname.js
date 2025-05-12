@@ -1,8 +1,8 @@
 #! /usr/bin/node
 
-function init(args) {
+async function init(args) {
 
-    const dir = csw.fs.toDirectory(args[0], parent.dir)
+    const dir = await call.fullDirectory(args[0], parent.dir)
 
     let location = dir.substring(0, dir.lastIndexOf("/"))
     if (location == "") {

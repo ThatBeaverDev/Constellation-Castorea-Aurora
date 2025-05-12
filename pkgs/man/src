@@ -1,19 +1,19 @@
 #! /usr/bin/node
 
-function exit(reason) {
-    csw.processes.terminate(PID)
+async function exit(reason) {
     if (reason !== undefined) {
         std.out = reason
     }
     local.stopped = true
+    await call.kill(".")
 }
 
-function init(args) {
+async function init(args) {
 
     local.mandir = "/usr/share/man"
 
     local.manPageDir = local.mandir + "/" + args[0] + ".1"
-    local.manPage = csw.fs.read(local.manPageDir)
+    local.manPage = await call.read(local.manPageDir)
 
     if (local.manPage == undefined) {
         exit(`${args[0]} has no manpage, sorry.`)

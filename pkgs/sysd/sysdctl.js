@@ -30,7 +30,7 @@ function findsysd(system) {
     }
 }
 
-function init(args) {
+async function init(args) {
     const system = csw.permissions.elevate()
 
     local.options = {}
@@ -38,7 +38,7 @@ function init(args) {
 
     local.systemC = findsysd(system)
 
-    local.config = csw.fs.read("/etc/sysd/cfg.json")
+    local.config = await call.read("/etc/sysd/cfg.json")
     const config = local.config
 
     switch(args[0]) {

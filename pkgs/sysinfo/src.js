@@ -1,7 +1,39 @@
 // display system info
 
 async function init() {
-    const system = csw.permissions.elevate()
+    //const system = csw.permissions.elevate()
+    const system = {} // TEMPORARY bandaid fix - 12/5/2025
+
+    async function request(target, msg) {
+        call.send(target, msg)
+
+        return new Promise((resolve) => {
+            let interval = setInterval(async () => {
+                const msgs = await call.readMsgs(true)
+
+                for (const i in msgs) {
+                    const msg = msgs[i]
+
+                    if (msg.origin == target) {
+                        // treat this like a reply
+                        clearInterval(interval)
+                        resolve(msg)
+                    }
+                }
+            }, 10)
+        })
+    }
+
+    const networkd = await call.pidOfName("networkd")
+    async function fetchURL(URL) {
+        const data = await request(networkd, {
+            intent: "networkRequest",
+            type: "GET",
+            target: URL
+        })
+
+        return data.content
+    }
 
     function convertMiliseconds(miliseconds, format) {
         var days, hours, minutes, seconds, total_hours, total_minutes, total_seconds;
@@ -28,7 +60,7 @@ async function init() {
                 return { d: days, h: hours, m: minutes, s: seconds };
         }
     }
-    let icon = await csw.net.fetch("./logoAscii.txt")
+    let icon = await fetchURL("./logoAscii.txt")
     icon = icon.split("\n")
     for (const i in icon) {
         let key = ""
@@ -37,7 +69,7 @@ async function init() {
         try {
             switch (String(i)) {
                 case "1":
-                    toAdd = `<green>${parent.getUser()}@${csw.fs.read("/etc/hostname")}</green>`
+                    toAdd = `<green>${parent.getUser()}@${await call.read("/etc/hostname")}</green>`
                     break;
                 case "2":
                     toAdd = "-------------------"
@@ -60,8 +92,8 @@ async function init() {
                     val = time.d + " Days, " + time.h + " Hours, " + time.m + " Minutes."
                     break;
                 case "7":
-                    const pkgInfo = csw.fs.read("/usr/bin/aurora/state.json")
-                    const packages = Object.keys(pkgInfo.index)
+                    const auroraFiles = await call.read("/var/lib/aurora/files.json")
+                    const packages = Object.keys(auroraFiles)
 
                     if (packages.length !== 0) {
                         key = "Packages"
@@ -78,15 +110,15 @@ async function init() {
                     break;
                 case "10":
                     key = "DE"
-                    val = system.versions.desktop
+                    //val = system.versions.desktop
                     break;
                 case "11":
                     key = "WM"
-                    val = system.versions.windowManager
+                    //val = system.versions.windowManager
                     break;
                 case "12":
                     key = "Terminal"
-                    val = system.versions.terminal
+                    //val = system.versions.terminal
                     break;
                 case "14":
                     key = "CPU Cores"

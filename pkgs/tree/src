@@ -10,8 +10,7 @@ FUNC:DEF "WALK" #directory #prefix #maxDepth #depth
 	END
 
 
-	FS:CD #directory
-	VAR:CONST #contents (FS:LS)
+	VAR:CONST #contents (SYS:READDIR #directory)
 
 	ARR:SORT #contents
 
@@ -22,13 +21,14 @@ FUNC:DEF "WALK" #directory #prefix #maxDepth #depth
 
 			VAR:SET #dispFile (STR #file)
 
-			VAR:SET #asDir (FS:ASDIR #file #directory)
+			VAR:CONST #asDir (SYS:FULLDIRECTORY #file #directory)
 
 			IF (OBJ:KEY $OBJ "fullDir")
 				VAR:SET #dispFile #asDir
 			END
 
-			IF (FS:ISDIR #asDir)
+			IF (SYS:ISDIR #asDir)
+				BA #asDir
 				VAR:ADD (STD:OUT) (OP:ADD #prefix (OP:ADD (OBJ:KEY #parts 0) (OP:ADD #dispFile "\n")))
 				VAR:ADD (OBJ:KEY $counts "dirs") 1
 				FUNC:CALL "WALK" #asDir (OP:ADD #prefix (OBJ:KEY #parts 1)) #maxDepth (OP:ADD #depth 1)
@@ -64,7 +64,7 @@ WITH #i #args
 		DEFAULT
 			// if the token is the first one, it's the directory
 			IF (OP:DIFF (OBJ:KEY (OBJ:KEY #args #i) 0) "-")
-				VAR:SET $dir (FS:ASDIR (OBJ:KEY #args #i) (PARENT "dir"))
+				VAR:SET $dir (SYS:FULLDIRECTORY (OBJ:KEY #args #i) (PARENT "dir"))
 			ELSE
 				VAR:ADD (STD:OUT) (OP:ADD "[WRN]Unknown flag: " (OBJ:KEY #args #i))
 			END

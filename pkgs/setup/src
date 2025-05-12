@@ -12,7 +12,7 @@ async function init() {
         pass2: "Re-enter your password for your account: "
     }
 
-    const users = csw.fs.read("/etc/passwd")
+    const users = await call.read("/etc/passwd")
 
     std.out += sse.asciiName;
     std.out += "\n";

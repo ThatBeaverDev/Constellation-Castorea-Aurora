@@ -2,15 +2,15 @@
 
 // fortune binary
 
-function refreshIndex() {
-    local.index = csw.fs.read("/usr/share/games/fortunes/index.json")
+async function refreshIndex() {
+    local.index = await call.read("/usr/share/games/fortunes/index.json")
 
     if (local.index == undefined) {
         local.index = {}
     }
 
     // list the files
-    const files = csw.fs.listDir("/usr/share/games/fortunes")
+    const files = await call.readdir("/usr/share/games/fortunes")
     if (files.includes("index.json")) {
         files.splice(files.indexOf("index.json"), 1)
     }
@@ -24,7 +24,7 @@ function refreshIndex() {
 
     for (const i in files) {
         const file = files[i]
-        local.index.fileContents[file] = csw.fs.read("/usr/share/games/fortunes/" + file).split("%")
+        local.index.fileContents[file] = await call.read("/usr/share/games/fortunes/" + file).split("%")
 
         const itemFiles = local.index.fileContents[file]
 
@@ -54,8 +54,8 @@ function refreshIndex() {
 }
 
 
-function init(args) {
-    refreshIndex()
+async function init(args) {
+    await refreshIndex()
 
     const obj = {
         all: false,
@@ -131,5 +131,5 @@ function init(args) {
     }
 
     // commit index to filesystem (i don't know if this is actually necessary)
-    csw.fs.write("/usr/share/games/fortunes/index.json", local.index)
+    await call.write("/usr/share/games/fortunes/index.json", local.index)
 }
