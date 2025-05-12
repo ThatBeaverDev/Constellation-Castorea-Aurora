@@ -2,35 +2,43 @@
 
 // yak programming language
 
-function compile(code, safe, targetLanguage = "js") {
+async function compile(code, targetLanguage = "js") {
 	// code gets provided 'code' and 'safe'
 
 	console.time("yakCompile")
 
-	yak = start(targetLanguage)
-	yak.code = code
+	let done
+	try {
 
-	const src = (code || codee)
+		yak = await start(targetLanguage)
+		yak.code = code
 
-	const tokeniser = csw.fs.read(csw.permissions.newToken(0), "/var/lib/yak/tokeniser"); // this issue with tokens will be sorted out
-	const tokeniserFunction = Function(tokeniser);
 
-	const tokenise = tokeniserFunction()
+		const src = (code || codee)
 
-	const tokens = tokenise(src.replaceAll("\t", "    "))
+		const tokeniser = await call.read("/var/lib/yak/tokeniser");
+		const tokeniserFunction = Function(tokeniser);
 
-	const compiled = []
+		const tokenise = tokeniserFunction()
 
-	for (const i in tokens) {
-		compiled[i] = compileBit(tokens[i])
+		const tokens = tokenise(src.replaceAll("\t", "    "))
+
+		const compiled = []
+
+		for (const i in tokens) {
+			compiled[i] = compileBit(tokens[i])
+		}
+
+		let varData = ""
+		for (const i in yak.variables) {
+			varData += `let YAKVARIABLE${yak.variables[i]};\n`
+		}
+
+		done = `//SSM_COMPILED_RESULT\nlocal.functions = {};\n\n${varData}\n\n${yak.others.pre}${compiled.join("\n")}\n\n${yak.others.post}`;
+	} catch (e) {
+		std.out = "[ERR]" + e.stack
+		console.error(e)
 	}
-
-	let varData = ""
-	for (const i in yak.variables) {
-		varData += `let YAKVARIABLE${yak.variables[i]};\n`
-	}
-
-	const done = `//SSM_COMPILED_RESULT\nlocal.functions = {};\n\n${varData}\n\n${yak.others.pre}${compiled.join("\n")}\n\n${yak.others.post}`;
 
 	console.timeEnd("yakCompile");
 	console.debug("Compilation of YAK code finished.");
@@ -66,8 +74,8 @@ function compileBit(array) {
 	if (yak.functions[cmd] == undefined) {
 		throw new Error(`Command '${cmd}' is not a valid yak command.
 			
-yakSRC:
-${yak.code}`)
+		yakSRC:
+		${yak.code}`)
 	}
 
 	switch (typeof yak.functions[cmd]) {
@@ -133,48 +141,50 @@ function typeOfToken(token) {
 }
 
 
-function start(lang = "js") {
-	const file = csw.fs.read(csw.permissions.newToken(0), "/var/lib/yak/languages/" + lang + ".yakLang")
+async function start(lang = "js") {
+	const file = await call.read("/var/lib/yak/languages/" + lang + ".yakLang");
 
-	const func = Function(file)
+	const func = Function("calls", file);
 
-	const data = func()
+	const calls = Object.keys(call);
+
+	const data = func(calls);
 
 	return {
 		...data,
 		variables: []
-	}
-}
+	};
+};
 
 // yak command line
 async function init(args) {
 	switch (args[0]) {
 		case "compile":
 
-			yak = start()
+			yak = await start()
 
-			let code = csw.fs.read(args[1]).split("\n")
+			let code = await call.read(args[1]).split("\n")
 			if (code[0].substring(0, 2) == "#!") {
 				delete code[0]
 			}
 
 			code = code.join("\n")
 
-			const directory = cliCompile(code, args[2])
+			const directory = await cliCompile(code, args[2])
 
 			std.out += `Compilation complete, output placed in ${directory}`
 			break;
 		case "lib":
 			std.out += "Recompiling YAK Libraries"
-			const libraries = await csw.fs.listDir("/lib")
+			const libraries = await call.listDir("/lib")
 
 			for (const i in libraries) {
 				const lib = libraries[i]
 				if (getFileExtension(lib) == ".yakl") {
 
-					const code = csw.fs.read("/lib/" + lib)
+					const code = await call.read("/lib/" + lib)
 
-					cliCompile(code, "/lib/" + getOnlyName(lib) + ".yakl.js")
+					await cliCompile(code, "/lib/" + getOnlyName(lib) + ".yakl.js")
 					std.out += "Library " + lib + " compiled."
 				}
 			}
@@ -188,15 +198,15 @@ options:
 	}
 }
 
-function cliCompile(src, output = "compilation.js") {
+async function cliCompile(src, output = "compilation.js") {
 	console.time("yakCompile")
 	const code = String(src)
 
-	const dir = csw.fs.toDirectory(output, parent.dir)
+	const dir = await call.fullDirectory(output, parent.dir)
 
 	const compiled = compile(code)
 
-	csw.fs.write(dir, compiled)
+	await call.write(dir, compiled)
 
 	console.timeEnd("yakCompile")
 

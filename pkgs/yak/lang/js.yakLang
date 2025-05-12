@@ -207,60 +207,6 @@ const data =  {
 		"TRUE": "true",
 		"FALSE": "false",
 
-		// filesystem
-		"FS:DIR": "call.getcwd()",
-		"FS:CD": (DIR) => {
-			return `call.chdir(${DIR})`
-		},
-		"FS:GET": (DIR, ATT) => {
-			return `csw.fs.read(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()), ${ATT})`
-		},
-		"FS:SET": (DIR, VALUE) => {
-			return `csw.fs.write(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()), ${VALUE})`
-		},
-		"FS:RM": (DIR) => {
-			return `csw.fs.delete(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
-		},
-		"FS:MKDIR": (DIR) => {
-			return `csw.fs.createDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
-		},
-		"FS:RMDIR": (DIR) => {
-			return `csw.fs.deleteDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
-		},
-		"FS:LS": (DIR) => {
-			return `csw.fs.listDir(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
-		},
-		"FS:ISDIR": (DIR) => {
-			return `csw.fs.isDirectory(token, csw.fs.toDirectory(token, ${DIR || '"."'}, call.getcwd()))`
-		},
-		"FS:ASDIR": (DIR, BASEDIR) => {
-			return `csw.fs.toDirectory(token, ${DIR || '"."'}, ${BASEDIR || "call.getcwd()"})`
-		},
-		"FS:EXEC": (DIR, ARGS = []) => {
-			return `csw.processes.execute(token, ${DIR}, ${ARGS}, false)`
-		},
-
-
-
-		"NET:FETCH": (URL) => {
-			return `csw.net.fetch(token, ${URL})`
-		},
-
-
-
-		"GUI:DEFINE": () => {
-			return `csw.display.fullscreen(token, PID)`
-		},
-		"GUI:SET": (DATA) => {
-			return `csw.display.set(token, PID, ${DATA})`
-		},
-		"GUI:RENAME": (VALUE) => {
-			return `csw.display.rename(token, PID, ${VALUE})`
-		},
-		"GUI:VISIBLE": () => {
-			return `csw.display.visible(token, PID)`
-		},
-
 		// libraries
 		IMPORT: (name) => {
 			return `const ${removeQuotes(name)} = new Function("const local = {};\\n" + csw.lib(${name}.yakl.js"))()`;
@@ -328,7 +274,7 @@ const data =  {
 
 		// OBJECTS
 		"OBJ:KEY": (VAR, KEY) => {
-			return `${VAR}[ ${KEY} ]`
+			return `${VAR}[${KEY}]`
 		},
 		PARENT: (KEY) => {
 			return `parent[${KEY}]`
@@ -348,9 +294,10 @@ const data =  {
 	}
 };
 
-for (const i in window.call) {
-	data.functions["SYS:" + String(i).toUpperCase()] = (...args) => {
-		return "await call." + String(i) + "(" + args.join(", ") + ")";
+for (const i in calls) {
+	const call = String(calls[i])
+	data.functions["SYS:" + call.toUpperCase()] = (...args) => {
+		return "await call." + call + "(" + args.join(", ") + ")";
 	}
 };
 
