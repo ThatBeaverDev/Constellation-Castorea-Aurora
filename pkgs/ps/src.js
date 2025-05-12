@@ -1,17 +1,28 @@
 // list processes
 
-function init(args) {
+async function init(args) {
     //const pcs = csw.fs.read("/proc")
-    const pcs = csw.permissions.elevate().processes
+    const processesList = await call.readdir("/proc")
+    const pcs = {}
 
     const PIDLen = []
     const pathLen = []
     const userLen = []
 
-    for (const i in pcs) {
-        PIDLen.push(String(i).length)
-        pathLen.push(String(pcs[i].name).length)
-        userLen.push(String(pcs[i].token.user).length)
+    for (const i in processesList) {
+        const item = processesList[i]
+        if (isNaN(Number(item))) continue;
+
+        pcs[item] = {
+            PID: Number(item),
+            name: await call.read("/proc/" + item + "/exe"),
+            user: await call.read("/proc/" + item + "/user")
+        }
+        const p = pcs[item]
+
+        PIDLen.push(String(p.PID).length)
+        pathLen.push(String(p.name).length)
+        userLen.push(String(p.user).length)
     }
 
     const longestPID = Math.max("PID".length, ...PIDLen)
@@ -27,7 +38,7 @@ function init(args) {
         try {
             const item = pcs[i]
             let PID = String(item.PID)
-            let user = String(item.token.user)
+            let user = String(item.user)
             let path = String(item.name)
 
             PID.padStart(longestPID, "0")
@@ -35,7 +46,9 @@ function init(args) {
             path.padEnd(longestPath, " ")
 
             data += PID + " - " + user + " - " + path + "\n"
-        } catch (e) {}
+        } catch (e) {
+            console.warn(e)
+        }
     }
 
     std.out = data;
