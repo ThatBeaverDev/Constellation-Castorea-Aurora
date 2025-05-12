@@ -1,29 +1,16 @@
 #! /usr/bin/node
 
 
-function compile(code, safe) {
-	// code gets provided 'code' and 'safe'
-	let script = code
+function compile(code) {
+	return code;
+};
 
-	if (!script.includes("function init(")) {
-		script = "function init() {\n" + script + "\n}"
-	}
-
-	if (system.forceSystemLog) {
-		for (const i in csw.functions) {
-			script = script.replaceAll(csw.functions[i] + "(", csw.functions[i] + "(token,")
-		}
-	}
-
-	return script
-}
-
-function init(args) {
+async function init(args) {
 	if (args[0] == undefined) {
-		return
-	}
+		return;
+	};
 
-	const dir = csw.fs.toDirectory(args[0], parent.dir)
+	const dir = await call.fullDirectory(args[0], parent.dir);
 
-	csw.processes.execute(PID, dir, [], system !== undefined)
-}
+	await call.exec(dir, [], system !== undefined);
+};
