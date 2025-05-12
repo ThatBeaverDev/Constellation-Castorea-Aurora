@@ -1,27 +1,14 @@
 #! /usr/bin/node
 
-function init(args) {
-    const system = csw.permissions.elevate()
-
-    const config = csw.fs.read("/etc/pgext.json")
+async function init(args) {
+    const config = await call.read("/etc/pgext.json")
 
     if (parent.name == "/bin/aquila.js") {
         // CLI mode
 
         switch (args[0]) {
             case "mode":
-                switch (args[1]) {
-                    case "processes":
-                        config.text = " (%s Tasks)"
-                        config.js = "Object.keys(system.processes).length"
-                        break;
-                    case "display":
-                        config.text = " - %s"
-                        config.js = "system.processes[system.mainFcs].name"
-                        break;
-                    default:
-                        std.out += "Options are as follows:\n- processes\n- display\n"
-                }
+                config.mode = args[1]
                 break;
             default:
                 std.out += "Options are as follows:\n- mode\n"
@@ -35,18 +22,25 @@ function init(args) {
 
     if (config == undefined) {
         const cfg = {}
-        cfg.text = " (%s Tasks)"
-        cfg.js = "Object.keys(system.processes).length"
+        cfg.mode = "processes"
 
-        csw.fs.write("/etc/pgext.json", cfg)
+        call.write("/etc/pgext.json", cfg)
     }
 }
 
-function frame() {
-    const config = csw.fs.read("/etc/pgext.json");
-    const system = csw.permissions.elevate();
+async function frame() {
+    const config = await call.read("/etc/pgext.json");
 
-    const targetTitle = csw.fs.read("/etc/hostname") + config.text.replaceAll("%s", eval(config.js));
+    let ending
+
+    switch(config.mode) {
+        case "processes":
+            const processesList = await call.readdir("/proc");
+            ending = " (" + processesList.length + " tasks)"
+            break;
+    }
+
+    const targetTitle = await call.gethostname() + ending;
 
     if (document.title !== targetTitle) {
         document.title = targetTitle;

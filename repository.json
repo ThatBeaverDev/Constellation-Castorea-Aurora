@@ -15,7 +15,7 @@
         "mnt": 1,
         "node": 1,
         "nimbus": 1,
-        "pgext": 1,
+        "pgext": 2,
         "ps": 1,
         "reboot": 1,
         "setup": 1,
