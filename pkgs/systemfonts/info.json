@@ -1,7 +1,6 @@
 {
     "name":"sysfont",
     "author":"ThatBeaverDev",
-    "directory": "/usr/bin",
     "directories": [
         "/usr/share/fonts"
     ],
