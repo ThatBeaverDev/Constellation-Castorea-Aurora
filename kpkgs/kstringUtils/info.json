@@ -1,0 +1,7 @@
+{
+    "name":"kstringUtils",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/stringUtils.js": "/lib/modules/stringUtils.js"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "name":"kvfs",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/vfs.js": "/lib/modules/vfs.js"
+    }
+}

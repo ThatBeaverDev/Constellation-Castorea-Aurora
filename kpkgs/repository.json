@@ -1,0 +1,22 @@
+{
+    "name": "kpackages.thatbeaverdev.github.io",
+    "packages": {
+        "castoreaKernel": 1,
+        "kcalls": 1,
+        "kcontrolVariables": 1,
+        "kcryptography": 1,
+        "kdevsys": 1,
+        "kdrivers": 1,
+        "kdsm": 1,
+        "kfs": 1,
+        "kgamepad": 1,
+        "kinput": 1,
+        "klogging": 1,
+        "kmisc": 1,
+        "kpanic": 1,
+        "kprocesses": 1,
+        "kstringUtils": 1,
+        "kusers": 1,
+        "kvfs": 1
+    }
+}

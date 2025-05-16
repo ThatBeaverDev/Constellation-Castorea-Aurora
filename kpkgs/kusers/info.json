@@ -1,0 +1,7 @@
+{
+    "name":"kusers",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/users.js": "/lib/modules/users.js"
+    }
+}

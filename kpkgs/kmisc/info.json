@@ -1,0 +1,7 @@
+{
+    "name":"kmisc",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/misc.js": "/lib/modules/misc.js"
+    }
+}

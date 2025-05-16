@@ -1,0 +1,7 @@
+{
+    "name":"kinput",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/input.js": "/lib/modules/input.js"
+    }
+}

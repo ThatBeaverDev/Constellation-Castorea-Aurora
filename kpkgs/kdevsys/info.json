@@ -1,0 +1,7 @@
+{
+    "name":"kdevsys",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/devsys.js": "/lib/modules/devsys.js"
+    }
+}

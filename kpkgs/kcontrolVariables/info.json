@@ -1,0 +1,7 @@
+{
+    "name":"kcontrolvariables",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/controlVariables.js": "/lib/modules/controlVariables.js"
+    }
+}

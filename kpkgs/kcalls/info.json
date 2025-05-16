@@ -1,0 +1,7 @@
+{
+    "name":"kcalls",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/calls.js": "/lib/modules/calls.js"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "name":"kpanic",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/panic.js": "/lib/modules/panic.js"
+    }
+}

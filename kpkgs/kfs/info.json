@@ -1,0 +1,7 @@
+{
+    "name":"kfs",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/fs.js": "/lib/modules/fs.js"
+    }
+}

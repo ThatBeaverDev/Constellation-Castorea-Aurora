@@ -1,0 +1,7 @@
+{
+    "name":"kdsm",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/dsm.js": "/lib/modules/dsm.js"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "name":"klogging",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/logging.js": "/lib/modules/logging.js"
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "name":"castoreaKernel",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/castoreaKernel.js": "/boot/castoreaKernel.js"
+    },
+    "dependencies": [
+        "kcalls",
+        "kcontrolVariables",
+        "kcryptography",
+        "kdevsys",
+        "kdrivers",
+        "kdsm",
+        "kfs",
+        "kgamepad",
+        "kinput",
+        "klogging",
+        "kmisc",
+        "kpanic",
+        "kprocesses",
+        "kstringUtils",
+        "kusers",
+        "kvfs"
+    ]
+}

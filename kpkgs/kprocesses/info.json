@@ -1,0 +1,7 @@
+{
+    "name":"kprocesses",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/processes.js": "/lib/modules/processes.js"
+    }
+}

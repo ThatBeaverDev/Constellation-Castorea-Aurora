@@ -1,0 +1,7 @@
+{
+    "name":"kdrivers",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/drivers.js": "/lib/modules/drivers.js"
+    }
+}
