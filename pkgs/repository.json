@@ -37,6 +37,10 @@
         "yak": 1,
         "yes": 1,
         "zip": 1,
-        "libmsg": 1
+        "libmsg": 1,
+        "wallpaperPack-4k": 1,
+        "wallpaperPack-1080p": 1,
+
+        "forceQuit": 1
     }
 }
