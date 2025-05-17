@@ -190,7 +190,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			switch (args[1]) {
 				case "add":
 
-					let repos = await fetchLocation(args[2] + "/repositories.json")
+					let repos = await local.fetch(args[2] + "/repositories.json")
 
 					if (repos == undefined) {
 						std.out = "[ERR]the repository did not respond and has not been sourced."
@@ -230,7 +230,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					console.debug("Indexing", source, "(" + i + ")")
 					const sourceURI = encodeURIComponent(i)
 
-					const manifestTxt = await fetchLocation(source + "/repository.json");
+					const manifestTxt = await local.fetch(source + "/repository.json");
 
 					if (manifestTxt == undefined) {
 						std.out += "[WRN]Repository at " + source + " has not responded, its index has been deleted."
