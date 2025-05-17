@@ -30,15 +30,15 @@ function Stringify(data) {
 	}
 }
 
-async function init([dr]) {	
+async function init([dr]) {
 
 	let directory = dr
-	
+
 	if (directory == undefined) {
 
 		let users = await call.read("/etc/passwd")
 		let user = await call.whoami()
-		
+
 		directory = users[user].homeDir
 	}
 
@@ -91,11 +91,27 @@ async function init([dr]) {
 		}
 
 		// setup args
-		let args = String(code).split(" ");
+		let argsPre = String(code).split(" ");
 
-		const binName = args[0].toLowerCase();
+		const binName = argsPre[0].toLowerCase();
 
-		args = args.slice(0); // remove the command from the array
+		argsPre = argsPre.slice(0); // remove the command from the array
+		let args = []
+		let redirect = undefined
+		// loop through to find if there's a redirect
+		for (const i in argsPre) {
+			if (argsPre[i] == ">") {
+
+				console.debug(argsPre)
+				console.debug(argsPre[i])
+				console.debug(argsPre[String(Number(i) + 1)])
+				console.debug(i)
+				redirect = await call.fullDirectory(argsPre[String(Number(i) + 1)], local.shared.dir)
+				break;
+			} else {
+				args.push(argsPre[i])
+			}
+		}
 
 		const path = await call.read("/etc/path.json");
 
@@ -137,15 +153,20 @@ async function init([dr]) {
 
 			delete local.runner;
 
-			const stdout = local.stdToLogs(result.stdout);
+			
+			if (redirect == undefined) {
+				const stdout = local.stdToLogs(result.stdout);
 
-			let process = result.process;
-			const name = String(process.name)
-			for (const i in stdout) {
-				const type = stdout[i].type;
-				const text = stdout[i].text;
+				let process = result.process;
+				const name = String(process.name)
+				for (const i in stdout) {
+					const type = stdout[i].type;
+					const text = stdout[i].text;
 
-				local.logging[type](name, text, local.logs, false, true);
+					local.logging[type](name, text, local.logs, false, true);
+				}
+			} else {
+				await call.write(redirect, result.stdout)
 			}
 		}
 		local.updateLogs()
@@ -199,12 +220,12 @@ async function init([dr]) {
 
 	local.pretext = document.createElement("pretext");
 	local.pretext.id = `aquilaPretext${PID}`;
-	
+
 	local.style = document.createElement('style');
 	local.style.textContent = ""
-	
+
 	const colours = [`AliceBlue`, `AntiqueWhite`, `Aqua`, `Aquamarine`, `Azure`, `Beige`, `Bisque`, `Black`, `BlanchedAlmond`, `Blue`, `BlueViolet`, `Brown`, `BurlyWood`, `CadetBlue`, `Chartreuse`, `Chocolate`, `Coral`, `CornflowerBlue`, `Cornsilk`, `Crimson`, `Cyan`, `DarkBlue`, `DarkCyan`, `DarkGoldenRod`, `DarkGray`, `DarkGrey`, `DarkGreen`, `DarkKhaki`, `DarkMagenta`, `DarkOliveGreen`, `Darkorange`, `DarkOrchid`, `DarkRed`, `DarkSalmon`, `DarkSeaGreen`, `DarkSlateBlue`, `DarkSlateGray`, `DarkSlateGrey`, `DarkTurquoise`, `DarkViolet`, `DeepPink`, `DeepSkyBlue`, `DimGray`, `DimGrey`, `DodgerBlue`, `FireBrick`, `FloralWhite`, `ForestGreen`, `Fuchsia`, `Gainsboro`, `GhostWhite`, `Gold`, `GoldenRod`, `Gray`, `Grey`, `Green`, `GreenYellow`, `HoneyDew`, `HotPink`, `IndianRed`, `Indigo`, `Ivory`, `Khaki`, `Lavender`, `LavenderBlush`, `LawnGreen`, `LemonChiffon`, `LightBlue`, `LightCoral`, `LightCyan`, `LightGoldenRodYellow`, `LightGray`, `LightGrey`, `LightGreen`, `LightPink`, `LightSalmon`, `LightSeaGreen`, `LightSkyBlue`, `LightSlateGray`, `LightSlateGrey`, `LightSteelBlue`, `LightYellow`, `Lime`, `LimeGreen`, `Linen`, `Magenta`, `Maroon`, `MediumAquaMarine`, `MediumBlue`, `MediumOrchid`, `MediumPurple`, `MediumSeaGreen`, `MediumSlateBlue`, `MediumSpringGreen`, `MediumTurquoise`, `MediumVioletRed`, `MidnightBlue`, `MintCream`, `MistyRose`, `Moccasin`, `NavajoWhite`, `Navy`, `OldLace`, `Olive`, `OliveDrab`, `Orange`, `OrangeRed`, `Orchid`, `PaleGoldenRod`, `PaleGreen`, `PaleTurquoise`, `PaleVioletRed`, `PapayaWhip`, `PeachPuff`, `Peru`, `Pink`, `Plum`, `PowderBlue`, `Purple`, `Red`, `RosyBrown`, `RoyalBlue`, `SaddleBrown`, `Salmon`, `SandyBrown`, `SeaGreen`, `SeaShell`, `Sienna`, `Silver`, `SkyBlue`, `SlateBlue`, `SlateGray`, `SlateGrey`, `Snow`, `SpringGreen`, `SteelBlue`, `Tan`, `Teal`, `Thistle`, `Tomato`, `Turquoise`, `Violet`, `Wheat`, `White`, `WhiteSmoke`, `Yellow`, `YellowGreen`,]
-	
+
 	for (const i in colours) {
 		const colour = colours[i]
 		local.style.textContent += `${colour} { color: ${colour} }`
@@ -224,7 +245,7 @@ async function init([dr]) {
 	local.container.style.whiteSpace = "pre";
 	local.container.style.marginLeft = "10px";
 	local.container.style.marginTop = "10px";
-	
+
 	local.inputContainer.innerHTML = local.style.outerHTML + "\n" + local.pretext.outerHTML + "\n" + local.input.outerHTML
 	local.container.innerHTML = local.logsDiv.outerHTML + "\n" + local.inputContainer.outerHTML
 	local.containerBackup = local.container
@@ -241,11 +262,11 @@ async function init([dr]) {
 	}
 
 	local.updateLogs = async function () {
-		const visible = await call.visible()
-		if (!visible) {
+		const focused = await call.focused()
+		if (!focused) {
 			return;
 		}
-		
+
 		if (local.readingInput == true) {
 			return;
 		}
@@ -294,31 +315,16 @@ async function init([dr]) {
 
 							const selection = String(local.input.value)
 							local.input.value = ""
+
+							local.lastSelection = selection
+							local.lastText = text
+
 							await local.formatRun(selection, text)
 
 						}
 						break;
 					case "ArrowUp":
-						break; // remove when trying to fix!
-						if (local.readingInput == true) return
-
-						if (local.history.length !== 0) {
-							if (local.historyPos !== local.history.length) {
-								local.historyPos--
-								local.input.value = local.history[local.historyPos]
-							}
-						}
-						break;
-					case "ArrowDown":
-						break; // remove when trying to fix!
-						if (local.readingInput == true) return
-
-						if (local.history.length !== 0) {
-							if (local.historyPos !== 0) {
-								local.historyPos++
-								local.input.value = local.history[local.historyPos]
-							}
-						}
+						await local.formatRun(local.lastSelection, local.lastText)
 						break;
 				}
 			});
@@ -366,7 +372,7 @@ async function init([dr]) {
 
 		if (data !== local.oldLogs) {
 			local.oldLogs = String(data)
-	
+
 			if (local.logsDiv.innerHTML !== data) {
 				local.logsDiv.innerHTML = data
 			}
@@ -406,7 +412,7 @@ async function init([dr]) {
 		return logArr.length - 1
 	}
 
-	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true, ) {
+	local.logging.warn = function (name, content, logArr = local.logs, updateLogs = true,) {
 		const obj = {
 			type: "warn",
 			origin: name,
@@ -535,7 +541,7 @@ async function init([dr]) {
 
 	log.changeDir = async function (directory) {
 		const dir = await call.fullDirectory(directory, log.dir)
-		if (sse.fs.isFolder(dir)) {
+		if (system.fs.isFolder(dir)) {
 			local.shared.dir = dir
 		} else {
 			return `not a directory: ${directory}`
@@ -543,8 +549,9 @@ async function init([dr]) {
 	}
 
 	local.interval = setInterval(async function () {
+		let focused = await call.focused()
 		try {
-			if (await call.visible() == true) {
+			if (focused == true) {
 				local.updateLogs()
 				local.input.focus()
 			}
