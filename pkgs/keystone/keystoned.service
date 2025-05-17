@@ -1,0 +1,6 @@
+{
+    "desc": "Indexer for Keystone Search",
+    "restart": "always",
+    "entrypoint": "/usr/sbin/keystoned",
+    "dir": "/"
+}

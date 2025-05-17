@@ -1,0 +1,12 @@
+{
+    "name":"keystone",
+    "author":"ThatBeaverDev",
+    "directories": [
+        "/usr/share/keystone",
+        "/usr/share/keystone/extensions"
+    ],
+    "files": {
+        "/text.js": "/usr/share/keystone/extensions/text.js",
+        "PARSE/text.json": "/usr/share/keystone/extensions/text.json"
+    }
+}

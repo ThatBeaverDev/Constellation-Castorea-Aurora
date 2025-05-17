@@ -1,0 +1,14 @@
+{
+    "name":"keystone",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/keystone.js": "/usr/bin/keystone",
+        "/keystonegui.js": "/usr/bin/keystonegui",
+        "/keystonectl.js": "/usr/bin/keystonectl",
+        "/keystoned.js": "/usr/sbin/keystoned",
+        "PARSE/keystoned.service": "/etc/sysd/system/thatbeaverdev/keystoned.service"
+    },
+    "dependencies": [
+        "keystone-core-exts"
+    ]
+}
