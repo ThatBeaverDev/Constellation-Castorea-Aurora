@@ -26,14 +26,20 @@ async function getServices(firstTime = false) {
 async function init() {
     console.log("sysd starting.");
 
+    await call.shout("sysd")
+
     local.shared = parent;
     local.aliases = {};
     local.starting = {};
     local.up = {};
 
     await getServices(true);
+    await insureRunning()
 
-    setInterval(getServices, 15000);
+    local.interval = setInterval(async () => {
+        await getServices()
+        await insureRunning()
+    }, 15000);
 }
 
 local.startService = async function startService(name) {
@@ -61,10 +67,14 @@ local.startService = async function startService(name) {
     service.PID = String(service.PID);
 }
 
-async function frame() {
+function empty(object) {
+    for (const i in object) {
+        delete object[i]
+    }
+}
 
+async function insureRunning() {
     const processes = await call.readdir("/proc");
-    const users = await call.read("/etc/passwd");
 
     const processesKeys = Object.keys(processes);
 
@@ -79,7 +89,7 @@ async function frame() {
             local.up[i] = false
         }
 
-        switch(service.restart) {
+        switch (service.restart) {
             case "always":
                 if (local.up[i] == true) {
                     // it's running
@@ -95,12 +105,57 @@ async function frame() {
                 break;
         }
     }
+}
 
-    for (const i in users) {
-        if (!users[i].sysdinit) {
-            users[i].sysdinit = true
+async function frame() {
+
+    const msgs = await call.readMsgs(true)
+
+    for (const i in msgs) {
+        const msg = msgs[i]
+        const payload = msg.content
+
+        switch (payload.intent) {
+            case "listServices":
+                await call.send(msg.origin, Object.keys(local.services))
+                break;
+            case "serviceInfo":
+                await call.send(msg.origin, local.services[payload.service])
+                break;
+            case "startService":
+                break;
+            case "stopService":
+                break;
+            case "systemReboot":
+                console.log(system.processes)
+                for (const i in system.processes) {
+                    if (i == 0) continue;
+                    try {
+                        await system.stopProcess(i, true, true)
+                    } catch (e) {
+                        console.warn("Terminating " + i + ":", e)
+                    }
+                }
+
+                for (const i in system.processes) {
+                    if (i == 0) continue;
+                    delete system.processes[i]
+                }
+
+                empty(system.memory.kernel.lib.messages)
+                empty(system.memory.kernel.lib.PIDs)
+                system.maxPID = 0
+
+                system.log(Name, "Rebooting init system...")
+                const init = system.fs.readFile("/sbin/init.js")
+                await system.startProcess(0, init, [], undefined, "root", false, { type: "k" })
+
+                console.log(system.processes)
+                break;
         }
     }
+}
 
-    getServices()
+function terminate() {
+    clearInterval(local.interval)
 }

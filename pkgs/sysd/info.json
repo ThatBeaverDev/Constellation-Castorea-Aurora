@@ -17,5 +17,8 @@
 
         "/daemons/networkd": "/sbin/sysd/networkd",
         "PARSE/daemons/networkd.service": "/etc/sysd/system/sysd/networkd.service"
-    }
+    },
+    "dependencies": [
+        "libmsg"
+    ]
 }
