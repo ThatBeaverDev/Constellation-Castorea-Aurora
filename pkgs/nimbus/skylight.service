@@ -1,6 +1,0 @@
-{
-    "desc": "Window Server",
-    "restart": "always",
-    "entrypoint": "/usr/bin/skyinit",
-    "dir": "/"
-}

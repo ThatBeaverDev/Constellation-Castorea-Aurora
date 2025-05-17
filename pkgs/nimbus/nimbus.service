@@ -1,7 +1,6 @@
 {
     "desc": "Desktop Environment",
     "restart": "always",
-    "waitFor": "thatbeaverdev.skylight.service",
     "entrypoint": "/usr/bin/nimbus",
     "dir": "/"
 }

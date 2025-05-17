@@ -2,22 +2,31 @@
     "author":"ThatBeaverDev",
     "directories":[
         "/usr/share/nimbus",
+        "/usr/share/nimbus/icons",
         "/usr/share/backgrounds",
         "/usr/share/applications"
     ],
     "files": {
         "PARSE/nimbus.service": "/etc/sysd/system/thatbeaverdev/nimbus.service",
-        "PARSE/skylight.service": "/etc/sysd/system/thatbeaverdev/skylight.service",
+        "/backgrounds/25thHour.url": "/usr/share/backgrounds/25thHour.url",
         "DATAU/backgrounds/saturn.jpg": "/usr/share/backgrounds/saturn.jpg",
-        "DATAU/backgrounds/Mountain Under Stars - Benjamin Voros.jpg": "/usr/share/backgrounds/Mountain Under Stars - Benjamin Voros.jpg",
-        "DATAU/backgrounds/Icelandic Mountain - Luca Micheli.jpg": "/usr/share/backgrounds/Icelandic Mountain - Luca Micheli.jpg",
-        "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/usr/share/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg",
+        "DATAU/backgrounds/cyberpunk.mp4": "/usr/share/backgrounds/cyberpunk.mp4",
+        "DATAU/backgrounds/aSmallWaterfallOnARockySlope-AlexP.mp4": "/usr/share/backgrounds/RockyWaterfall.mp4",
+        "DATAU/backgrounds/Mountain Under Stars - Benjamin Voros.jpg": "/usr/share/backgrounds/MountainUnderStars.jpg",
+        "DATAU/backgrounds/Icelandic Mountain - Luca Micheli.jpg": "/usr/share/backgrounds/IcelandicMountain.jpg",
+        "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/usr/share/backgrounds/Glacier.jpg",
 
         "/nimbus.js": "/usr/bin/nimbus",
         "/styles.css": "/usr/share/nimbus/styles.css",
-        "/nimbusctl.js": "/usr/bin/nimbusctl"
+        "/nimbusctl.js": "/usr/bin/nimbusctl",
+
+        "DATAU/icons/system.svg": "/usr/share/nimbus/icons/system.svg",
+        "DATAU/icons/telescope.svg": "/usr/share/nimbus/icons/telescope.svg",
+        "DATAU/icons/satellite.svg": "/usr/share/nimbus/icons/satellite.svg"
     },
     "dependencies": [
-        "skylight"
+        "skylight",
+        "keystone",
+        "ssmconf"
     ]
 }
