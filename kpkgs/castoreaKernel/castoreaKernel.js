@@ -132,15 +132,22 @@ async function start_kernel() {
 		return parent
 	}
 
-	system.toDir = (directory, baseDir = "/") => {
+	system.toDir = (target, base) => {
+		if (target.startsWith('/')) return target;
 
-		const demoURI = "https://example.com"
+		const baseParts = base.split('/').filter(Boolean);
+		const targetParts = target.split('/');
 
-		const basedirURI = demoURI + baseDir + (baseDir == "/" ? "" : "/")
+		for (const part of targetParts) {
+			if (part === '.' || part === '') continue;
+			if (part === '..') {
+				if (baseParts.length > 0) baseParts.pop();
+			} else {
+				baseParts.push(part);
+			}
+		}
 
-		const tempUri = new URL(directory, basedirURI)
-
-		return tempUri.href.substring(demoURI.length, Infinity)
+		return '/' + baseParts.join('/');
 	}
 
 	//try {
@@ -225,7 +232,7 @@ async function start_kernel() {
 
 	system.log(Name, "Starting init system...")
 	const init = await system.fs.readFile("/sbin/init.js")
-	await system.startProcess(PID, init, [], undefined, "root", false, {type: "k"})
+	await system.startProcess(PID, init, [], undefined, "root", false, { type: "k" })
 
 	system.log(Name, "Beginning to run processes...")
 
