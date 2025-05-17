@@ -15,7 +15,7 @@ async function init(args) {
 
         pcs[item] = {
             PID: Number(item),
-            name: await call.read("/proc/" + item + "/exe"),
+            name: await call.read("/proc/" + item + "/name"),
             user: await call.read("/proc/" + item + "/user")
         }
         const p = pcs[item]
