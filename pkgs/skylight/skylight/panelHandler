@@ -107,7 +107,7 @@ async function createWindow(PID) {
             }
         }, 0)
     });
-    
+
     local.windows[PID].boxSvg.addEventListener("mouseleave", async function () {
         const box = local.windows[PID].boxSvg;
         box.dataset.hover = false;
@@ -115,13 +115,13 @@ async function createWindow(PID) {
 
     // minimise button
     //local.windows[PID].minimiseSvg.addEventListener("click", function () {
-        // code here
+    // code here
     //});    
 
     system.mainFcs = PID;
 
-    local.windows[PID].total.addEventListener("mousedown", function () {
-        system.mainFcs = Number(PID);
+    local.windows[PID].total.addEventListener("mouseenter", function () {
+        system.mainFcs = PID;
     })
 
     const appWindow = local.windows[PID];
@@ -145,7 +145,7 @@ async function createWindow(PID) {
 function closeWindow(PID) {
     local.windows[PID].total.remove() // remove window elements
 
-    system.focus.splice(system.focus.indexOf(5), 1) // remove from focus list
+    system.focus.splice(system.focus.indexOf(PID), 1) // remove from focus list
 
     delete local.windows[PID] // delete the window object
 }
@@ -157,9 +157,11 @@ async function init() {
     const displayOwner = await call.deviceOwner("display");
 
     //if (displayOwner !== PID) {
-        await call.claimDevice("display")
+    await call.claimDevice("display")
     //    return
     //}
+
+    system.focus = [];
 
     local.displays = {};
     local.windows = {};
@@ -238,6 +240,7 @@ async function frame() {
             continue;
         }
 
+        let associations
         switch (data.intent) {
             case "newWindow":
                 await createWindow(msg.origin);
@@ -283,6 +286,36 @@ async function frame() {
                     data: visible,
                     isResponse: true
                 })
+
+                break;
+
+            case "claimFiletype":
+
+                //{
+                //    intent: "claimFileType",
+                //    type: "png",
+                //    entrypoint: "/usr/bin/pngapp"
+                //}
+
+                associations = await call.read("/var/lib/skylight/filetypes.json")
+                if (associations == undefined) {
+                    associations = {}
+                }
+
+                associations[data.type] = data.entrypoint
+
+                await call.write("/var/lib/skylight/filetypes.json", association)
+                break;
+            case "openFile":
+                associations = await call.read("/var/lib/skylight/filetypes.json")
+                if (associations == undefined) {
+                    continue;
+                }
+
+                const type = data.directory.textAfterAll(".")
+                const app = associations[type]
+
+                await call.exec(app, [], msg.directory, false)
 
                 break;
             default:
