@@ -1,0 +1,7 @@
+{
+    "name":"libmsg",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/libmsg.js": "/usr/lib/libmsg.js"
+    }
+}
