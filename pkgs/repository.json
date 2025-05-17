@@ -2,8 +2,9 @@
     "name": "packages.thatbeaverdev.github.io",
     "packages": {
         "aquila": 2,
-        "aurora": 3,
+        "aurora": 7,
         "keystone": 1,
+        "keystone-core-exts": 1,
         "build": 3,
         "core": 2,
         "fortune": 1,
@@ -14,7 +15,7 @@
         "man": 1,
         "mnt": 1,
         "node": 1,
-        "nimbus": 1,
+        "nimbus": 2,
         "pgext": 2,
         "ps": 1,
         "reboot": 1,
@@ -35,6 +36,7 @@
         "wget": 1,
         "yak": 1,
         "yes": 1,
-        "zip": 1
+        "zip": 1,
+        "libmsg": 1
     }
 }
