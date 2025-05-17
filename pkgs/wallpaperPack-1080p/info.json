@@ -1,0 +1,24 @@
+{
+    "author":"ThatBeaverDev",
+    "directories":[
+        "/usr/share/backgrounds"
+    ],
+    "files": {
+        "DATAU/macOS/mountainLion.jpg": "/usr/share/backgrounds/mountainLion.jpg",
+        
+        "DATAU/macOS/mojaveNight.jpg": "/usr/share/backgrounds/mojaveNight.jpg",
+        "DATAU/macOS/mojaveDay.jpg": "/usr/share/backgrounds/mojaveDay.jpg",
+
+        "DATAU/macOS/catalinaDay.jpg": "/usr/share/backgrounds/catalinaNight.jpg",
+        "DATAU/macOS/catalinaNight.jpg": "/usr/share/backgrounds/catalinaDay.jpg",
+
+        "DATAU/macOS/bigSurNight.jpg": "/usr/share/backgrounds/bigSurNight.jpg",
+        "DATAU/macOS/bigSurDay.jpg": "/usr/share/backgrounds/bigSurDay.jpg",
+
+
+
+        "DATAU/other/lowEarthOrbit-NASA.jpg": "/usr/share/backgrounds/lowEarthOrbit.jpg",
+        "DATAU/other/brownMountain-Wil-Stuart.jpg": "/usr/share/backgrounds/brownMountain.jpg",
+        "DATAU/other/mountainSilhouette-Stefan-Stefancik.jpg": "/usr/share/backgrounds/mountainSilhouette.jpg"
+    }
+}

@@ -1,0 +1,1 @@
+All Images in this folder (macOS) are owned by APPLE! I DON'T OWN THESE IMAGES!
