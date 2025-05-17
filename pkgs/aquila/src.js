@@ -262,8 +262,8 @@ async function init([dr]) {
 	}
 
 	local.updateLogs = async function () {
-		const focused = await call.focused()
-		if (!focused) {
+		const visible = await call.visible()
+		if (!visible) {
 			return;
 		}
 
