@@ -13,6 +13,7 @@ async function start_kernel() {
 	system.baseURI = "."
 	system.auroraURI = new URL("../aurora", window.location.href).href
 	system.writeFileQueue = []
+	system.volumeGUID = initram.volumeGUID
 
 	const processes = system.processes
 
@@ -21,7 +22,7 @@ async function start_kernel() {
 
 		let content
 		try {
-			content = system.fs.readFile(dir);
+			content = await system.fs.readFile(dir);
 		} catch (e) {
 			if (!e instanceof TypeError) {
 				throw e
@@ -37,7 +38,7 @@ async function start_kernel() {
 
 			let dir = "/lib/modules/" + name + ".js"
 			try {
-				system.fs.writeFile(dir, content);
+				await system.fs.writeFile(dir, content);
 			} catch (e) {
 				if (e instanceof TypeError) {
 					system.writeFileQueue.push({
@@ -102,11 +103,11 @@ async function start_kernel() {
 
 	system.languages = {}
 	system.langBackend = {} // need to remove but CRL needs it
-	system.languages.js = function (dir, safe) {
+	system.languages.js = async function (dir, safe) {
 		// code provided by node
 
 		// code gets provided 'dir' and 'safe'
-		let script = system.fs.readFile(dir)
+		let script = await system.fs.readFile(dir)
 
 		return script
 	}
@@ -150,7 +151,7 @@ async function start_kernel() {
 	await include("vfs")
 	await include("fs")
 
-	let sysState = system.fs.readFile("/sysState.json")
+	let sysState = await system.fs.readFile("/sysState.json")
 
 	if (sysState !== undefined) {
 		if (sysState.isNew == true) {
@@ -169,13 +170,13 @@ async function start_kernel() {
 	await include("gamepad")
 
 
-	system.fs.writeFile("/var/log", system.logs)
-	system.logs = system.fs.readFile("/var/log")
+	await system.fs.writeFile("/var/log", system.logs)
+	system.logs = await system.fs.readFile("/var/log")
 	system.refreshLogsPanel()
 
 	// initiate PATH
 
-	system.path = system.fs.readFile("/etc/path.json")
+	system.path = await system.fs.readFile("/etc/path.json")
 
 	if (system.isNew) {
 		// install system
@@ -183,7 +184,7 @@ async function start_kernel() {
 		system.index = JSON.parse(packages).packages
 	}
 
-	const clock = system.fs.readFile("/etc/sysconfig/clock");
+	const clock = await system.fs.readFile("/etc/sysconfig/clock");
 	clock.ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 	await system.startProcess(PID, "/bin/aurora.js", ["sources", "add", "http://localhost:555/aurora"], true) // source local for devs
@@ -204,7 +205,7 @@ async function start_kernel() {
 	}
 
 
-	document.title = system.fs.readFile('/etc/hostname')
+	document.title = await system.fs.readFile('/etc/hostname')
 
 	system.display = document.getElementById("display");
 	system.refreshDisplay = function () {
@@ -223,7 +224,7 @@ async function start_kernel() {
 	system.maxPID = 0
 
 	system.log(Name, "Starting init system...")
-	const init = system.fs.readFile("/sbin/init.js")
+	const init = await system.fs.readFile("/sbin/init.js")
 	await system.startProcess(PID, init, [], undefined, "root", false, {type: "k"})
 
 	system.log(Name, "Beginning to run processes...")

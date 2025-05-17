@@ -1,6 +1,6 @@
 // start user system
 system.user = "root"
-system.users = system.fs.readFile("/etc/passwd")
+system.users = await system.fs.readFile("/etc/passwd")
 
 system.userPasswordHash = async function (text) {
     const sha512 = await window.cryptography.sha512(text)
@@ -58,6 +58,8 @@ system.registerUser = async function (name, object) {
         system.fs.writeFolder(d + "/.profile")
         system.fs.writeFolder(d + "/.config")
     }
+
+    await system.fs.writeFile("/etc/passwd", system.users)
 
     return true
 }

@@ -43,6 +43,8 @@ function getDirInfo(dirOld) {
 
         obj.vfsInf = system.vfs[obj.vfs].data
 
+        obj.vfsGUID = system.vfs[obj.vfs].guid
+
         obj.vfsType = system.vfs[obj.vfs].type
 
         return obj
@@ -74,7 +76,8 @@ const getVFS = (directory) => {
         vfs: obj.vfsInf,
         vfsDir: vfsDir,
         vfsType: obj.vfsType,
-        vfsTypeDriver: system.drivers[obj.vfsType]
+        vfsTypeDriver: system.drivers[obj.vfsType],
+        vfsGUID: obj.vfsGUID
     }
     //} catch (e) {
     //	console.warn(e)
@@ -90,11 +93,11 @@ system.fs.getVFS = getVFS
 
 system.vfs = {}
 
-system.blankVFS = (type = "cfs") => {
+system.blankVFS = (type = "memcfs") => {
     return system.drivers[type].newFS()
 };
 
-system.newVFS = (directory, vfsVar, link = true, filesystem = "cfs") => {
+system.newVFS = (directory, vfsVar, link = true, filesystem = "memcfs", guid) => {
 
     system.log(Name, `VFS in ${directory} has been created and mounted.`)
 
@@ -109,7 +112,8 @@ system.newVFS = (directory, vfsVar, link = true, filesystem = "cfs") => {
 
     system.vfs[directory] = {
         data: vfsVar,
-        type: filesystem   
+        type: filesystem,
+        guid: guid
     };
 }
 

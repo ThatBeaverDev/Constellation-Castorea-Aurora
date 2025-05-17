@@ -4,12 +4,12 @@ const getVFS = system.fs.getVFS
 // File operations
 system.fs.readFile = (directory, attribute = "contents", username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.readFile(obj.vfsDir, attribute, username, obj.vfs)
+    return obj.vfsTypeDriver.readFile(obj.vfsDir, attribute, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.writeFile = (directory, content, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.writeFile(obj.vfsDir, content, username, obj.vfs)
+    return obj.vfsTypeDriver.writeFile(obj.vfsDir, content, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.deleteFile = (directory, username = "root") => {
@@ -58,13 +58,15 @@ system.fs.exists = (directory) => {
 
 // mount and unmount locations
 
-system.newVFS("/", system.memory.kernel.rootFS, false, "cfs")
+system.newVFS("/", system.memory.kernel.rootFS, false, "localcfs", system.volumeGUID)
+
+const memcfsDriver = await system.fs.readFile("/lib/modules/fs/memcfs.js")
 
 system.memory.kernel.tempVFS = system.blankVFS()
-system.newVFS("/tmp", system.memory.kernel.tempVFS, false, "cfs")
+system.newVFS("/tmp", system.memory.kernel.tempVFS, false, "memcfs")
 
 system.memory.kernel.procVFS = system.blankVFS()
-system.newVFS("/proc", system.memory.kernel.procVFS, false, "cfs")
+system.newVFS("/proc", system.memory.kernel.procVFS, false, "memcfs")
 
 system.fsinit = true
 
@@ -80,13 +82,17 @@ setInterval(async () => {
 }, 10000)
 
 system.volumes = system.fsBackend.partitions.volumes
+system.volume = system.volumes[system.volumeGUID]
 
 system.localFS = {
     commit: async () => {
-        if (system.memory.kernel.rootFS.changes.length !== 0) {
-            await system.fsBackend.writeVol(initram.volumeGUID, "cfsData.json", system.memory.kernel.rootFS, true)
-            system.memory.kernel.rootFS.changes = []
-        }
+
+        const volType = system.volume.metadata.fsType
+
+        await system.drivers[volType].onUpdate(
+            initram.volumeGUID,
+            system.memory.kernel.rootFS
+        )
         console.debug("Filesystem committed to hostOS [" + navigator.platform + "]")
     }
 }

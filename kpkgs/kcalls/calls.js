@@ -13,9 +13,9 @@ c.read = (PID, directory, attribute = "contents") => {
 
     return system.fs.readFile(dir, attribute)
 }
-c.write = (PID, directory, content) => {
+c.write = async (PID, directory, content) => {
     const dir = system.toDir(directory, c.getcwd(PID))
-    system.fs.writeFile(dir, content, c.whoami(PID))
+    await system.fs.writeFile(dir, content, c.whoami(PID))
     return 0
 }
 //c.rename = (oldDir, newDir) => {
@@ -162,8 +162,8 @@ c.sysinfo = (PID) => {
         "procs": Object.keys(system.processes).length
     }
 }
-c.gethostname = (PID) => String(
-    system.fs.readFile("/etc/hostname", "contents", "root")
+c.gethostname = async (PID) => String(
+    await system.fs.readFile("/etc/hostname", "contents", "root")
 )
 c.sethostname = (PID, hostname) => {
     try {

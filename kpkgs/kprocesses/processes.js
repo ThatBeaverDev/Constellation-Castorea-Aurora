@@ -71,7 +71,7 @@ class Process {
                         const directory = reference
                         this.cwd = String(directory).textBeforeLast("/")
         
-                        const file = system.fs.readFile(directory)        
+                        const file = await system.fs.readFile(directory)        
                         if (file == undefined) {
                             throw new Error("File " + reference + " is empty and cannot be ran as a process.")
                         }
@@ -161,6 +161,12 @@ class Process {
     }
 
     async init() {
+
+        if (this.rigging.init == undefined) {
+            console.warn(this)
+            throw new Error(`Process ${this.name} has no init function!`)
+        }
+
         let result
         switch(this.type) {
             case "c":
@@ -271,14 +277,14 @@ system.startProcess = async function (parentPID, dir, args = [], stdin = null, u
     process.initialising = true
 
     const procdir = "/proc/" + process.PID
-    system.fs.writeFolder(procdir)
+    await system.fs.writeFolder(procdir)
 
-    system.fs.writeFile(procdir + "/cmdline", String(process.name) + " " + args.join(" "))
-    system.fs.writeFile(procdir + "/exe", String(dir))
-    system.fs.writeFile(procdir + "/args", args)
-    system.fs.writeFile(procdir + "/parent", parentPID)
-    system.fs.writeFile(procdir + "/user", user)
-    system.fs.writeFile(procdir + "/stdin", stdin)
+    await system.fs.writeFile(procdir + "/cmdline", String(process.name) + " " + args.join(" "))
+    await system.fs.writeFile(procdir + "/exe", String(dir))
+    await system.fs.writeFile(procdir + "/args", args)
+    await system.fs.writeFile(procdir + "/parent", parentPID)
+    await system.fs.writeFile(procdir + "/user", user)
+    await system.fs.writeFile(procdir + "/stdin", stdin)
     
     let stdio
     try {
