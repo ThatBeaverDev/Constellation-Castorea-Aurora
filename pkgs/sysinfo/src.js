@@ -4,25 +4,9 @@ async function init() {
     //const system = csw.permissions.elevate()
     const system = {} // TEMPORARY bandaid fix - 12/5/2025
 
-    async function request(target, msg) {
-        call.send(target, msg)
+    const libmsg = await call.getLibrary("libmsg")
 
-        return new Promise((resolve) => {
-            let interval = setInterval(async () => {
-                const msgs = await call.readMsgs(true)
-
-                for (const i in msgs) {
-                    const msg = msgs[i]
-
-                    if (msg.origin == target) {
-                        // treat this like a reply
-                        clearInterval(interval)
-                        resolve(msg)
-                    }
-                }
-            }, 10)
-        })
-    }
+    const request = libmsg.request
 
     const networkd = await call.pidOfName("networkd")
     async function fetchURL(URL) {
