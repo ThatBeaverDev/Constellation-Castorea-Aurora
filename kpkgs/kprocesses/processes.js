@@ -280,6 +280,7 @@ system.startProcess = async function (parentPID, dir, args = [], stdin = null, u
     await system.fs.writeFolder(procdir)
 
     await system.fs.writeFile(procdir + "/cmdline", String(process.name) + " " + args.join(" "))
+    await system.fs.writeFile(procdir + "/name", String(process.name))
     await system.fs.writeFile(procdir + "/exe", String(dir))
     await system.fs.writeFile(procdir + "/args", args)
     await system.fs.writeFile(procdir + "/parent", parentPID)
@@ -356,14 +357,6 @@ system.stopProcess = async function (PID, terminatingDueToParentKill = false, ru
 
     if (obj == undefined) return;
 
-    if (system.focus.includes(Number(PID))) {
-        console.log(`Process ${PID} has display focus. Removing.`);
-        system.focus = system.focus.filter(item => Number(item) !== Number(PID));
-
-        // refresh the display.
-        system.refreshDisplay();
-    };
-
     for (const i in obj.children) {
         const stop = system.stopProcess(obj.children[i], true);
         if (stop == true) {
@@ -405,7 +398,7 @@ system.runProcesses = () => {
 
         const processes = system.processes
 
-        if (system.devices.display.owner !== 0) {
+        if (system.devices.display.owner == 0) {
             system.fcs = system.focus[system.focus.length - 1]
             system.mainFcs = system.fcs
         }
