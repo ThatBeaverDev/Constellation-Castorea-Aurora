@@ -17,7 +17,7 @@
         "/src/echo.yak": "/bin/echo",
         "/src/hostname.yak": "/bin/hostname",
         "/src/ls.js": "/bin/ls",
-        "/src/mkdir.yak": "/usr/bin/mkdir",
+        "/src/mkdir.js": "/usr/bin/mkdir",
         "/src/mv.js": "/bin/mv.js",
         "/src/pwd.js": "/bin/pwd.js",
         "/src/rm.js": "/bin/rm.js",
