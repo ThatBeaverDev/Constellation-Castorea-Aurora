@@ -1,0 +1,7 @@
+{
+    "name":"kdevmode",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/devmode.js": "/lib/modules/devmode.js"
+    }
+}
