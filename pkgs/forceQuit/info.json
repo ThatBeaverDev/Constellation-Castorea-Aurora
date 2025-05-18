@@ -1,0 +1,7 @@
+{
+    "name":"forceQuit",
+    "author":"ThatBeaverDev",
+    "files": {
+        "/forceQuit.js": "/usr/bin/forceQuit"
+    }
+}
