@@ -20,6 +20,7 @@
         "kprocesses",
         "kstringUtils",
         "kusers",
-        "kvfs"
+        "kvfs",
+        "kdevmode"
     ]
 }
