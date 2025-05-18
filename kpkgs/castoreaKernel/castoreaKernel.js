@@ -166,7 +166,7 @@ async function start_kernel() {
 		} else {
 			system.isNew = false
 		}
-		system.fs.deleteFile("/sysState.json")
+		await system.fs.deleteFile("/sysState.json")
 	}
 
 
@@ -175,6 +175,10 @@ async function start_kernel() {
 	await include("devsys")
 	await include("dsm")
 	await include("gamepad")
+
+	if (system.development == true) {
+		await include("devmode")
+	}
 
 
 	await system.fs.writeFile("/var/log", system.logs)
