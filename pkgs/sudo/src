@@ -9,7 +9,7 @@ async function init(args) {
 
     const password = await parent.getInput("Password:", false)
     std.out = "Password:"
-    await call.chusr(PID, "root", password)
+    await call.chusr("root", password)
 
     await local.shared.run(cmd, true)
 }

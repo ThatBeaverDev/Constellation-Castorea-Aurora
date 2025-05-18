@@ -3,7 +3,7 @@
 async function init(args) {
     try {
         const users = await call.read("/etc/passwd")
-    
+
         if (args[0] == undefined) {
             args[0] = "root"
         }
@@ -12,23 +12,23 @@ async function init(args) {
         // make sure user exists
         if (users[user] !== undefined) {
             if (users[user].password == undefined) {
-                throw new Error(`User ${ user } does not have a password, login denied.`)
+                throw new Error(`User ${user} does not have a password, login denied.`)
                 return
             }
         } else {
-            std.out = `User ${ user } does not exist.`
+            std.out = `su - User '${user}' does not exist.`
             return
         }
 
         try {
             const passwd = await parent.changeUser(user);
             std.out = "Password:"
-        } catch(e) {
+        } catch (e) {
             std.out = `Password:\n[ERR]${e}`;
             return
         }
 
-    } catch(e) {
+    } catch (e) {
         throw new Error(e)
     }
 }
