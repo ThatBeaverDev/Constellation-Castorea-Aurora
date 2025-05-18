@@ -2,77 +2,97 @@
 
 // nimbus desktop environment
 
-async function getConfig() {
-    const passwd = await call.read("/etc/passwd");
-    const user = await call.whoami();
-    const nimbusCfgDir = passwd[user].homeDir + "/.config/nimbus.json";
-    const nimbuscfg = await call.read(nimbusCfgDir);
+const configDir = async () => {
+        const passwd = await call.read("/etc/passwd");
+        const user = await call.whoami();
+        const nimbusCfgDir = await call.fullDirectory(".config/nimbus.json", passwd[user].homeDir);
 
-    return nimbuscfg
+        return nimbusCfgDir;
+}
+
+async function getConfig() {
+    const dir = await configDir();
+    return await call.read(dir);
 }
 
 async function setConfig(data) {
-    const passwd = await call.read("/etc/passwd");
-    const user = await call.whoami();
-    const nimbusCfgDir = passwd[user].homeDir + "/.config/nimbus.json";
-
-    await call.write(nimbusCfgDir, data)
+    const dir = await configDir();
+    await call.write(dir, structuredClone(data));
 }
 
 async function insureConfig() {
-    const cfg = await getConfig()
+    local.config = await getConfig();
+    let cfg = local.config;
 
     if (typeof cfg !== "object") {
-        const newCfg = {}
+        cfg = {};
+        console.debug("Config not present - new config created.");
+    };
+    
+    if (cfg.wallpaper == undefined) {
+        console.debug("wallpaper not set - setting default.");
+        cfg.wallpaper = "MountainUnderStars.jpg";
+    };
+    
+    if (typeof cfg.icons !== "object") {
+        console.debug("icons not created - creating.");
+        cfg.icons = {};
+    };
+    
+    if (cfg.icons.system == undefined) {
+        console.debug("systemIcon not set - setting default.");
+        cfg.icons.system = "satellite.svg";
+    };
+    
+    if (cfg.icons.close == undefined) {
+        console.debug("closeIcon not set - setting default.");
+        cfg.icons.close = "close.svg";
+    };
+    
+    if (cfg.icons.box == undefined) {
+        console.debug("boxIcon not set - setting default.");
+        cfg.icons.box = "box.svg";
+    };
 
-        newCfg.wallpaper = "MountainUnderStars.jpg"
+    console.debug(cfg);
 
-        await setConfig(newCfg)
-    }
-}
+    await setConfig(cfg);
+};
 
 async function applyConfig() {
 
-    const cfg = await getConfig()
+    const cfg = await getConfig();
 
-    changeWallpaper(cfg.wallpaper)
-}
+    changeWallpaper(cfg.wallpaper);
+};
 
 async function init() {
 
     if (!isNaN(await call.pidOfName("nimbusDE"))) {
-        console.error("nimbusDE is already running - if you meant to access nimbus configuration, run nimbusctl.")
-        std.out = "[ERR]nimbusDE is already running - if you meant to access nimbus configuration, run nimbusctl."
-        await call.kill(".")
-        return
-    }
+        console.error("nimbusDE is already running - if you meant to access nimbus configuration, run nimbusctl.");
+        std.out = "[ERR]nimbusDE is already running - if you meant to access nimbus configuration, run nimbusctl.";
+        await call.kill(".");
+        return;
+    };
 
     await call.shout("nimbusDE");
 
-    await new Promise(function (resolve) {
-        setTimeout(resolve, 100);
-    });
-
-    insureConfig()
+    console.debug("Config Dir:", await configDir());
+    
+    await insureConfig();
+    console.warn(local.config)
 
     local.contextBox = document.getElementById("nimbusContextBox");
 
     local.sky = await call.pidOfName("skylightWindowSystem");
 
     if (isNaN(local.sky)) {
-        await call.exec("/usr/bin/skyinit")
+        // well that's not good.
 
-        await new Promise((resolve) => {
-            let interval = setInterval(async () => {
-                local.sky = await call.pidOfName("skylightWindowSystem");
+        std.out = "[WRN]well that's not good.\n\n\n[WRN](skylight should be running but isn't)";
 
-                if (!isNaN(local.sky)) {
-                    clearInterval(interval)
-                    resolve()
-                }
-            })
-        })
-    }
+        await call.kill('.');
+    };
 
     await call.send(local.sky, {
         intent: "newWindow"
@@ -95,7 +115,7 @@ async function init() {
     local.innerWidth = Number(window.innerWidth)
     local.innerHeight = Number(window.innerHeight)
     local.correctWallpaperPosition = correctWallpaperPosition
-    correctWallpaperPosition()
+    await correctWallpaperPosition()
 
     let style = document.createElement("style")
     style.id = "nimbusStyles"
@@ -107,47 +127,11 @@ async function init() {
     local.refreshStyles = async () => {
         style.textContent = await call.read("/usr/share/nimbus/styles.css")
     }
-    local.refreshStyles();
-
-    function makeDropdown(element, options, clickFunction) {
-
-        let mouseover = false;
-        let omouseover = false;
-        let inner
-
-        function item(text) {
-            return `<p>${text}</p>`
-        }
-
-        function menu() {
-            if (mouseover && !omouseover) {
-
-                inner = String(element.innerHTML)
-
-                const dropdown = document.createElement("div");
-                dropdown.innerHTML = item(options[0])
-
-                element.innerHTML += dropdown.outerHTML
-            } else {
-                element.innerHTML = inner
-            }
-            omouseover = mouseover
-        }
-
-        element.addEventListener("mouseenter", (event) => {
-            mouseover = true;
-            console.debug("mouseover")
-            menu()
-        });
-        element.addEventListener("mouseleave", (event) => {
-            mouseover = false;
-            menu()
-        });
-    };
+    await local.refreshStyles();
 
     // Load icon
     const ssmIcon = document.createElement("img");
-    ssmIcon.src = await call.read("/usr/share/nimbus/icons/telescope.svg");
+    ssmIcon.src = await call.read(`/usr/share/nimbus/icons/${local.config.icons.system}`);
     ssmIcon.style.width = "100%";
     ssmIcon.style.filter = "invert(100%) brightness(10000%)";
     ssmIcon.style.height = "auto";
@@ -245,6 +229,7 @@ async function init() {
     const html = leftHTML + rightHTML;
 
     const header = document.getElementById("mainHeader");
+    local.headerStorage = String(header.innerHTML);
     header.style.backgroundColor = "hsl(75, 63, 13)";
     header.innerHTML = html;
 
@@ -284,6 +269,9 @@ async function init() {
     document.getElementById("nimbusHeaderInnerDropdownItem-forceQuit").addEventListener("click", async (event) => {
         await call.exec("/usr/bin/forceQuit")
     });
+    document.getElementById("nimbusHeaderInnerDropdownItem-logout").addEventListener("click", async (event) => {
+        await call.kill(".")
+    });
 
     const user = await call.whoami();
 
@@ -298,10 +286,6 @@ async function init() {
         const userinf = users[user];
         await call.exec(userinf.shell, [userinf.homeDir], false);
     });
-
-    if (!system.development) {
-        window.addEventListener("contextmenu", e => e.preventDefault());
-    };
 
     await applyConfig();
 
@@ -385,14 +369,11 @@ async function changeWallpaper(name) {
         return;
     };
 
-    const passwd = await call.read("/etc/passwd");
-    const user = await call.whoami();
-    const nimbusCfgDir = passwd[user].homeDir + "/.config/nimbus.json";
-    const nimbuscfg = await call.read(nimbusCfgDir);
+    const nimbuscfg = await getConfig()
 
     nimbuscfg.wallpaper = name;
 
-    await call.write(nimbusCfgDir, nimbuscfg);
+    await setConfig(nimbuscfg)
 
     const ext = String(name).textAfterAll(".");
 
@@ -492,4 +473,5 @@ function terminate() {
     clearInterval(local.dateCorrect)
     window.removeEventListener("resize", local.correctWallpaperPosition)
     window.removeEventListener("keydown", local.keyboardShortcuts)
+    document.getElementById("header").innerHTML = local.headerStorage
 }

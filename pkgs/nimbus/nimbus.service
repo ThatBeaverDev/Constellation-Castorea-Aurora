@@ -1,6 +1,0 @@
-{
-    "desc": "Desktop Environment",
-    "restart": "always",
-    "entrypoint": "/usr/bin/nimbus",
-    "dir": "/"
-}

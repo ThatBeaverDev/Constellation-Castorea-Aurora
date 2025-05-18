@@ -7,7 +7,7 @@
         "/usr/share/applications"
     ],
     "files": {
-        "PARSE/nimbus.service": "/etc/sysd/system/thatbeaverdev/nimbus.service",
+        "PARSE/skylight.service": "/etc/sysd/system/thatbeaverdev/skylight.service",
         "/backgrounds/25thHour.url": "/usr/share/backgrounds/25thHour.url",
         "DATAU/backgrounds/saturn.jpg": "/usr/share/backgrounds/saturn.jpg",
         "DATAU/backgrounds/cyberpunk.mp4": "/usr/share/backgrounds/cyberpunk.mp4",
