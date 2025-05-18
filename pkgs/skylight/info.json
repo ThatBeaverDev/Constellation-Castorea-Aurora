@@ -15,8 +15,10 @@
         "PARSE/config/main.json": "/etc/skylight/main.json",
         "/styles.css": "/var/lib/skylight/styles.css",
 
-        "/skylight/panelHandler": "/usr/lib/skylight/panelHandler",
-        "/skylight/fontsystem": "/usr/lib/skylight/fontsystem",
+        "/skylight/panelHandler.js": "/usr/lib/skylight/panelHandler",
+        "/skylight/fontsystem.js": "/usr/lib/skylight/fontsystem",
+        "/skylight/loginui.js": "/usr/lib/skylight/loginui",
+        "/skylight/loginuiWallpaper.js": "/usr/lib/skylight/loginuiWallpaper",
 
         "DATAU/svgs/box.svg": "/usr/share/skylight/svgs/box.svg",
         "DATAU/svgs/close.svg": "/usr/share/skylight/svgs/close.svg",

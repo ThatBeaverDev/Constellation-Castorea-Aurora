@@ -11,7 +11,11 @@ async function init() {
     const subsystems = config.main.subsystems
 
     for (const i in subsystems) {
-        await call.exec(subsystems[i], [], true);
+        try {
+            await call.exec(subsystems[i], [], true);
+        } catch(e) {
+            console.warn(e)
+        }
     }
 }
 
