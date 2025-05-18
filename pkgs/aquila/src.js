@@ -502,13 +502,19 @@ async function init([dr]) {
 		})
 	}
 
-	log.changeUser = async function (username, pass) {
+	log.changeUser = async function (username = "root", pass) {
 		const user = username
-		const userData = await call.read("/etc/passwd")[user]
+		const users = await call.read("/etc/passwd")
+		const userData = users[user]
+
+		console.log(users)
+		console.log(user)
+		console.log(userData)
+		console.log(userData == undefined)
 
 		// make sure the user exists
 		if (userData == undefined) {
-			throw new Error(`User ${user} does not exist.`)
+			throw new Error(`aq - User ${user} does not exist.`)
 		} else if (userData.password == undefined) {
 			throw new Error(`User ${user} has no assigned password`)
 		}
@@ -541,7 +547,7 @@ async function init([dr]) {
 
 	log.changeDir = async function (directory) {
 		const dir = await call.fullDirectory(directory, log.dir)
-		if (system.fs.isFolder(dir)) {
+		if (await call.isFolder(dir)) {
 			local.shared.dir = dir
 		} else {
 			return `not a directory: ${directory}`
