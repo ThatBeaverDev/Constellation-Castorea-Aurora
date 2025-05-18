@@ -2,7 +2,13 @@
 system.user = "root"
 system.users = await system.fs.readFile("/etc/passwd")
 
-system.userPasswordHash = async function (text) {
+system.userPasswordHash = async function (txt) {
+
+    let text = txt;
+    if (txt == undefined) {
+        text = ""
+    }
+
     const sha512 = await window.cryptography.sha512(text)
 
     const base64 = btoa(sha512)
@@ -49,14 +55,14 @@ system.registerUser = async function (name, object) {
     p.write = (p.write || false)
     p.delete = (p.delete || false)
 
-    system.users[name] = obj
-    if (system.fs.exists(obj.baseDir) !== true) {
+    if (await system.fs.isFolder(obj.baseDir) !== true) {
         throw new Error(`User base directory (${obj.baseDir}) is not created`)
     } else {
+        system.users[name] = obj
         const d = obj.homeDir
-        system.fs.writeFolder(d)
-        system.fs.writeFolder(d + "/.profile")
-        system.fs.writeFolder(d + "/.config")
+        await system.fs.writeFolder(d, name)
+        await system.fs.writeFolder(d + "/.profile", name)
+        await system.fs.writeFolder(d + "/.config", name)
     }
 
     await system.fs.writeFile("/etc/passwd", system.users)

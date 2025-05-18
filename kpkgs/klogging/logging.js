@@ -1,7 +1,7 @@
 system.logsBox = document.getElementById("logsBox");
 system.logs = [];
 
-system.refreshLogsPanel = function (text) {
+system.refreshLogsPanel = async function (text) {
     return
     if (system.logsFocus == undefined) {
         let data = ""
@@ -16,7 +16,7 @@ system.refreshLogsPanel = function (text) {
         //system.logsBox.innerHTML = data // comment out to remove the logsbox
         return data
     } else {
-        if (typeof await (system.fs.readFile("/proc"))[system.logsFocus] !== "object") {
+        if (typeof await (await system.fs.readFile("/proc"))[system.logsFocus] !== "object") {
             delete system.logsFocus
             system.refreshLogsPanel()
         }

@@ -14,7 +14,7 @@ async function compileSourceCode(directory, src) {
     const noShebang = lines.join("\n")
 
     let compiler
-    switch(compilerdir) {
+    switch (compilerdir) {
         case "/usr/bin/node":
         case "/kernel/js":
         case "/usr/bin/js":
@@ -24,7 +24,7 @@ async function compileSourceCode(directory, src) {
             break;
         default:
             compiler = async (code) => {
-                return await system.startProcess(0, compilerdir, [code], null, "root", false, {type: "c"})
+                return await system.startProcess(0, compilerdir, [code], null, "root", false, { type: "c" })
             }
 
     }
@@ -62,39 +62,39 @@ class Process {
     };
 
     async asyncSetup(parent, reference, args, stdin, user, procType, useSharedMemory) {
-                // get code for process to run
-                let code
-                switch (this.type) {
-                    case "c":
-                    case "l":
-                    case "u":
-                        const directory = reference
-                        this.cwd = String(directory).textBeforeLast("/")
-        
-                        const file = await system.fs.readFile(directory)        
-                        if (file == undefined) {
-                            throw new Error("File " + reference + " is empty and cannot be ran as a process.")
-                        }
-        
-                        code = await compileSourceCode(directory, file)
-                        break;
-                    case "k":
-                        this.name = 'k' + system.kernelProcessCount
-                        this.cwd = "/"
-                        system.kernelProcessCount++
-                        code = reference
-                        break;
-                    default:
-                        throw new Error("Unknown process type: " + this.type)
+        // get code for process to run
+        let code
+        switch (this.type) {
+            case "c":
+            case "l":
+            case "u":
+                const directory = reference
+                this.cwd = String(directory).textBeforeLast("/")
+
+                const file = await system.fs.readFile(directory)
+                if (file == undefined) {
+                    throw new Error("File " + reference + " is empty and cannot be ran as a process.")
                 }
-        
-                if (user == "root") {
-                    if (procType == "u") {
-                        this.type = "k"
-                    }
-                }
-        
-                let after = `\n\n\n
+
+                code = await compileSourceCode(directory, file)
+                break;
+            case "k":
+                this.name = 'k' + system.kernelProcessCount
+                this.cwd = "/"
+                system.kernelProcessCount++
+                code = reference
+                break;
+            default:
+                throw new Error("Unknown process type: " + this.type)
+        }
+
+        if (user == "root") {
+            if (procType == "u") {
+                this.type = "k"
+            }
+        }
+
+        let after = `\n\n\n
                 let SYS_INIT_EXPORT;
                 let SYS_FRAME_EXPORT;
                 let SYS_COMPILER_EXPORT;
@@ -110,54 +110,54 @@ class Process {
                     compile: SYS_COMPILER_EXPORT,
                     terminate: SYS_TERMINATE_EXPORT
                 };`
-        
-                this.src = code + after;
-        
-                this.memory = {};
-        
-                const func = new Function("local", "parent", "std", "Name", "PID", "args", "call", "console", "system", this.src);
-        
-                let pcsSystem;
-                if (this.type == "k") pcsSystem = system;
-        
-                const calls = {}
-                for (const i in system.syscalls) {
-                    calls[i] = system.syscalls[i].bind(system.syscalls, this.PID)
-                }
-                
-                const logging = {
-                    log: window.console.log.bind(window.console, `[${Date.now()}] INFO  {${this.name}} -`),
-                    debug: window.console.debug.bind(window.console, `[${Date.now()}] DEBUG {${this.name}} -`),
-                    warn: window.console.warn.bind(window.console, `[${Date.now()}] WARN  {${this.name}} -`),
-                    error: window.console.error.bind(window.console, `[${Date.now()}] ERROR {${this.name}} -`)
+
+        this.src = code + after;
+
+        this.memory = {};
+
+        const func = new Function("local", "parent", "std", "Name", "PID", "args", "call", "console", "system", this.src);
+
+        let pcsSystem;
+        if (this.type == "k") pcsSystem = system;
+
+        const calls = {}
+        for (const i in system.syscalls) {
+            calls[i] = system.syscalls[i].bind(system.syscalls, this.PID)
+        }
+
+        const logging = {
+            log: window.console.log.bind(window.console, `[${Date.now()}] INFO  {${this.name}} -`),
+            debug: window.console.debug.bind(window.console, `[${Date.now()}] DEBUG {${this.name}} -`),
+            warn: window.console.warn.bind(window.console, `[${Date.now()}] WARN  {${this.name}} -`),
+            error: window.console.error.bind(window.console, `[${Date.now()}] ERROR {${this.name}} -`)
+        }
+
+        const loggingHandler = {
+            get(target, property, receiver) {
+                if (logging[property] !== undefined) {
+                    return logging[property]
                 }
 
-                const loggingHandler = {
-                    get(target, property, receiver) {
-                        if (logging[property] !== undefined) {
-                            return logging[property]
-                        }
+                return window.console[property]
+            }
+        }
 
-                        return window.console[property]
-                    }
-                }
+        const loggingProxy = new Proxy(logging, loggingHandler)
 
-                const loggingProxy = new Proxy(logging, loggingHandler)
-        
-                let inf
-                if (useSharedMemory) {
-                    inf = system.processes[parent].memory.shared
-                } else {
-                    inf = {
-                        PID: parent
-                    }
-                }
-                const parentData = inf
-        
-                this.rigging = func(this.memory, parentData, this.stdio, this.name, this.PID, this.args, calls, loggingProxy, pcsSystem);
-        
-                this.setup = true;
-                this.running = false;
+        let inf
+        if (useSharedMemory) {
+            inf = system.processes[parent].memory.shared
+        } else {
+            inf = {
+                PID: parent
+            }
+        }
+        const parentData = inf
+
+        this.rigging = func(this.memory, parentData, this.stdio, this.name, this.PID, this.args, calls, loggingProxy, pcsSystem);
+
+        this.setup = true;
+        this.running = false;
     }
 
     async init() {
@@ -168,17 +168,17 @@ class Process {
         }
 
         let result
-        switch(this.type) {
+        switch (this.type) {
             case "c":
                 result = await this.rigging.compile(this.args[0])
-        
+
                 delete this.rigging.init
                 delete this.rigging.frame
                 delete this.rigging.compile
                 delete this.rigging.terminate
-        
+
                 this.terminate()
-        
+
                 return result
             case "l":
                 result = await this.rigging.init(this.args);
@@ -194,9 +194,9 @@ class Process {
             default:
                 if (this.running == true) return;
                 this.running = true;
-        
+
                 await this.rigging.init(this.args)
-        
+
                 this.running = false;
                 return this.stdio
         }
@@ -217,7 +217,7 @@ class Process {
 
         try {
             await this.rigging.terminate(this.args);
-        } catch {}
+        } catch { }
         const std = structuredClone(this.stdio);
 
         this.running = false;
@@ -238,7 +238,7 @@ system.processes = {
 }
 const processes = system.processes
 
-system.processes[0] =  new Process(0, kproc, [], null, "root", "k")
+system.processes[0] = new Process(0, kproc, [], null, "root", "k")
 
 await system.processes[0].init()
 await system.processes[0].frame()
@@ -286,7 +286,7 @@ system.startProcess = async function (parentPID, dir, args = [], stdin = null, u
     await system.fs.writeFile(procdir + "/parent", parentPID)
     await system.fs.writeFile(procdir + "/user", user)
     await system.fs.writeFile(procdir + "/stdin", stdin)
-    
+
     let stdio
     try {
 
@@ -297,7 +297,7 @@ system.startProcess = async function (parentPID, dir, args = [], stdin = null, u
         // process error
         try {
             await process.terminate()
-        } catch {}
+        } catch { }
 
         await system.stopProcess(process.PID)
         throw e
@@ -329,7 +329,7 @@ system.stopProcess = async function (PID, terminatingDueToParentKill = false, ru
     system.task = "stopProcess";
     if (Number(PID) < 0) return;
 
-    const obj = processes[Number(PID)];
+    const obj = system.processes[Number(PID)];
 
     if (terminatingDueToParentKill == true) {
         if (obj.children.length !== 0) {
@@ -338,15 +338,10 @@ system.stopProcess = async function (PID, terminatingDueToParentKill = false, ru
         }
     }
 
-    const oldRunningPID = Number(system.runningPID);
-    system.runningPID = Number(obj.PID);
-
     // run it
     if (runTerminateCode == true) {
         obj.terminate()
     }
-
-    system.runningPID = Number(oldRunningPID);
 
     for (const i in system.devices) {
         if (system.devices[i].owner == PID) {
@@ -365,11 +360,11 @@ system.stopProcess = async function (PID, terminatingDueToParentKill = false, ru
         }
     };
 
-    const parentChildren = processes[obj.parent].children;
+    const parentChildren = system.processes[obj.parent].children;
     const index = parentChildren.indexOf(PID);
     parentChildren.splice(index, 1);
 
-    delete processes[Number(PID)];
+    delete system.processes[Number(PID)];
 
     const procFiles = system.fs.listFolder("/proc/" + PID)
     for (const i in procFiles) {
@@ -409,26 +404,29 @@ system.runProcesses = () => {
 
         for (const i in processes) {
             const obj = processes[i]
-
-            if (i == 0) {
-                continue;
-            }
-
-            if (obj.initialising == true) {
-                continue;
-            }
-
-            if (obj.rigging.frame == undefined) {
-                system.stopProcess(i)
-                continue;
-            }
-
-            // catch errors so one program can't crash them all
             try {
+
+                if (typeof obj !== "object") {
+                    delete processes[i]
+                }
+
+                if (i == 0) {
+                    continue;
+                }
+
+                if (obj.initialising == true) {
+                    continue;
+                }
+
+                if (obj.rigging.frame == undefined) {
+                    system.stopProcess(i)
+                    continue;
+                }
+
                 system.runningPID = Number(i)
 
                 obj.frame() // run it
-
+                // catch errors so one program can't crash them all
             } catch (e) {
                 console.error(Name + ": processRunner running " + obj.name, "( parent " + obj.parent + ")", e.stack)
                 system.stopProcess(obj.PID) // kill it because it is broken.
