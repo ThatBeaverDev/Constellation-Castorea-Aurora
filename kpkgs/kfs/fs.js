@@ -14,29 +14,29 @@ system.fs.writeFile = (directory, content, username = "root") => {
 
 system.fs.deleteFile = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.deleteFile(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.deleteFile(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 
 // Folder operations
 system.fs.listFolder = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.listFolder(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.listFolder(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.writeFolder = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.writeFolder(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.writeFolder(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.deleteFolder = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.deleteFolder(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.deleteFolder(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.rawFolder = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.rawFolder(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.rawFolder(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 system.fs.isFolder = (directory) => {
@@ -46,7 +46,7 @@ system.fs.isFolder = (directory) => {
 
 system.fs.folderPermissions = (directory, username = "root") => {
     const obj = getVFS(directory)
-    return obj.vfsTypeDriver.folderPermissions(obj.vfsDir, username, obj.vfs)
+    return obj.vfsTypeDriver.folderPermissions(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
 
