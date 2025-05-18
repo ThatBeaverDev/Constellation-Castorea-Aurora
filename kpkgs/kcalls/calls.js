@@ -21,15 +21,15 @@ c.write = async (PID, directory, content) => {
 //c.rename = (oldDir, newDir) => {
 
 //}
-c.unlink = (PID, directory) => {
+c.unlink = async (PID, directory) => {
     const dir = system.toDir(directory, c.getcwd(PID));
-    if (system.fs.isFolder(dir)) {
-        system.fs.deleteFolder(dir, c.whoami(PID), c.whoami(PID))
+    if (await system.fs.isFolder(dir)) {
+        await system.fs.deleteFolder(dir, c.whoami(PID), c.whoami(PID))
     } else {
-        system.fs.deleteFile(dir, c.whoami(PID), c.whoami(PID))
+        await system.fs.deleteFile(dir, c.whoami(PID), c.whoami(PID))
     }
 }
-c.isFolder = (PID, directory) => {
+c.isFolder = async (PID, directory) => {
     const dir = system.toDir(directory, c.getcwd(PID));
     return system.fs.isFolder(dir)
 }
@@ -47,14 +47,14 @@ c.whoami = (PID) => {
     return system.processes[PID].user
 }
 c.chusr = async (PID, username, password) => {
-    const users = system.fs.readFile("/etc/passwd")
+    const users = await system.fs.readFile("/etc/passwd")
     const userdata = users[username]
     if (userdata == undefined) throw new Error(`User ${username} does not exist.`)
 
-    const passhash = await window.cryptography.sha512(password)
+    const passhash = await system.userPasswordHash(password)
 
     if (passhash == userdata.password) {
-        system.processes.user = username
+        system.processes[PID].user = username
         return true
     } else {
         throw new Error("Password is incorrect.")
@@ -98,32 +98,46 @@ c.chdir = (PID, target) => {
 c.getcwd = (PID) => {
     return String(system.processes[PID].cwd);
 }
-c.exists = (PID, location) => {
-    return system.fs.exists(location)
+c.exists = async (PID, location) => {
+    return await system.fs.exists(location)
 }
-c.isDir = (PID, location) => {
-    return system.fs.isFolder(location)
+c.isDir = async (PID, location) => {
+    return await system.fs.isFolder(location)
 }
 
-c.exec = async function (PID, directory, args, stdin, sharedMemory) {
-    return system.startProcess(PID, directory, args, stdin, c.whoami(PID), sharedMemory)
+c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}) {
+
+    const opt = {
+        user: c.whoami(PID)
+    }
+
+    if (options.username !== undefined) {
+        const passhash = await system.userPasswordHash(options.password)
+        const users = await c.read(0, "/etc/passwd")
+        const targetUserObj = users[options.username]
+
+        if (targetUserObj.password === passhash) {
+            // correct password!
+            opt.username = String(options.username)
+        } else {
+            throw new Error("Incorrect username or password.")
+        }
+    }
+
+    return system.startProcess(PID, directory, args, stdin, opt.username, sharedMemory)
 }
 c.kill = (PID, targetPID) => {
-
     if (targetPID == ".") {
         system.stopProcess(targetPID)
         return;
     }
 
+    console.debug(targetPID)
     const user = c.whoami(PID)
     if (user !== "root") {
         return -1
     }
-    try {
-        system.stopProcess(targetPID, false)
-    } catch (e) {
-        return -1
-    }
+    system.stopProcess(targetPID, false)
     return 0
 }
 
@@ -165,9 +179,9 @@ c.sysinfo = (PID) => {
 c.gethostname = async (PID) => String(
     await system.fs.readFile("/etc/hostname", "contents", "root")
 )
-c.sethostname = (PID, hostname) => {
+c.sethostname = async (PID, hostname) => {
     try {
-        system.fs.writeFile("/etc/hostname", hostname)
+        await system.fs.writeFile("/etc/hostname", hostname)
     } catch (e) {
         return -1
     }
@@ -339,4 +353,8 @@ c.getLibrary = async (PID, libName, appName) => {
         }
     }
     throw new Error("Library " + libName + " was not found on this system.")
+}
+
+c.mkusr = async (PID, name, obj) => {
+    return system.registerUser(name, obj)
 }
