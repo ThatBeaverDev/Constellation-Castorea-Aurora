@@ -17,6 +17,7 @@
         "kprocesses": 1,
         "kstringUtils": 1,
         "kusers": 1,
-        "kvfs": 1
+        "kvfs": 1,
+        "kdevmode": 1
     }
 }
