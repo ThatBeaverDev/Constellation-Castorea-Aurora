@@ -2,6 +2,6 @@
     "name":"kdsm",
     "author":"ThatBeaverDev",
     "files": {
-        "/dsm.js": "/lib/modules/dsm.js"
+        "/dsm.js": "/System/kernel/modules/dsm.js"
     }
 }

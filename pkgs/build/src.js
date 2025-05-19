@@ -39,7 +39,7 @@ async function init() {
     const styles = await fetchURL("/styles.css")
     const pageStyles = await fetchURL("./styles.css")
     let ldr = await call.read("/boot/loader.js")
-    let kernel = await call.read("/boot/castoreaKernel.js")
+    let kernel = await call.read("/System/kernel/castoreaKernel.js")
 
     // patch over kernel
     kernel = kernel.replaceAll('system.aurora.url = "../aurora" // aurora URL set', 'system.aurora.url = "https://raw.githubusercontent.com/ThatBeaverDev/aurora/refs/heads/main"')

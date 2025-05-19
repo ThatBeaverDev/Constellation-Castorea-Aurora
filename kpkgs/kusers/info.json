@@ -2,6 +2,6 @@
     "name":"kusers",
     "author":"ThatBeaverDev",
     "files": {
-        "/users.js": "/lib/modules/users.js"
+        "/users.js": "/System/kernel/modules/users.js"
     }
 }

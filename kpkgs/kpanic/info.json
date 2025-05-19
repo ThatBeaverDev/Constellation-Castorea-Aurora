@@ -2,6 +2,6 @@
     "name":"kpanic",
     "author":"ThatBeaverDev",
     "files": {
-        "/panic.js": "/lib/modules/panic.js"
+        "/panic.js": "/System/kernel/modules/panic.js"
     }
 }

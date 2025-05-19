@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // credit where credit is due, https://github.com/kddnewton/tree/blob/main/tree.js
 

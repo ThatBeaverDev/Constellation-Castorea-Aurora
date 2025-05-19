@@ -1,9 +1,9 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function init(args) {
-    const config = await call.read("/etc/pgext.json")
+    const config = await call.read("/System/config/pgext.json")
 
-    if (parent.name == "/bin/aquila.js") {
+    if (parent.name == "/System/apps/utils/aquila.js") {
         // CLI mode
 
         switch (args[0]) {
@@ -24,14 +24,14 @@ async function init(args) {
         const cfg = {}
         cfg.mode = "processes"
 
-        call.write("/etc/pgext.json", cfg)
+        call.write("/System/config/pgext.json", cfg)
     }
 
     local.hostname = await call.gethostname()
 
-    local.config = await call.read("/etc/pgext.json");
+    local.config = await call.read("/System/config/pgext.json");
     setInterval(async () => {
-        local.config = await call.read("/etc/pgext.json");
+        local.config = await call.read("/System/config/pgext.json");
     }, 5000)
 }
 

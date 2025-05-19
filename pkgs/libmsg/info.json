@@ -2,6 +2,6 @@
     "name":"libmsg",
     "author":"ThatBeaverDev",
     "files": {
-        "/libmsg.js": "/usr/lib/libmsg.js"
+        "/libmsg.js": "/System/apps/libraries/libmsg.js"
     }
 }

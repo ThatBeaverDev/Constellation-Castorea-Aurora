@@ -4740,7 +4740,7 @@ Unix soit qui mal y pense
 
 For those of you in the reseller business, here is a helpful tip that will
 save your support staff a few hours of precious time.  Before you send your
-next machine out to an untrained client, change the permissions on /etc/passwd
+next machine out to an untrained client, change the permissions on /System/users.json
 to 666 and make sure there is a copy somewhere on the disk.  Now when they
 forget the root password, you can easily login as an ordinary user and correct
 the damage.  Having a bootable tape (for larger machines) is not a bad idea

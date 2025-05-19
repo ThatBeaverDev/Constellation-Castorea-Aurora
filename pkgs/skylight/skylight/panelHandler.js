@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // skylight window server
 
@@ -35,9 +35,9 @@ async function createWindow(PID) {
     system.focus.push(PID)
 
     const systemButtons = {
-        box: await call.read("/usr/share/skylight/svgs/box.svg"),
-        close: await call.read("/usr/share/skylight/svgs/close.svg"),
-        minimise: await call.read("/usr/share/skylight/svgs/minimise.svg")
+        box: await call.read("/System/icons/box.svg"),
+        close: await call.read("/System/icons/close.svg"),
+        minimise: await call.read("/System/icons/minimise.svg")
     }
 
     const buttons = {
@@ -175,7 +175,7 @@ async function init() {
     local.contextBox = document.getElementById("skylightContextBox");
 
     const style = document.createElement("style")
-    style.textContent = await call.read("/var/lib/skylight/styles.css")
+    style.textContent = await call.read("/System/apps/gui/skylight/styles.css")
     document.body.appendChild(style)
 
     document.addEventListener('mousemove', (event) => {
@@ -294,20 +294,20 @@ async function frame() {
                 //{
                 //    intent: "claimFileType",
                 //    type: "png",
-                //    entrypoint: "/usr/bin/pngapp"
+                //    entrypoint: "/System/apps/utils/pngapp"
                 //}
 
-                associations = await call.read("/var/lib/skylight/filetypes.json")
+                associations = await call.read("/System/apps/gui/skylight/filetypes.json")
                 if (associations == undefined) {
                     associations = {}
                 }
 
                 associations[data.type] = data.entrypoint
 
-                await call.write("/var/lib/skylight/filetypes.json", association)
+                await call.write("/System/apps/gui/skylight/filetypes.json", association)
                 break;
             case "openFile":
-                associations = await call.read("/var/lib/skylight/filetypes.json")
+                associations = await call.read("/System/apps/gui/skylight/filetypes.json")
                 if (associations == undefined) {
                     continue;
                 }

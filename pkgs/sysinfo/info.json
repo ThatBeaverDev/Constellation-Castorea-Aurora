@@ -2,7 +2,7 @@
     "name":"sysinfo",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/usr/bin",
+    "directory":"/System/apps/utils",
     "dependencies": [
         "libmsg"
     ]

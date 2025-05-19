@@ -2,6 +2,6 @@
     "name":"kdevmode",
     "author":"ThatBeaverDev",
     "files": {
-        "/devmode.js": "/lib/modules/devmode.js"
+        "/devmode.js": "/System/kernel/modules/devmode.js"
     }
 }

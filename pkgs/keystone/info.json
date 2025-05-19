@@ -2,11 +2,11 @@
     "name":"keystone",
     "author":"ThatBeaverDev",
     "files": {
-        "/keystone.js": "/usr/bin/keystone",
-        "/keystonegui.js": "/usr/bin/keystonegui",
-        "/keystonectl.js": "/usr/bin/keystonectl",
-        "/keystoned.js": "/usr/sbin/keystoned",
-        "PARSE/keystoned.service": "/etc/sysd/system/thatbeaverdev/keystoned.service"
+        "/keystone.js": "/System/apps/utils/keystone",
+        "/keystonegui.js": "/System/apps/gui/keystone",
+        "/keystonectl.js": "/System/apps/utils/keystonectl",
+        "/keystone_background.js": "/System/apps/background/keystone",
+        "PARSE/keystone.service": "/System/services/keystone.service"
     },
     "dependencies": [
         "keystone-core-exts"

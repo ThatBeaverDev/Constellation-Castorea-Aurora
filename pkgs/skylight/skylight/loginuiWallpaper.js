@@ -1,4 +1,4 @@
-#!/usr/bin/js
+#!/System/js
 
 function init() {
 

@@ -4,7 +4,7 @@
 async function init(args) {
     try {
         system
-    } catch(e) {
+    } catch (e) {
         std.out = "[ERR]Sudo is required to add users."
         return
     }
@@ -13,8 +13,10 @@ async function init(args) {
         password: "default",
         groupID: undefined,
         otherInfo: {},
-        baseDir: "/home",
-        shell: "/bin/aquila.js",
+        baseDir: "/Users",
+        shell: "/System/apps/utils/aquila.js",
+        desktopenv: "/System/apps/gui/nimbus.js",
+        image: "/System/icons/defaultUser.jpg",
         fullName: undefined
     }
 
@@ -89,49 +91,5 @@ async function init(args) {
 
     obj.homeDir = (obj.homeDir || obj.baseDir + "/" + (username || ""))
 
-    try {
-        await register(username, obj)
-    } catch (e) {
-        throw new Error("Creating User: " + e)
-        //return
-    }
-}
-
-const register = async function (name, object) {
-
-    const users = await call.read("/etc/passwd")
-
-    const obj = JSON.parse(JSON.stringify(object))
-
-    if (users[name] !== undefined) {
-        throw new Error("user named " + name + " already exists!")
-    }
-
-    obj.userID = users.amount
-    if (obj.password == undefined) {
-        std.out += "[WRN]User password was not defined: it is set to 'default'"
-        obj.password = "default"
-    }
-    obj.password = await system.userPasswordHash(obj.password);
-
-    if (obj.permissions == undefined) {
-        obj.permissions = {}
-    }
-    const p = obj.permissions
-    p.all = (p.all || false)
-    p.read = (p.read || false)
-    p.write = (p.write || false)
-    p.delete = (p.delete || false)
-
-    users[name] = obj
-    if (!await call.isFolder(obj.baseDir)) {
-        throw new Error(`User base directory (${obj.baseDir}) is not created`)
-    } else {
-        const d = obj.homeDir
-        await call.mkdir(d)
-        await call.mkdir(d + "/.profile")
-        await call.mkdir(d + "/.config")
-    }
-
-    return true
+    await call.mkusr(username, obj)
 }

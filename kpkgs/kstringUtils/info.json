@@ -2,6 +2,6 @@
     "name":"kstringUtils",
     "author":"ThatBeaverDev",
     "files": {
-        "/stringUtils.js": "/lib/modules/stringUtils.js"
+        "/stringUtils.js": "/System/kernel/modules/stringUtils.js"
     }
 }

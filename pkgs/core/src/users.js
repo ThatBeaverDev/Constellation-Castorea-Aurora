@@ -1,9 +1,9 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // list  users.
 
 async function init() {
-    const users = await call.read("/etc/passwd")
+    const users = await call.read("/System/users.json")
 
     const keys = []
 

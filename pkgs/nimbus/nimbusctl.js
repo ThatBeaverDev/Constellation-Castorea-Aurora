@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function request(target, msg) {
     const promise =  new Promise((resolve) => {

@@ -1,4 +1,4 @@
-#! /usr/bin/js
+#! /System/apps/compilers/js
 
 // force quit apps
 

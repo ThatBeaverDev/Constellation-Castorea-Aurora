@@ -36,7 +36,7 @@ async function init([dr]) {
 
 	if (directory == undefined) {
 
-		let users = await call.read("/etc/passwd")
+		let users = await call.read("/System/users.json")
 		let user = await call.whoami()
 
 		directory = users[user].homeDir
@@ -113,7 +113,10 @@ async function init([dr]) {
 			}
 		}
 
-		const path = await call.read("/etc/path.json");
+		//const path = await call.read("/etc/path.json"); // system no longer pre-provides a PATH.
+		const path = [
+			"/System/apps/utils"
+		]
 
 		local.history.push(code); // append to history
 
@@ -504,7 +507,7 @@ async function init([dr]) {
 
 	log.changeUser = async function (username = "root", pass) {
 		const user = username
-		const users = await call.read("/etc/passwd")
+		const users = await call.read("/System/users.json")
 		const userData = users[user]
 
 		console.log(users)

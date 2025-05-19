@@ -1,14 +1,17 @@
 system.devices = {}
 
-const devs = await system.fs.listFolder("/dev");
-for (const i in devs) {
-    const content = await system.fs.readFile("/dev/" + devs[i]);
+const identifierText = "#! /System/kernel/castoreaKernel.js:initDevice\n"
 
-    if (content.substring(0, 30) == "#! /boot/loader.js:initDevice\n") {
-        const dir = "/dev/" + devs[i]
+const devs = await system.fs.listFolder("/System/peripherals");
+for (const i in devs) {
+    const content = await system.fs.readFile("/System/peripherals/" + devs[i]);
+
+
+    if (content.startsWith(identifierText)) {
+        const dir = "/System/peripherals/" + devs[i]
         system.log(Name, "initDevice: " + dir);
 
-        const dev = new system.asyncFunction("system", (await system.fs.readFile(dir)).substring(31));
+        const dev = new system.asyncFunction("system", (await system.fs.readFile(dir)).textAfter(identifierText));
 
         const deviceData = await dev(system);
 

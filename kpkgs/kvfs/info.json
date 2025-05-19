@@ -2,6 +2,6 @@
     "name":"kvfs",
     "author":"ThatBeaverDev",
     "files": {
-        "/vfs.js": "/lib/modules/vfs.js"
+        "/vfs.js": "/System/kernel/modules/vfs.js"
     }
 }

@@ -53,7 +53,7 @@ async function init() {
         try {
             switch (String(i)) {
                 case "1":
-                    toAdd = `<green>${parent.getUser()}@${await call.read("/etc/hostname")}</green>`
+                    toAdd = `<green>${parent.getUser()}@${await call.read("/System/info/hostname")}</green>`
                     break;
                 case "2":
                     toAdd = "-------------------"
@@ -76,7 +76,7 @@ async function init() {
                     val = time.d + " Days, " + time.h + " Hours, " + time.m + " Minutes."
                     break;
                 case "7":
-                    const auroraFiles = await call.read("/var/lib/aurora/files.json")
+                    const auroraFiles = await call.read("/System/apps/utils/aurora/files.json")
                     const packages = Object.keys(auroraFiles)
 
                     if (packages.length !== 0) {

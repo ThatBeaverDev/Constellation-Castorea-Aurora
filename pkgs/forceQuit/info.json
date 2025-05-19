@@ -2,6 +2,6 @@
     "name":"forceQuit",
     "author":"ThatBeaverDev",
     "files": {
-        "/forceQuit.js": "/usr/bin/forceQuit"
+        "/forceQuit.js": "/System/apps/gui/forceQuit"
     }
 }

@@ -1,8 +1,8 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function init(args) {
     try {
-        const users = await call.read("/etc/passwd")
+        const users = await call.read("/System/users.json")
 
         if (args[0] == undefined) {
             args[0] = "root"

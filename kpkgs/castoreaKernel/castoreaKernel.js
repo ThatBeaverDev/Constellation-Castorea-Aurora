@@ -1,6 +1,6 @@
 async function start_kernel() {
 
-	const Name = "/boot/castoreaKernel.js"
+	const Name = "/System/kernel/castoreaKernel.js"
 	const PID = 0
 	const args = []
 
@@ -18,7 +18,7 @@ async function start_kernel() {
 	const processes = system.processes
 
 	const include = async function (name) {
-		const dir = "/lib/modules/" + name + ".js";
+		const dir = "/System/kernel/modules/" + name + ".js";
 
 		let content
 		try {
@@ -36,7 +36,7 @@ async function start_kernel() {
 				throw new Error("Content of module " + name + " is blank.");
 			};
 
-			let dir = "/lib/modules/" + name + ".js"
+			let dir = "/System/kernel/modules/" + name + ".js"
 			try {
 				await system.fs.writeFile(dir, content);
 			} catch (e) {
@@ -54,7 +54,7 @@ async function start_kernel() {
 			} catch { }
 		};
 
-		content = `const moduleName = "/lib/modules/${name}.js";\n\n${content}`
+		content = `const moduleName = "/System/kernel/modules/${name}.js";\n\n${content}`
 
 		const fnc = new system.asyncFunction("system", "Name", "PID", "args", "initram", content);
 
@@ -181,13 +181,9 @@ async function start_kernel() {
 	}
 
 
-	await system.fs.writeFile("/var/log", system.logs)
-	system.logs = await system.fs.readFile("/var/log")
+	await system.fs.writeFile("/System/logs/castoreaKernel.log", system.logs)
+	system.logs = await system.fs.readFile("/System/logs/castoreaKernel.log")
 	system.refreshLogsPanel()
-
-	// initiate PATH
-
-	system.path = await system.fs.readFile("/etc/path.json")
 
 	if (system.isNew) {
 		// install system
@@ -195,20 +191,17 @@ async function start_kernel() {
 		system.index = JSON.parse(packages).packages
 	}
 
-	const clock = await system.fs.readFile("/etc/sysconfig/clock");
-	clock.ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-	await system.startProcess(PID, "/bin/aurora.js", ["sources", "add", "http://localhost:555/aurora"], true) // source local for devs
-	await system.startProcess(PID, "/bin/aurora.js", ["sources", "add", "https://thatbeaverdev.github.io/aurora"], true) // source the repo for installs
+	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "http://localhost:555/aurora"], true) // source local for devs
+	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "https://thatbeaverdev.github.io/aurora"], true) // source the repo for installs
 
 
 	if (system.isNew) {
-		await system.startProcess(PID, "/bin/aurora.js", ["index"], true) // update package repositories
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["index"], true) // update package repositories
 
-		await system.startProcess(PID, "/bin/aurora.js", ["install", "aurora", "-s"], true)
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", "aurora", "-s"], true)
 
 		// install
-		await system.startProcess(PID, "/bin/aurora.js", ["install", system.index, "-s"], true)
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", system.index, "-s"], true)
 
 		delete system.index // remove the index from memory
 
@@ -216,7 +209,7 @@ async function start_kernel() {
 	}
 
 
-	document.title = await system.fs.readFile('/etc/hostname')
+	document.title = await system.fs.readFile('/System/info/hostname')
 
 	system.display = document.getElementById("display");
 	system.refreshDisplay = function () {
@@ -235,7 +228,7 @@ async function start_kernel() {
 	system.maxPID = 0
 
 	system.log(Name, "Starting init system...")
-	const init = await system.fs.readFile("/sbin/init.js")
+	const init = await system.fs.readFile("/System/init.js")
 	await system.startProcess(PID, init, [], undefined, "root", false, { type: "k" })
 
 	system.log(Name, "Beginning to run processes...")

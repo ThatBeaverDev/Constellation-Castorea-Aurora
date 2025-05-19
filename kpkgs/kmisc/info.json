@@ -2,6 +2,6 @@
     "name":"kmisc",
     "author":"ThatBeaverDev",
     "files": {
-        "/misc.js": "/lib/modules/misc.js"
+        "/misc.js": "/System/kernel/modules/misc.js"
     }
 }

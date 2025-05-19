@@ -1,9 +1,9 @@
-#!/usr/bin/js
+#!/System/js
 
 // keystone search frontend
 
 const getSearchResult = async (text) => {
-    const data = await call.exec("/usr/bin/keystone", ["search", text])
+    const data = await call.exec("/System/apps/utils/keystone", ["search", text])
 
     const output = data.stdout
 

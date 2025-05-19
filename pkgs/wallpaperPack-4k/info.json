@@ -1,28 +1,28 @@
 {
     "author":"ThatBeaverDev",
     "directories":[
-        "/usr/share/backgrounds"
+        "/System/wallpapers"
     ],
     "files": {
-        "DATAU/macOS/mountainLion.jpg": "/usr/share/backgrounds/mountainLion.jpg",
+        "DATAU/macOS/mountainLion.jpg": "/System/wallpapers/mountainLion.jpg",
         
-        "DATAU/macOS/mojaveNight.jpg": "/usr/share/backgrounds/mojaveNight.jpg",
-        "DATAU/macOS/mojaveDay.jpg": "/usr/share/backgrounds/mojaveDay.jpg",
+        "DATAU/macOS/mojaveNight.jpg": "/System/wallpapers/mojaveNight.jpg",
+        "DATAU/macOS/mojaveDay.jpg": "/System/wallpapers/mojaveDay.jpg",
 
-        "DATAU/macOS/catalinaDay.jpg": "/usr/share/backgrounds/catalinaNight.jpg",
-        "DATAU/macOS/catalinaNight.jpg": "/usr/share/backgrounds/catalinaDay.jpg",
+        "DATAU/macOS/catalinaDay.jpg": "/System/wallpapers/catalinaNight.jpg",
+        "DATAU/macOS/catalinaNight.jpg": "/System/wallpapers/catalinaDay.jpg",
 
-        "DATAU/macOS/bigSurNight.jpg": "/usr/share/backgrounds/bigSurNight.jpg",
-        "DATAU/macOS/bigSurDay.jpg": "/usr/share/backgrounds/bigSurDay.jpg",
-
-
-
-        "DATAU/other/lowEarthOrbit-NASA.jpg": "/usr/share/backgrounds/lowEarthOrbit.jpg",
-        "DATAU/other/brownMountain-Wil-Stuart.jpg": "/usr/share/backgrounds/brownMountain.jpg",
-        "DATAU/other/mountainSilhouette-Stefan-Stefancik.jpg": "/usr/share/backgrounds/mountainSilhouette.jpg",
+        "DATAU/macOS/bigSurNight.jpg": "/System/wallpapers/bigSurNight.jpg",
+        "DATAU/macOS/bigSurDay.jpg": "/System/wallpapers/bigSurDay.jpg",
 
 
-        "DATAU/videos/fujiStars.mp4": "/usr/share/backgrounds/fujiStars.mp4",
-        "DATAU/videos/stormySky.mp4": "/usr/share/backgrounds/stormySky.mp4"
+
+        "DATAU/other/lowEarthOrbit-NASA.jpg": "/System/wallpapers/lowEarthOrbit.jpg",
+        "DATAU/other/brownMountain-Wil-Stuart.jpg": "/System/wallpapers/brownMountain.jpg",
+        "DATAU/other/mountainSilhouette-Stefan-Stefancik.jpg": "/System/wallpapers/mountainSilhouette.jpg",
+
+
+        "DATAU/videos/fujiStars.mp4": "/System/wallpapers/fujiStars.mp4",
+        "DATAU/videos/stormySky.mp4": "/System/wallpapers/stormySky.mp4"
     }
 }

@@ -1,13 +1,13 @@
 {
     "name":"yak",
     "author":"ThatBeaverDev",
-    "directory":"/usr/bin",
+    "directory":"/System/apps/compilers",
     "directories": [
-        "/var/lib/yak",
-        "/var/lib/yak/languages"
+        "/System/apps/utils/yak",
+        "/System/apps/utils/yak/languages"
     ],
     "files": {
-        "/lang/js.yakLang":"/var/lib/yak/languages/js.yakLang",
-        "/lib/tokeniser.js": "/var/lib/yak/tokeniser"
+        "/lang/js.yakLang":"/System/apps/utils/yak/languages/js.yakLang",
+        "/lib/tokeniser.js": "/System/apps/utils/yak/tokeniser"
     }
 }

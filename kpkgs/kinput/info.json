@@ -2,6 +2,6 @@
     "name":"kinput",
     "author":"ThatBeaverDev",
     "files": {
-        "/input.js": "/lib/modules/input.js"
+        "/input.js": "/System/kernel/modules/input.js"
     }
 }

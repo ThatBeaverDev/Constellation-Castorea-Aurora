@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function exit(reason) {
     if (reason !== undefined) {
@@ -10,7 +10,7 @@ async function exit(reason) {
 
 async function init(args) {
 
-    local.mandir = "/usr/share/man"
+    local.mandir = "/System/apps/utils/manpages"
 
     local.manPageDir = local.mandir + "/" + args[0] + ".1"
     local.manPage = await call.read(local.manPageDir)

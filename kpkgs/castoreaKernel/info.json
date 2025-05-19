@@ -2,7 +2,7 @@
     "name":"castoreaKernel",
     "author":"ThatBeaverDev",
     "files": {
-        "/castoreaKernel.js": "/boot/castoreaKernel.js"
+        "/castoreaKernel.js": "/System/kernel/castoreaKernel.js"
     },
     "dependencies": [
         "kcalls",

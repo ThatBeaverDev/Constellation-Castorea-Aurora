@@ -1,7 +1,7 @@
-#!/usr/bin/js
+#!/System/js
 
 async function login(username, password) {
-    const userinf = (await call.read("/etc/passwd"))[username]
+    const userinf = (await call.read("/System/users.json"))[username]
 
     const desktop = userinf.desktopenv
 
@@ -15,7 +15,7 @@ async function login(username, password) {
 }
 
 async function init() {
-    const users = await call.read("/etc/passwd");
+    const users = await call.read("/System/users.json");
 
     const loginUsers = {};
     local.users = loginUsers
@@ -58,13 +58,13 @@ async function init() {
     });
 
     try {
-        await call.exec("/usr/lib/skylight/loginuiWallpaper");
+        await call.exec("/System/apps/gui/skylightLoginUIWallpaper");
     } catch (e) {
         console.warn(e)
     }
 
 
-    const pfpURI = await call.read("/usr/share/backgrounds/catalinaDay.jpg") // needs updated
+    const pfpURI = await call.read("/System/wallpapers/catalinaDay.jpg") // needs updated
 
     const pfp = document.createElement("img")
     pfp.style.borderRadius = "15%"
@@ -141,7 +141,7 @@ async function init() {
 
         const hashed = await system.userPasswordHash(password)
 
-        const users = await call.read("/etc/passwd")
+        const users = await call.read("/System/users.json")
         const user = users[username]
 
         if (user.password === hashed) {

@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // setup the system
 
@@ -12,9 +12,9 @@ async function init() {
         pass2: "Re-enter your password for your account: "
     }
 
-    const users = await call.read("/etc/passwd")
+    const users = await call.read("/System/users.json")
 
-    std.out += sse.asciiName;
+    std.out += system.asciiName;
     std.out += "\n";
     std.out += 'Welcome to the Constellation Setup Manager!\n';
     const username = await parent.getInput(text.username)

@@ -3,23 +3,17 @@
 async function getServices(firstTime = false) {
     local.services = {}
 
-    const companies = await call.readdir("/etc/sysd/system")
+    const services = await call.readdir("/System/services")
 
-    for (const i in companies) {
-        const company = companies[i]
+    for (const j in services) {
+        const data = await call.read("/System/services/" + services[j])
 
-        const services = await call.readdir("/etc/sysd/system/" + company)
-
-        for (const j in services) {
-            const data = await call.read("/etc/sysd/system/" + company + "/" + services[j])
-
-            if (firstTime) {
-                delete data.PID;
-                delete data.ran;
-            };
-
-            local.services[company + "." + services[j]] = data;
+        if (firstTime) {
+            delete data.PID;
+            delete data.ran;
         };
+
+        local.services[services[j]] = data;
     };
 };
 
@@ -147,7 +141,7 @@ async function frame() {
                 system.maxPID = 0
 
                 system.log(Name, "Rebooting init system...")
-                const init = system.fs.readFile("/sbin/init.js")
+                const init = system.fs.readFile("/System/init.js")
                 await system.startProcess(0, init, [], undefined, "root", false, { type: "k" })
 
                 console.log(system.processes)

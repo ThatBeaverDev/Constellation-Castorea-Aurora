@@ -2,6 +2,6 @@
     "name":"kprocesses",
     "author":"ThatBeaverDev",
     "files": {
-        "/processes.js": "/lib/modules/processes.js"
+        "/processes.js": "/System/kernel/modules/processes.js"
     }
 }

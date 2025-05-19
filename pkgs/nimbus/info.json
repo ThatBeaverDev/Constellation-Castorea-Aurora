@@ -1,28 +1,27 @@
 {
     "author":"ThatBeaverDev",
     "directories":[
-        "/usr/share/nimbus",
-        "/usr/share/nimbus/icons",
-        "/usr/share/backgrounds",
-        "/usr/share/applications"
+        "/System/apps/gui/nimbus",
+        "/System/icons",
+        "/System/wallpapers"
     ],
     "files": {
-        "PARSE/skylight.service": "/etc/sysd/system/thatbeaverdev/skylight.service",
-        "/backgrounds/25thHour.url": "/usr/share/backgrounds/25thHour.url",
-        "DATAU/backgrounds/saturn.jpg": "/usr/share/backgrounds/saturn.jpg",
-        "DATAU/backgrounds/cyberpunk.mp4": "/usr/share/backgrounds/cyberpunk.mp4",
-        "DATAU/backgrounds/aSmallWaterfallOnARockySlope-AlexP.mp4": "/usr/share/backgrounds/RockyWaterfall.mp4",
-        "DATAU/backgrounds/Mountain Under Stars - Benjamin Voros.jpg": "/usr/share/backgrounds/MountainUnderStars.jpg",
-        "DATAU/backgrounds/Icelandic Mountain - Luca Micheli.jpg": "/usr/share/backgrounds/IcelandicMountain.jpg",
-        "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/usr/share/backgrounds/Glacier.jpg",
+        "PARSE/skylight.service": "/System/services/skylight.service",
+        "/backgrounds/25thHour.url": "/System/wallpapers/25thHour.url",
+        "DATAU/backgrounds/saturn.jpg": "/System/wallpapers/saturn.jpg",
+        "DATAU/backgrounds/cyberpunk.mp4": "/System/wallpapers/cyberpunk.mp4",
+        "DATAU/backgrounds/aSmallWaterfallOnARockySlope-AlexP.mp4": "/System/wallpapers/RockyWaterfall.mp4",
+        "DATAU/backgrounds/Mountain Under Stars - Benjamin Voros.jpg": "/System/wallpapers/MountainUnderStars.jpg",
+        "DATAU/backgrounds/Icelandic Mountain - Luca Micheli.jpg": "/System/wallpapers/IcelandicMountain.jpg",
+        "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/System/wallpapers/Glacier.jpg",
 
-        "/nimbus.js": "/usr/bin/nimbus",
-        "/styles.css": "/usr/share/nimbus/styles.css",
-        "/nimbusctl.js": "/usr/bin/nimbusctl",
+        "/nimbus.js": "/System/apps/gui/nimbus.js",
+        "/styles.css": "/System/apps/gui/nimbus/styles.css",
+        "/nimbusctl.js": "/System/apps/utils/nimbusctl",
 
-        "DATAU/icons/system.svg": "/usr/share/nimbus/icons/system.svg",
-        "DATAU/icons/telescope.svg": "/usr/share/nimbus/icons/telescope.svg",
-        "DATAU/icons/satellite.svg": "/usr/share/nimbus/icons/satellite.svg"
+        "DATAU/icons/system.svg": "/System/icons/system.svg",
+        "DATAU/icons/telescope.svg": "/System/icons/telescope.svg",
+        "DATAU/icons/satellite.svg": "/System/icons/satellite.svg"
     },
     "dependencies": [
         "skylight",

@@ -2,6 +2,6 @@
     "name":"kcryptography",
     "author":"ThatBeaverDev",
     "files": {
-        "/cryptography.js": "/lib/modules/cryptography.js"
+        "/cryptography.js": "/System/kernel/modules/cryptography.js"
     }
 }

@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 function init([dir = "all"]) {
     const system = csw.permissions.elevate()

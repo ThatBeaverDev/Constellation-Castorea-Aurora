@@ -1,11 +1,11 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function init() {
 
     call.shout("skyinit")
 
     const config = {
-        main: await call.read("/etc/skylight/main.json")
+        main: await call.read("/System/config/skylight/main.json")
     }
 
     const subsystems = config.main.subsystems

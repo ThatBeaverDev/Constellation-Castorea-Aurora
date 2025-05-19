@@ -2,6 +2,6 @@
     "name":"kcalls",
     "author":"ThatBeaverDev",
     "files": {
-        "/calls.js": "/lib/modules/calls.js"
+        "/calls.js": "/System/kernel/modules/calls.js"
     }
 }

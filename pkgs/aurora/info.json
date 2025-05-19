@@ -2,9 +2,8 @@
     "name":"aurora",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/bin",
+    "directory":"/System/apps/utils",
     "directories": [
-        "/usr/bin/aurora",
-        "/etc/aurora"
+        "/System/config/aurora"
     ]
 }

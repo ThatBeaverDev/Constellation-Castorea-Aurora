@@ -1,7 +1,7 @@
 {
     "subsystems": [
-        "/usr/lib/skylight/panelHandler",
-        "/usr/lib/skylight/fontsystem",
-        "/usr/lib/skylight/loginui"
+        "/System/apps/gui/skylightPanelHandler",
+        "/System/apps/gui/skylightFontSystem",
+        "/System/apps/gui/skylightLoginUI"
     ]
 }

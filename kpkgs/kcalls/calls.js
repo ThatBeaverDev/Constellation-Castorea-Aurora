@@ -47,7 +47,7 @@ c.whoami = (PID) => {
     return system.processes[PID].user
 }
 c.chusr = async (PID, username, password) => {
-    const users = await system.fs.readFile("/etc/passwd")
+    const users = await system.fs.readFile("/System/users.json")
     const userdata = users[username]
     if (userdata == undefined) throw new Error(`User ${username} does not exist.`)
 
@@ -113,7 +113,7 @@ c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}
 
     if (options.username !== undefined) {
         const passhash = await system.userPasswordHash(options.password)
-        const users = await c.read(0, "/etc/passwd")
+        const users = await c.read(0, "/System/users.json")
         const targetUserObj = users[options.username]
 
         if (targetUserObj.password === passhash) {
@@ -177,11 +177,11 @@ c.sysinfo = (PID) => {
     }
 }
 c.gethostname = async (PID) => String(
-    await system.fs.readFile("/etc/hostname", "contents", "root")
+    await system.fs.readFile("/System/info/hostname", "contents", "root")
 )
 c.sethostname = async (PID, hostname) => {
     try {
-        await system.fs.writeFile("/etc/hostname", hostname)
+        await system.fs.writeFile("/System/info/hostname", hostname)
     } catch (e) {
         return -1
     }
@@ -318,18 +318,13 @@ c.focused = (PID) => {
 
 c.getLibrary = async (PID, libName, appName) => {
     const libraryDirectories = [
-        `/lib`,
-        `/usr/lib`,
-        `/usr/local/lib`
+        `/System/apps/libraries`
     ]
 
     for (const i in libraryDirectories) {
         const dir = libraryDirectories[i]
 
         let fileName = String(libName)
-        if (dir == "/usr/local/lib") {
-            fileName += "_" + appName
-        }
         fileName += ".js"
         const relative = system.toDir(fileName, dir)
 

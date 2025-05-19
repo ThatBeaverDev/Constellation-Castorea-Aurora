@@ -1,4 +1,4 @@
-#! /usr/bin/yak
+#! /System/apps/compilers/yak
 
 FUNC:DEF "folderPermissions" #DIRECTORY
     // permissions data

@@ -2,5 +2,5 @@
     "name":"reboot",
     "author":"ThatBeaverDev",
     "lang":"js",
-    "directory":"/sbin"
+    "directory":"/System/apps/utils"
 }

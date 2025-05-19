@@ -1,4 +1,4 @@
-#! /usr/bin/js
+#! /System/apps/compilers/js
 
 async function init() {
     await call.shout("networkd")

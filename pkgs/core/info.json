@@ -1,32 +1,26 @@
 {
     "name":"core",
     "author":"ThatBeaverDev",
-    "directories": [
-        "/bin",
-        "/usr",
-        "/usr/bin",
-        "/usr/share/man"
-    ],
     "files": {
-        "/src/basename.js": "/usr/bin/basename",
-        "/src/cat.js": "/bin/cat.js",
-        "/src/cd.js": "/usr/bin/cd",
-        "/src/clear.js": "/usr/bin/clear",
-        "/src/dirname.js": "/usr/bin/dirname",
-        "/src/du.js": "/usr/bin/du",
-        "/src/echo.yak": "/bin/echo",
-        "/src/hostname.yak": "/bin/hostname",
-        "/src/ls.js": "/bin/ls",
-        "/src/mkdir.js": "/usr/bin/mkdir",
-        "/src/mv.js": "/bin/mv.js",
-        "/src/pwd.js": "/bin/pwd.js",
-        "/src/rm.js": "/bin/rm.js",
-        "/src/touch.js": "/usr/bin/touch",
-        "/src/users.js": "/usr/bin/users",
-        "/src/whoami.js": "/usr/bin/whoami",
-        "/src/chroot.yak": "/usr/sbin/chroot.yak",
+        "/src/basename.js": "/System/apps/utils/basename",
+        "/src/cat.js": "/System/apps/utils/cat.js",
+        "/src/cd.js": "/System/apps/utils/cd",
+        "/src/clear.js": "/System/apps/utils/clear",
+        "/src/dirname.js": "/System/apps/utils/dirname",
+        "/src/du.js": "/System/apps/utils/du",
+        "/src/echo.yak": "/System/apps/utils/echo",
+        "/src/hostname.yak": "/System/apps/utils/hostname",
+        "/src/ls.js": "/System/apps/utils/ls",
+        "/src/mkdir.js": "/System/apps/utils/mkdir",
+        "/src/mv.js": "/System/apps/utils/mv.js",
+        "/src/pwd.js": "/System/apps/utils/pwd.js",
+        "/src/rm.js": "/System/apps/utils/rm.js",
+        "/src/touch.js": "/System/apps/utils/touch",
+        "/src/users.js": "/System/apps/utils/users",
+        "/src/whoami.js": "/System/apps/utils/whoami",
+        "/src/chroot.yak": "/System/apps/utils/chroot.yak"
+    },
 
-        "/man/rm.1": "/usr/share/man/rm.1",
-        "/man/whoami.1": "/usr/share/man/whoami.1"
-    }
+        "/man/rm.1": "/System/apps/utils/manpages/rm.1",
+        "/man/whoami.1": "/System/apps/utils/manpages/whoami.1"
 }

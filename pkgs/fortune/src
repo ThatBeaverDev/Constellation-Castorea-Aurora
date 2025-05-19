@@ -1,16 +1,16 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // fortune binary
 
 async function refreshIndex() {
-    local.index = await call.read("/usr/share/games/fortunes/index.json")
+    local.index = await call.read("/System/apps/utils/fortune/fortunes/index.json")
 
     if (local.index == undefined) {
         local.index = {}
     }
 
     // list the files
-    const files = await call.readdir("/usr/share/games/fortunes")
+    const files = await call.readdir("/System/apps/utils/fortune/fortunes")
     if (files.includes("index.json")) {
         files.splice(files.indexOf("index.json"), 1)
     }
@@ -24,7 +24,7 @@ async function refreshIndex() {
 
     for (const i in files) {
         const file = files[i]
-        local.index.fileContents[file] = await call.read("/usr/share/games/fortunes/" + file).split("%")
+        local.index.fileContents[file] = await call.read("/System/apps/utils/fortune/fortunes/" + file).split("%")
 
         const itemFiles = local.index.fileContents[file]
 
@@ -131,5 +131,5 @@ async function init(args) {
     }
 
     // commit index to filesystem (i don't know if this is actually necessary)
-    await call.write("/usr/share/games/fortunes/index.json", local.index)
+    await call.write("/System/apps/utils/fortune/fortunes/index.json", local.index)
 }

@@ -1,6 +1,6 @@
 {
-    "desc": "daemon for making network requests",
+    "desc": "background process for making network requests",
     "restart": "always",
-    "entrypoint": "/sbin/sysd/networkd",
+    "entrypoint": "/System/apps/background/sysd/networkd",
     "dir": "/"
 }

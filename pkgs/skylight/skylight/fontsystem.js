@@ -1,13 +1,13 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 async function reloadFonts() {
     let style = "#display {\n\tfont-family: 'Source Code Pro';\n}\n";
 
-    const fonts = await call.readdir("/usr/share/fonts")
+    const fonts = await call.readdir("/System/fonts")
     for (const i in fonts) {
         const name = String(fonts[i]).textBefore(".");
 
-        const url = await call.read("/usr/share/fonts/" + fonts[i]);
+        const url = await call.read("/System/fonts/" + fonts[i]);
 
         const thisFont = `@font-face {\n\tfont-family: '${name}';\n\tsrc: url(${url});\n}\n`;
 

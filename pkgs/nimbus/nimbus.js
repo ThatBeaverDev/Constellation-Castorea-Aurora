@@ -1,9 +1,9 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // nimbus desktop environment
 
 const configDir = async () => {
-        const passwd = await call.read("/etc/passwd");
+        const passwd = await call.read("/System/users.json");
         const user = await call.whoami();
         const nimbusCfgDir = await call.fullDirectory(".config/nimbus.json", passwd[user].homeDir);
 
@@ -12,11 +12,13 @@ const configDir = async () => {
 
 async function getConfig() {
     const dir = await configDir();
-    return await call.read(dir);
+    local.config = await call.read(dir);
+    return local.config
 }
 
 async function setConfig(data) {
     const dir = await configDir();
+    local.config = data
     await call.write(dir, structuredClone(data));
 }
 
@@ -125,13 +127,13 @@ async function init() {
 
     style = document.getElementById("nimbusStyles")
     local.refreshStyles = async () => {
-        style.textContent = await call.read("/usr/share/nimbus/styles.css")
+        style.textContent = await call.read("/System/apps/gui/nimbus/styles.css")
     }
     await local.refreshStyles();
 
     // Load icon
     const ssmIcon = document.createElement("img");
-    ssmIcon.src = await call.read(`/usr/share/nimbus/icons/${local.config.icons.system}`);
+    ssmIcon.src = await call.read(`/System/icons/${local.config.icons.system}`);
     ssmIcon.style.width = "100%";
     ssmIcon.style.filter = "invert(100%) brightness(10000%)";
     ssmIcon.style.height = "auto";
@@ -267,7 +269,7 @@ async function init() {
     });
 
     document.getElementById("nimbusHeaderInnerDropdownItem-forceQuit").addEventListener("click", async (event) => {
-        await call.exec("/usr/bin/forceQuit")
+        await call.exec("/System/apps/gui/forceQuit")
     });
     document.getElementById("nimbusHeaderInnerDropdownItem-logout").addEventListener("click", async (event) => {
         await call.kill(".")
@@ -276,13 +278,13 @@ async function init() {
     const user = await call.whoami();
 
     headerButtons.terminal.addEventListener("click", async function () {
-        const users = await call.read("/etc/passwd");
+        const users = await call.read("/System/users.json");
         const userinf = users[user];
         await call.exec(userinf.shell, [], false);
     });
 
     headerButtons.library.addEventListener("click", async function () {
-        const users = await call.read("/etc/passwd");
+        const users = await call.read("/System/users.json");
         const userinf = users[user];
         await call.exec(userinf.shell, [userinf.homeDir], false);
     });
@@ -297,13 +299,13 @@ async function init() {
         switch (event.code) {
             case "Space":
                 if (event.altKey) {
-                    await call.exec("/usr/bin/keystonegui")
+                    await call.exec("/System/apps/gui/keystone")
                     event.preventDefault()
                 }
                 break;
             case "KeyT":
                 if (event.altKey && ctrl) {
-                    await call.exec("/bin/aquila.js")
+                    await call.exec("/System/apps/utils/aquila.js")
                 }
                 break;
             case "KeyW":
@@ -364,7 +366,7 @@ async function changeWallpaper(name) {
         "ogg"
     ];
 
-    const dataURI = await call.read(`/usr/share/backgrounds/${name}`);
+    const dataURI = await call.read(`/System/wallpapers/${name}`);
     if (dataURI == undefined) {
         return;
     };

@@ -4,7 +4,7 @@ async function init(args) {
 
     local.sysd = await call.pidOfName("sysd")
 
-    local.config = await call.read("/etc/sysd/cfg.json")
+    local.config = await call.read("/System/config/systemC.json")
     const config = local.config
 
     const libmsg = await call.getLibrary("libmsg")

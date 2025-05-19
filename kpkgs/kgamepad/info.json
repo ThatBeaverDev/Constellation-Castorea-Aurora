@@ -2,6 +2,6 @@
     "name":"kgamepad",
     "author":"ThatBeaverDev",
     "files": {
-        "/gamepad.js": "/lib/modules/gamepad.js"
+        "/gamepad.js": "/System/kernel/modules/gamepad.js"
     }
 }

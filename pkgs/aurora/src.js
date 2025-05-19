@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // Aurora Package Manager for Constellation
 
@@ -57,22 +57,22 @@ async function setup() {
 	};
 
 	try {
-		await call.readdir("/var/lib/aurora")
+		await call.readdir("/System/apps/utils/aurora")
 	} catch (e) {
 		const directories = [
-			"/etc/aurora",
-			"/var/lib/aurora",
-			"/var/lib/aurora/lists"
+			"/System/config/aurora",
+			"/System/apps/utils/aurora",
+			"/System/apps/utils/aurora/lists"
 		];
 
 		for (const i in directories) {
 			await call.mkdir(directories[i]);
 		};
 
-		await call.write("/etc/aurora/sources.json", {});
-		await call.write("/var/lib/aurora/files.json", {});
-		await call.write("/var/lib/aurora/sourceInf.json", {});
-		await call.write("/var/lib/aurora/installed.json", []);
+		await call.write("/System/config/aurora/sources.json", {});
+		await call.write("/System/apps/utils/aurora/files.json", {});
+		await call.write("/System/apps/utils/aurora/sourceInf.json", {});
+		await call.write("/System/apps/utils/aurora/installed.json", []);
 	};
 
 	local.networkd = await call.pidOfName("networkd");
@@ -84,12 +84,12 @@ async function setup() {
 		await call.claimDevice("eth0");
 	};
 
-	local.aurora = await call.read("/usr/share/aurora/state.json");
+	local.aurora = await call.read("/System/apps/utils/aurora/state.json");
 
 
 	if (local.aurora == undefined) {
 		local.aurora = {};
-		local.aurora.directory = "/usr/share/aurora";
+		local.aurora.directory = "/System/apps/utils/aurora";
 
 		// set state
 		local.aurora.index = {};
@@ -99,20 +99,20 @@ async function setup() {
 
 	const queue = [];
 
-	queue.push(call.write("/usr/share/aurora/state.json", local.aurora));
+	queue.push(call.write("/System/apps/utils/aurora/state.json", local.aurora));
 
-	local.fileStorage = await call.read("/usr/share/aurora/files.json");
+	local.fileStorage = await call.read("/System/apps/utils/aurora/files.json");
 
 
 	if (local.fileStorage == undefined) {
-		queue.push(call.write("/usr/share/aurora/files.json", {}));
+		queue.push(call.write("/System/apps/utils/aurora/files.json", {}));
 	};
 
 	for (const i in queue) {
 		await queue[i]
 	}
 
-	local.fileStorage = await call.read("/usr/share/aurora/files.json");
+	local.fileStorage = await call.read("/System/apps/utils/aurora/files.json");
 
 	local.index = local.aurora.index;
 	local.sources = local.aurora.sources;
@@ -181,7 +181,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 
 	local.isSilent = flags.includes("-s")
 
-	const sources = await call.read("/etc/aurora/sources.json")
+	const sources = await call.read("/System/config/aurora/sources.json")
 
 	const packageName = args[1]
 
@@ -206,7 +206,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 						sources[identifier] = args[2] + "/" + repo
 					}
 
-					await call.write("/etc/aurora/sources.json", sources)
+					await call.write("/System/config/aurora/sources.json", sources)
 
 					break;
 				case "list":
@@ -218,10 +218,10 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "index":
 			const sourceInf = {}
 
-			const sourceItems = await call.readdir("/var/lib/aurora/lists")
+			const sourceItems = await call.readdir("/System/apps/utils/aurora/lists")
 			for (const i in sourceItems) {
 				const item = sourceItems[i]
-				await call.unlink("/var/lib/aurora/lists/" + item)
+				await call.unlink("/System/apps/utils/aurora/lists/" + item)
 			}
 
 			for (const i in sources) {
@@ -240,7 +240,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					const manifest = JSON.parse(manifestTxt)
 
 					const packages = manifest.packages;
-					await call.write("/var/lib/aurora/lists/" + sourceURI + ".json", packages)
+					await call.write("/System/apps/utils/aurora/lists/" + sourceURI + ".json", packages)
 
 					const info = structuredClone(manifest);
 					delete info.packages;
@@ -252,7 +252,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				};
 			};
 
-			await call.write("/var/lib/aurora/sourceInf.json", sourceInf);
+			await call.write("/System/apps/utils/aurora/sourceInf.json", sourceInf);
 			break;
 		case "full-upgrade":
 			await init(["index"], false, false);
@@ -262,7 +262,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "force-upgrade-all":
 			await init(["index"]);
 
-			const packages = await call.read("/var/lib/aurora/installed.json");
+			const packages = await call.read("/System/apps/utils/aurora/installed.json");
 
 			for (const i in packages) {
 				await init(["upgrade", packages[i].name]);
@@ -271,14 +271,14 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "upgrade":
 			if (packageName == undefined) {
 				// update everything.
-				const installed = await call.read("/var/lib/aurora/installed.json");
+				const installed = await call.read("/System/apps/utils/aurora/installed.json");
 
 				for (const i in installed) {
 					const item = installed[i];
 					const localVersion = item.version
 
 
-					const itemSource = await call.read("/var/lib/aurora/lists/" + item.source + ".json");
+					const itemSource = await call.read("/System/apps/utils/aurora/lists/" + item.source + ".json");
 					const remoteVersion = itemSource[item.name];
 
 					if (remoteVersion !== localVersion) {
@@ -310,7 +310,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				const source = sources[i];
 				const sourceURI = encodeURIComponent(i);
 
-				const sourcePackages = await call.read("/var/lib/aurora/lists/" + sourceURI + ".json");
+				const sourcePackages = await call.read("/System/apps/utils/aurora/lists/" + sourceURI + ".json");
 
 				if (sourcePackages == undefined) {
 					continue;
@@ -332,13 +332,13 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			}
 
 			if (manualInstall == true) {
-				const installed = await call.read("/var/lib/aurora/installed.json");
+				const installed = await call.read("/System/apps/utils/aurora/installed.json");
 				installed.push({
 					name: packageName,
 					source: repoName,
 					version: version
 				});
-				await call.write("/var/lib/aurora/installed.json", installed);
+				await call.write("/System/apps/utils/aurora/installed.json", installed);
 			}
 
 			const url = repo + "/"
@@ -462,7 +462,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			};
 
 
-			const installationFiles = await call.read("/var/lib/aurora/files.json");
+			const installationFiles = await call.read("/System/apps/utils/aurora/files.json");
 
 			if (typeof installationFiles[args[1]] == "undefined") {
 				installationFiles[args[1]] = [];
@@ -471,7 +471,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			for (const i in writtenFiles) {
 				installationFiles[args[1]].push(writtenFiles[i]);
 			};
-			await call.write("/var/lib/aurora/files.json", installationFiles);
+			await call.write("/System/apps/utils/aurora/files.json", installationFiles);
 
 			editLogs("installation of " + args[1] + " 100% completed", `####################`)
 

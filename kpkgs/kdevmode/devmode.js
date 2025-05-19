@@ -1,7 +1,7 @@
 const refetch = {
-    "../aurora/pkgs/skylight/skylight/loginui.js": "/usr/lib/skylight/loginui",
-    "../aurora/pkgs/skylight/skylight/loginuiWallpaper.js": "/usr/lib/skylight/loginuiWallpaper",
-    "../aurora/pkgs/nimbus/nimbus.js": "/usr/bin/nimbus"
+    "../aurora/pkgs/skylight/skylight/loginui.js": "/System/apps/gui/skylightLoginUI",
+    "../aurora/pkgs/skylight/skylight/loginuiWallpaper.js": "/System/apps/gui/skylightLoginUIWallpaper",
+    "../aurora/pkgs/nimbus/nimbus.js": "/System/apps/utils/nimbus"
 }
 
 for (const source in refetch) {

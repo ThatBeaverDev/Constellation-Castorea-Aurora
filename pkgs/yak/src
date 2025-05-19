@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /System/apps/compilers/js
 
 // yak programming language
 
@@ -16,7 +16,7 @@ async function compile(code, targetLanguage = "js") {
 
 		const src = (code || codee)
 
-		const tokeniser = await call.read("/var/lib/yak/tokeniser");
+		const tokeniser = await call.read("/System/apps/utils/yak/tokeniser");
 		const tokeniserFunction = Function(tokeniser);
 
 		const tokenise = tokeniserFunction()
@@ -142,7 +142,7 @@ function typeOfToken(token) {
 
 
 async function start(lang = "js") {
-	const file = await call.read("/var/lib/yak/languages/" + lang + ".yakLang");
+	const file = await call.read("/System/apps/utils/yak/languages/" + lang + ".yakLang");
 
 	const func = Function("calls", file);
 
@@ -173,22 +173,6 @@ async function init(args) {
 			const directory = await cliCompile(code, args[2])
 
 			std.out += `Compilation complete, output placed in ${directory}`
-			break;
-		case "lib":
-			std.out += "Recompiling YAK Libraries"
-			const libraries = await call.listDir("/lib")
-
-			for (const i in libraries) {
-				const lib = libraries[i]
-				if (getFileExtension(lib) == ".yakl") {
-
-					const code = await call.read("/lib/" + lib)
-
-					await cliCompile(code, "/lib/" + getOnlyName(lib) + ".yakl.js")
-					std.out += "Library " + lib + " compiled."
-				}
-			}
-
 			break;
 		default:
 			std.out += `yak command line

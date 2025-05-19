@@ -60,7 +60,7 @@ system.fs.exists = (directory) => {
 
 system.newVFS("/", system.memory.kernel.rootFS, false, "localcfs", system.volumeGUID)
 
-const memcfsDriver = await system.fs.readFile("/lib/modules/fs/memcfs.js")
+const memcfsDriver = await system.fs.readFile("/System/drivers/fs/memcfs.js")
 
 system.memory.kernel.tempVFS = system.blankVFS()
 system.newVFS("/tmp", system.memory.kernel.tempVFS, false, "memcfs")

@@ -1,4 +1,4 @@
-#! /usr/bin/yak
+#! /System/apps/compilers/yak
 
 SYS:CHDIR (PARENT "dir")
 

@@ -1,8 +1,8 @@
 {
     "name":"pgext",
     "author":"ThatBeaverDev",
-    "directory":"/usr/bin",
+    "directory":"/System/apps/background",
     "files": {
-        "PARSE/pgext.service": "/etc/sysd/system/thatbeaverdev/pgext.service"
+        "PARSE/pgext.service": "/System/services/pgext.service"
     }
 }

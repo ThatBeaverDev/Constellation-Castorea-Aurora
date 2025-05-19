@@ -1,8 +1,8 @@
 {
     "name":"man",
     "author":"ThatBeaverDev",
-    "directory":"/usr/bin",
+    "directory":"/System/apps/utils",
     "directories": [
-        "/usr/share/man"
+        "/System/apps/utils/manpages"
     ]
 }

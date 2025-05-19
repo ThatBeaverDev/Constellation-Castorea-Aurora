@@ -15,9 +15,9 @@ async function compileSourceCode(directory, src) {
 
     let compiler
     switch (compilerdir) {
-        case "/usr/bin/node":
-        case "/kernel/js":
-        case "/usr/bin/js":
+        case "/System/apps/compilers/node":
+        case "/System/apps/compilers/js":
+        case "/System/js":
             compiler = (code) => {
                 return code
             }

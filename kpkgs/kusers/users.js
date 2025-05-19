@@ -1,6 +1,6 @@
 // start user system
 system.user = "root"
-system.users = await system.fs.readFile("/etc/passwd")
+system.users = await system.fs.readFile("/System/users.json")
 
 system.userPasswordHash = async function (txt) {
 
@@ -24,7 +24,7 @@ system.registerUser = async function (name, object) {
         groupID: 0,
         otherInfo: {},
         baseDir: "/",
-        shell: "/bin/aquila.js",
+        shell: "/System/apps/utils/aquila.js",
         permissions: {
             all: false,
             read: false,
@@ -65,7 +65,7 @@ system.registerUser = async function (name, object) {
         await system.fs.writeFolder(d + "/.config", name)
     }
 
-    await system.fs.writeFile("/etc/passwd", system.users)
+    await system.fs.writeFile("/System/users.json", system.users)
 
     return true
 }
@@ -78,8 +78,8 @@ if (system.isNew) {
         groupID: 0,
         otherInfo: {},
         baseDir: "/",
-        homeDir: "/root",
-        shell: "/bin/aquila.js",
+        homeDir: "/Users/System",
+        shell: "/System/apps/utils/aquila.js",
         fullName: "root",
         permissions: {
             all: true,
