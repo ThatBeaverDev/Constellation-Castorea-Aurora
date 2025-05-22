@@ -293,7 +293,7 @@ async function init() {
     })
 
     const width = 500;
-    const height = 350;
+    const height = 500;
 
     await call.send(local.sky, {
         intent: "moveWindow",
