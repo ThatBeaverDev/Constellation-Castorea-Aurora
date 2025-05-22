@@ -125,8 +125,6 @@ async function init([dr]) {
 			}
 		}
 
-		console.debug(cmd)
-
 		return cmd
 	}
 
@@ -175,7 +173,11 @@ async function init([dr]) {
 
 			const stdin = undefined;
 
-			result = await call.exec(cmd, args.slice(1), stdin, true);
+			try {
+				result = await call.exec(cmd, args.slice(1), stdin, true);
+			} catch(e) {
+				result.stdout = `[ERR]${e}`;
+			};
 
 			delete local.runner;
 
@@ -228,6 +230,7 @@ async function init([dr]) {
 
 	local.logsDiv = document.createElement("div");
 	local.logsDiv.id = `aquilaLogs${PID}`;
+	local.logsDiv.style.wordWrap = "break-word";
 
 	local.input = document.createElement("input");
 	local.input.id = `aquilaInput${PID}`;
@@ -529,10 +532,9 @@ async function init([dr]) {
 	}
 
 	log.changeUser = async function (username = "root", pass) {
-		const userData = await call.usrinf(username)
+		const user = username
+		const userData = await call.usrinf(user)
 
-		console.log(users)
-		console.log(user)
 		console.log(userData)
 		console.log(userData == undefined)
 
