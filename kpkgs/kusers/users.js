@@ -76,7 +76,7 @@ if (system.isNew) {
         groupID: 0,
         otherInfo: {},
         baseDir: "/",
-        homeDir: "/Users/System",
+        homeDir: "/System",
         shell: "/System/apps/utils/aquila.js",
         fullName: "root",
         permissions: {
