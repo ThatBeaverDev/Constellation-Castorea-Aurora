@@ -4,21 +4,23 @@
     "directories": [
         "/System/icons/skylight",
         "/System/config/skylight",
-        "/System/apps/gui/skylight"
+        "/System/apps/data/skylight"
     ],
     "files": {
-        "/init": "/System/apps/utils/skyinit",
+        "/init.js": "/System/apps/utils/skyinit",
         "PARSE/config/main.json": "/System/config/skylight/main.json",
-        "/styles.css": "/System/apps/gui/skylight/styles.css",
+        "/styles.css": "/System/apps/data/skylight/styles.css",
 
         "/skylight/panelHandler.js": "/System/apps/gui/skylightPanelHandler",
         "/skylight/fontsystem.js": "/System/apps/gui/skylightFontSystem",
         "/skylight/loginui.js": "/System/apps/gui/skylightLoginUI",
         "/skylight/loginuiWallpaper.js": "/System/apps/gui/skylightLoginUIWallpaper",
 
-        "DATAU/svgs/box.svg": "/System/icons/box.svg",
-        "DATAU/svgs/close.svg": "/System/icons/close.svg",
-        "DATAU/svgs/minimise.svg": "/System/icons/minimise.svg"
+        "DATAU/assets/box.svg": "/System/icons/box.svg",
+        "DATAU/assets/close.svg": "/System/icons/close.svg",
+        "DATAU/assets/minimise.svg": "/System/icons/minimise.svg",
+
+        "DATAU/assets/macOSSonomaOrangeWallpaper.jpg": "/System/wallpapers/sonomaOrange.jpg"
     },
     "dependencies": [
         "systemfonts"

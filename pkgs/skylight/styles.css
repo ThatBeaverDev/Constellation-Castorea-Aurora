@@ -10,6 +10,7 @@
     backdrop-filter: blur(10px);
     background: rgb(18, 18, 19, 0.5);
     scrollbar-width: none; /* Gecko &/or Firefox */
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar {

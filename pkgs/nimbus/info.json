@@ -1,7 +1,7 @@
 {
     "author":"ThatBeaverDev",
     "directories":[
-        "/System/apps/gui/nimbus",
+        "/System/apps/data/nimbus",
         "/System/icons",
         "/System/wallpapers"
     ],
@@ -16,7 +16,7 @@
         "DATAU/backgrounds/Glacier Near Body Of Water - Emma Francis.jpg": "/System/wallpapers/Glacier.jpg",
 
         "/nimbus.js": "/System/apps/gui/nimbus.js",
-        "/styles.css": "/System/apps/gui/nimbus/styles.css",
+        "/styles.css": "/System/apps/data/nimbus/styles.css",
         "/nimbusctl.js": "/System/apps/utils/nimbusctl",
 
         "DATAU/icons/system.svg": "/System/icons/system.svg",

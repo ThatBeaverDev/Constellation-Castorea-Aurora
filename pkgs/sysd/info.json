@@ -2,13 +2,13 @@
     "name":"sysd",
     "author":"ThatBeaverDev",
     "directories":[
-        "/System/apps/background/sysd"
+        "/System/apps/data/sysd"
     ],
     "files": {
         "/sysd.js": "/System/init.js",
         "/sysdctl.js": "/System/apps/utils/sysdctl.js",
 
-        "/daemons/networkd": "/System/apps/background/sysd/networkd",
+        "/daemons/networkd": "/System/apps/data/sysd/networkd",
         "PARSE/daemons/networkd.service": "/System/services/networkd.service"
     },
     "dependencies": [

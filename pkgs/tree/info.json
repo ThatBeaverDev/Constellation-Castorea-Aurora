@@ -1,8 +1,8 @@
 {
     "name":"tree",
     "author":"ThatBeaverDev",
-    "directory":"/System/apps/utils",
     "files": {
-        "/manpage.1": "/System/apps/utils/manpages/tree.1"
+        "/tree.js": "/System/apps/utils/tree.js",
+        "/manpage.1": "/System/apps/data/manpages/tree.1"
     }
 }

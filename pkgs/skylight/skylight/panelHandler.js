@@ -175,7 +175,7 @@ async function init() {
     local.contextBox = document.getElementById("skylightContextBox");
 
     const style = document.createElement("style")
-    style.textContent = await call.read("/System/apps/gui/skylight/styles.css")
+    style.textContent = await call.read("/System/apps/data/skylight/styles.css")
     document.body.appendChild(style)
 
     document.addEventListener('mousemove', (event) => {
@@ -288,6 +288,12 @@ async function frame() {
                 })
 
                 break;
+            case "getMainFcs":
+                await call.send(msg.origin, {
+                    intent: "skylightResponse",
+                    data: structuredClone(system.mainFcs)
+                })
+                break;
 
             case "claimFiletype":
 
@@ -297,17 +303,17 @@ async function frame() {
                 //    entrypoint: "/System/apps/utils/pngapp"
                 //}
 
-                associations = await call.read("/System/apps/gui/skylight/filetypes.json")
+                associations = await call.read("/System/apps/data/skylight/filetypes.json")
                 if (associations == undefined) {
                     associations = {}
                 }
 
                 associations[data.type] = data.entrypoint
 
-                await call.write("/System/apps/gui/skylight/filetypes.json", association)
+                await call.write("/System/apps/data/skylight/filetypes.json", association)
                 break;
             case "openFile":
-                associations = await call.read("/System/apps/gui/skylight/filetypes.json")
+                associations = await call.read("/System/apps/data/skylight/filetypes.json")
                 if (associations == undefined) {
                     continue;
                 }

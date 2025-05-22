@@ -1,7 +1,7 @@
 #! /System/apps/compilers/js
 
-const indexDir = "/System/apps/utils/keystone/index.json"
-const indexFolder = async () => "/System/apps/utils/keystone"
+const indexDir = "/System/apps/data/keystone/index.json"
+const indexFolder = async () => "/System/apps/data/keystone"
 
 async function getConfig() {
     const keystoneConfig = await call.read(local.configDir);
@@ -29,19 +29,19 @@ async function insureConfig() {
     let associations = {}
     local.associations = associations
 
-    const share = await call.readdir("/System/apps/background/keystone/extensions")
+    const share = await call.readdir("/System/apps/data/keystone/extensions")
     for (const i in share) {
         const item = share[i]
 
         if (item.textAfterAll(".") == "json") {
-            const fulldir = await call.fullDirectory(item, "/System/apps/background/keystone/extensions")
+            const fulldir = await call.fullDirectory(item, "/System/apps/data/keystone/extensions")
             const conf = await call.read(fulldir)
 
             if (typeof conf !== "object") {
                 continue;
             }
 
-            const funcdir = await call.fullDirectory(conf.name + ".js", "/System/apps/background/keystone/extensions")
+            const funcdir = await call.fullDirectory(conf.name + ".js", "/System/apps/data/keystone/extensions")
             const funcsrc = await call.read(funcdir)
             const func = new Function("call", funcsrc)
             const splitterFunc = func(call)
@@ -76,13 +76,13 @@ async function index() {
 
 async function init() {
 
-    local.configDir = (await call.read("/System/users.json"))[await call.whoami()].homeDir + "/.config/keystone.json";
+    local.configDir = (await call.usrinf()).homeDir + "/Config/keystone.json";
 
     await call.shout("keystoned")
 
     const varlib = await call.readdir("/System/apps/utils")
     if (!varlib.includes("keystone")) {
-        await call.mkdir("/System/apps/utils/keystone")
+        await call.mkdir("/System/apps/data/keystone")
     }
 
     await insureConfig()

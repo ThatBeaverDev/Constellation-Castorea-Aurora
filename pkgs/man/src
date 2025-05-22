@@ -10,7 +10,7 @@ async function exit(reason) {
 
 async function init(args) {
 
-    local.mandir = "/System/apps/utils/manpages"
+    local.mandir = "/System/apps/data/manpages"
 
     local.manPageDir = local.mandir + "/" + args[0] + ".1"
     local.manPage = await call.read(local.manPageDir)

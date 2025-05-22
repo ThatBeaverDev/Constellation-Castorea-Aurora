@@ -35,11 +35,8 @@ async function init([dr]) {
 	let directory = dr
 
 	if (directory == undefined) {
-
-		let users = await call.read("/System/users.json")
-		let user = await call.whoami()
-
-		directory = users[user].homeDir
+		let usr = await call.usrinf();
+		directory = usr.homeDir;
 	}
 
 	local.history = []
@@ -83,6 +80,56 @@ async function init([dr]) {
 		return result
 	}
 
+	async function resolveLocation(name, path = []) {
+
+		let cmd
+
+		async function considerLocation(name, path) {
+			const loc = await call.fullDirectory(name, path);
+
+			const content = await call.read(loc)
+			if (content !== undefined) {
+				return {
+					ok: true,
+					dir: loc
+				};
+			} else {
+				return {
+					ok: false,
+					dir: loc
+				};
+			};
+		};
+
+		let binName = String(name)
+
+		if ([".", "/", "~"].includes(binName[0])) {
+			cmd = await call.fullDirectory(binName, local.shared.dir);
+		} else {
+			binName = binName.toLowerCase();
+
+			for (const i in path) {
+				const pathItem = path[i];
+
+				const base = await considerLocation(binName, pathItem);
+				if (base.ok === true) {
+					cmd = String(base.dir);
+					break;
+				};
+
+				const js = await considerLocation(binName + ".js", pathItem);
+				if (js.ok === true) {
+					cmd = String(js.dir);
+					break;
+				};
+			}
+		}
+
+		console.debug(cmd)
+
+		return cmd
+	}
+
 	local.run = async function (code, isUnsafe) {
 		local.shared.user = String(local.user);
 
@@ -93,7 +140,7 @@ async function init([dr]) {
 		// setup args
 		let argsPre = String(code).split(" ");
 
-		const binName = argsPre[0].toLowerCase();
+		let binName = argsPre[0];
 
 		argsPre = argsPre.slice(0); // remove the command from the array
 		let args = []
@@ -101,11 +148,6 @@ async function init([dr]) {
 		// loop through to find if there's a redirect
 		for (const i in argsPre) {
 			if (argsPre[i] == ">") {
-
-				console.debug(argsPre)
-				console.debug(argsPre[i])
-				console.debug(argsPre[String(Number(i) + 1)])
-				console.debug(i)
 				redirect = await call.fullDirectory(argsPre[String(Number(i) + 1)], local.shared.dir)
 				break;
 			} else {
@@ -113,40 +155,21 @@ async function init([dr]) {
 			}
 		}
 
-		//const path = await call.read("/etc/path.json"); // system no longer pre-provides a PATH.
-		const path = [
-			"/System/apps/utils"
-		]
-
 		local.history.push(code); // append to history
 
-		let cmd; // going to store the path to the file we are running
+		const path = [
+			"/System/apps/utils"
+		];
 
-		if ([".", "/", "~"].includes(binName[0])) {
-			cmd = await call.fullDirectory(binName, local.shared.dir);
-		} else {
-			for (const i in path) {
-				let temp = path[i] + "/" + binName;
-				if (await call.read(temp) !== undefined) {
-					cmd = String(temp);
-					break;
-				} else {
-					temp = path[i] + "/" + binName + ".js"
-					if (await call.read(temp) !== undefined) {
-						cmd = String(temp);
-						break;
-					}
-				}
-			}
-		}
+		let cmd = await resolveLocation(binName, path)
 
 		let result = {
 			PID: NaN,
 			stdout: ''
-		}
+		};
 
 		if (cmd == undefined || await call.read(cmd) == undefined) {
-			local.logging.post(Name, `command not found: ${binName}`)
+			local.logging.post(Name, `command not found: ${binName}`);
 		} else {
 			//local.runner = csw.permissions.elevate().maxPID + 1
 
@@ -506,9 +529,7 @@ async function init([dr]) {
 	}
 
 	log.changeUser = async function (username = "root", pass) {
-		const user = username
-		const users = await call.read("/System/users.json")
-		const userData = users[user]
+		const userData = await call.usrinf(username)
 
 		console.log(users)
 		console.log(user)

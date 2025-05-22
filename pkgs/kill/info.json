@@ -4,6 +4,6 @@
     "files": {
         "/kill.js": "/System/apps/utils/kill.js",
         "/killall.js": "/System/apps/utils/killall",
-        "/killManpage.1": "/System/apps/utils/manpages/kill.1"
+        "/killManpage.1": "/System/apps/data/manpages/kill.1"
     }
 }

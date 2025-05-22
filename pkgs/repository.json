@@ -41,6 +41,7 @@
         "wallpaperPack-4k": 1,
         "wallpaperPack-1080p": 1,
 
-        "forceQuit": 1
+        "forceQuit": 1,
+        "typo": 1
     }
 }

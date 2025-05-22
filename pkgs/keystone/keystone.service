@@ -1,6 +1,6 @@
 {
     "desc": "Indexer for Keystone Search",
     "restart": "always",
-    "entrypoint": "/System/apps/background/keystone",
+    "entrypoint": "/System/apps/background/keystone.js",
     "dir": "/"
 }

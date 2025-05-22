@@ -1,6 +1,6 @@
 #! /System/apps/compilers/js
 
-const indexDir = "/System/apps/utils/keystone/index.json"
+const indexDir = "/System/apps/data/keystone/index.json"
 
 async function getConfig() {
     const keystoneConfig = await call.read(local.configDir);
@@ -10,7 +10,7 @@ async function getConfig() {
 
 async function init([command, ...args]) {
 
-    local.configDir = (await call.read("/System/users.json"))[await call.whoami()].homeDir + "/.config/keystone.json";
+    local.configDir = (await call.usrinf()).homeDir + "/Config/keystone.json";
 
     switch (command) {
         case "search":

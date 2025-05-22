@@ -61,8 +61,6 @@ system.registerUser = async function (name, object) {
         system.users[name] = obj
         const d = obj.homeDir
         await system.fs.writeFolder(d, name)
-        await system.fs.writeFolder(d + "/.profile", name)
-        await system.fs.writeFolder(d + "/.config", name)
     }
 
     await system.fs.writeFile("/System/users.json", system.users)

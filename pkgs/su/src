@@ -2,11 +2,11 @@
 
 async function init(args) {
     try {
-        const users = await call.read("/System/users.json")
-
         if (args[0] == undefined) {
             args[0] = "root"
         }
+
+        const users = await call.read("/System/users.json")
         const user = args[0]
 
         // make sure user exists
@@ -29,6 +29,6 @@ async function init(args) {
         }
 
     } catch (e) {
-        throw new Error(e)
+        std.out += "\n" + e;
     }
 }

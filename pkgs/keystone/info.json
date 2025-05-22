@@ -1,11 +1,14 @@
 {
     "name":"keystone",
     "author":"ThatBeaverDev",
+    "directories": [
+        "/System/apps/data/keystone"
+    ],
     "files": {
         "/keystone.js": "/System/apps/utils/keystone",
         "/keystonegui.js": "/System/apps/gui/keystone",
         "/keystonectl.js": "/System/apps/utils/keystonectl",
-        "/keystone_background.js": "/System/apps/background/keystone",
+        "/keystone_background.js": "/System/apps/background/keystone.js",
         "PARSE/keystone.service": "/System/services/keystone.service"
     },
     "dependencies": [

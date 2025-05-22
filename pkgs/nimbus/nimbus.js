@@ -3,9 +3,8 @@
 // nimbus desktop environment
 
 const configDir = async () => {
-        const passwd = await call.read("/System/users.json");
-        const user = await call.whoami();
-        const nimbusCfgDir = await call.fullDirectory(".config/nimbus.json", passwd[user].homeDir);
+        const userinf = await call.usrinf()
+        const nimbusCfgDir = await call.fullDirectory("Config/nimbus.json", userinf.homeDir);
 
         return nimbusCfgDir;
 }
@@ -18,6 +17,7 @@ async function getConfig() {
 
 async function setConfig(data) {
     const dir = await configDir();
+    console.log(dir)
     local.config = data
     await call.write(dir, structuredClone(data));
 }
@@ -82,7 +82,8 @@ async function init() {
     console.debug("Config Dir:", await configDir());
     
     await insureConfig();
-    console.warn(local.config)
+
+    local.libmsg = await call.getLibrary("libmsg")
 
     local.contextBox = document.getElementById("nimbusContextBox");
 
@@ -127,7 +128,7 @@ async function init() {
 
     style = document.getElementById("nimbusStyles")
     local.refreshStyles = async () => {
-        style.textContent = await call.read("/System/apps/gui/nimbus/styles.css")
+        style.textContent = await call.read("/System/apps/data/nimbus/styles.css")
     }
     await local.refreshStyles();
 
@@ -278,18 +279,26 @@ async function init() {
     const user = await call.whoami();
 
     headerButtons.terminal.addEventListener("click", async function () {
-        const users = await call.read("/System/users.json");
-        const userinf = users[user];
+        const userinf = await call.usrinf()
         await call.exec(userinf.shell, [], false);
     });
 
     headerButtons.library.addEventListener("click", async function () {
-        const users = await call.read("/System/users.json");
-        const userinf = users[user];
+        const userinf = await call.usrinf()
         await call.exec(userinf.shell, [userinf.homeDir], false);
     });
 
     await applyConfig();
+
+    async function getMainFcs() {
+        const response =  await local.libmsg.request(local.sky, {
+            intent: "getMainFcs"
+        })
+
+        const mainFcs = response.content.data
+
+        return mainFcs
+    }
 
     local.keyboardShortcuts = async function (event) {
 
@@ -299,35 +308,37 @@ async function init() {
         switch (event.code) {
             case "Space":
                 if (event.altKey) {
-                    await call.exec("/System/apps/gui/keystone")
                     event.preventDefault()
+                    await call.exec("/System/apps/gui/keystone")
                 }
                 break;
             case "KeyT":
                 if (event.altKey && ctrl) {
+                    event.preventDefault()
                     await call.exec("/System/apps/utils/aquila.js")
                 }
                 break;
             case "KeyW":
                 if (event.altKey) {
-                    await call.kill(system.mainFcs)
+                    event.preventDefault()
+                    await call.kill(await getMainFcs())
                 }
                 break;
-            case "KeyQ":
-                if (event.altKey) {
-                    const name = system.processes[system.mainFcs].name
-                    const processes = []
-                    for (const i in system.processes) {
-                        if (system.processes[i].name === name) {
-                            processes.push(i)
-                        }
-                    }
-
-                    for (const i in processes) {
-                        await call.kill(processes[i])
-                    }
-                }
-                break;
+            //case "KeyQ":
+            //    if (event.altKey) {
+            //        const name = system.processes[await getMainFcs()].name
+            //        const processes = []
+            //        for (const i in system.processes) {
+            //            if (system.processes[i].name === name) {
+            //                processes.push(i)
+            //            }
+            //        }
+            //
+            //        for (const i in processes) {
+            //            await call.kill(processes[i])
+            //        }
+            //    }
+            //    break;
         }
     }
 

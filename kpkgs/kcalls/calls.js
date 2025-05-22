@@ -3,12 +3,26 @@ system.memory.kernel.lib.calls = {}
 system.syscalls = system.memory.kernel.lib.calls
 const c = system.memory.kernel.lib.calls
 
+async function passwordCheck(username, password) {
+    const user = await c.usrinf(0, username);
+
+    if (user == undefined) throw new Error(`User ${username} does not exist.`);
+
+    const passhash = await system.userPasswordHash(password);
+
+    if (user.password === passhash) {
+        return true;
+    } else {
+        return false;
+    };
+}
+
 // filesystem
 c.read = (PID, directory, attribute = "contents") => {
     const dir = system.toDir(directory, c.getcwd(PID))
 
     if (sse.manyDebug == true) {
-        system.debug(PID, "readFile " + directory)
+        system.debug(PID, "readFile " + dir)
     }
 
     return system.fs.readFile(dir, attribute)
@@ -43,17 +57,10 @@ c.isFolder = async (PID, directory) => {
 //c.chown = (directory) => {
 
 //}
-c.whoami = (PID) => {
-    return system.processes[PID].user
-}
 c.chusr = async (PID, username, password) => {
-    const users = await system.fs.readFile("/System/users.json")
-    const userdata = users[username]
-    if (userdata == undefined) throw new Error(`User ${username} does not exist.`)
+    const correctPassword = await passwordCheck(username, password)
 
-    const passhash = await system.userPasswordHash(password)
-
-    if (passhash == userdata.password) {
+    if (correctPassword) {
         system.processes[PID].user = username
         return true
     } else {
@@ -74,13 +81,11 @@ c.readdir = async function (PID, directory, attribute = "children") {
             return await system.fs.rawFolder(directory, c.whoami(PID))[attribute]
     }
 }
-c.mkdir = async function (PID, directory) {
-    try {
-        const dir = system.toDir(directory, c.getcwd(PID))
-        await system.fs.writeFolder(dir, c.whoami(PID))
-    } catch (e) {
-        return -1
-    }
+c.mkdir = async function (PID, directory, permissions) {
+    let user = await c.whoami(PID)
+
+    const dir = system.toDir(directory, c.getcwd(PID))
+    await system.fs.writeFolder(dir, user, permissions)
     return 0
 }
 c.mount
@@ -113,8 +118,8 @@ c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}
 
     if (options.username !== undefined) {
         const passhash = await system.userPasswordHash(options.password)
-        const users = await c.read(0, "/System/users.json")
-        const targetUserObj = users[options.username]
+
+        const targetUserObj = await c.usrinf(PID, options.username)
 
         if (targetUserObj.password === passhash) {
             // correct password!
@@ -132,11 +137,14 @@ c.kill = (PID, targetPID) => {
         return;
     }
 
-    console.debug(targetPID)
+    // to future me!
+    // insure processes can kill child processes when they are not root!
+
+    console.debug(PID, 'is killing', targetPID)
     const user = c.whoami(PID)
-    if (user !== "root") {
-        return -1
-    }
+    //if (user !== "root") {
+    //    return -1              // replace in future with actual logic
+    //}
     system.stopProcess(targetPID, false)
     return 0
 }
@@ -352,4 +360,19 @@ c.getLibrary = async (PID, libName, appName) => {
 
 c.mkusr = async (PID, name, obj) => {
     return system.registerUser(name, obj)
+}
+c.whoami = (PID) => {
+    return system.processes[PID].user;
+};
+c.usrinf = async (PID, name) => {
+
+    let user = name;
+
+    if (name == undefined) {
+        user = await c.whoami(PID);
+    };
+
+    const inf = system.users[user];
+
+    return structuredClone(inf);
 }

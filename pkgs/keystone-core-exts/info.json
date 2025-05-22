@@ -2,11 +2,11 @@
     "name":"keystone",
     "author":"ThatBeaverDev",
     "directories": [
-        "/System/apps/background/keystone",
-        "/System/apps/background/keystone/extensions"
+        "/System/apps/data/keystone",
+        "/System/apps/data/keystone/extensions"
     ],
     "files": {
-        "/text.js": "/System/apps/background/keystone/extensions/text.js",
-        "PARSE/text.json": "/System/apps/background/keystone/extensions/text.json"
+        "/text.js": "/System/apps/data/keystone/extensions/text.js",
+        "PARSE/text.json": "/System/apps/data/keystone/extensions/text.json"
     }
 }

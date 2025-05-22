@@ -91,5 +91,31 @@ async function init(args) {
 
     obj.homeDir = (obj.homeDir || obj.baseDir + "/" + (username || ""))
 
-    await call.mkusr(username, obj)
+    await call.mkusr(username, structuredClone(obj))
+
+    const base = obj.homeDir
+
+    const places = [
+        "./Desktop",
+        "./Documents",
+        "./Media",
+        "./Media/Music",
+        "./Media/Photos",
+        "./Media/Photos/Wallpapers",
+        "./Media/Videos",
+        "./Media/Videos/Wallpapers",
+        "./.System",
+        "./.System/apps",
+        "./.System/apps/background",
+        "./.System/apps/gui",
+        "./.System/apps/libraries",
+        "./.System/apps/utils",
+        "./Config",
+    ]
+
+    for (const i in places) {
+        const dir = await call.fullDirectory(places[i], base)
+
+        await call.mkdir(dir, username, obj.password)
+    }
 }

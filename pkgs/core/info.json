@@ -18,9 +18,10 @@
         "/src/touch.js": "/System/apps/utils/touch",
         "/src/users.js": "/System/apps/utils/users",
         "/src/whoami.js": "/System/apps/utils/whoami",
-        "/src/chroot.yak": "/System/apps/utils/chroot.yak"
+        "/src/chroot.yak": "/System/apps/utils/chroot.yak",
+        "/src/me.js": "/System/apps/utils/me"
     },
 
-        "/man/rm.1": "/System/apps/utils/manpages/rm.1",
-        "/man/whoami.1": "/System/apps/utils/manpages/whoami.1"
+        "/man/rm.1": "/System/apps/data/manpages/rm.1",
+        "/man/whoami.1": "/System/apps/data/manpages/whoami.1"
 }

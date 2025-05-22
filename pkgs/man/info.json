@@ -3,6 +3,6 @@
     "author":"ThatBeaverDev",
     "directory":"/System/apps/utils",
     "directories": [
-        "/System/apps/utils/manpages"
+        "/System/apps/data/manpages"
     ]
 }

@@ -1,6 +1,6 @@
 {
     "desc": "background process for making network requests",
     "restart": "always",
-    "entrypoint": "/System/apps/background/sysd/networkd",
+    "entrypoint": "/System/apps/data/sysd/networkd",
     "dir": "/"
 }

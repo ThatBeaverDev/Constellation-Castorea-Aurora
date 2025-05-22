@@ -49,6 +49,11 @@ system.fs.folderPermissions = (directory, username = "root") => {
     return obj.vfsTypeDriver.folderPermissions(obj.vfsDir, username, obj.vfs, obj.vfsGUID)
 }
 
+system.fs.updateFolderPermissions = (directory, permissions, username = "root") => {
+    const obj = getVFS(directory)
+    return obj.vfsTypeDriver.updateFolderPermissions(obj.vfsDir, permissions, username, obj.vfs, obj.vfsGUID)
+}
+
 
 // Typeless operations (files AND folders)
 system.fs.exists = (directory) => {
