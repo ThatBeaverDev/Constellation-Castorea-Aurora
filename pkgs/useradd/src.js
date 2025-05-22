@@ -93,6 +93,8 @@ async function init(args) {
 
     await call.mkusr(username, structuredClone(obj))
 
+    await call.chusr(username, obj.password)
+
     const base = obj.homeDir
 
     const places = [
@@ -116,6 +118,6 @@ async function init(args) {
     for (const i in places) {
         const dir = await call.fullDirectory(places[i], base)
 
-        await call.mkdir(dir, username, obj.password)
+        await call.mkdir(dir)
     }
 }

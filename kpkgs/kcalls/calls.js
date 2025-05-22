@@ -81,11 +81,11 @@ c.readdir = async function (PID, directory, attribute = "children") {
             return await system.fs.rawFolder(directory, c.whoami(PID))[attribute]
     }
 }
-c.mkdir = async function (PID, directory, permissions) {
+c.mkdir = async function (PID, directory) {
     let user = await c.whoami(PID)
 
     const dir = system.toDir(directory, c.getcwd(PID))
-    await system.fs.writeFolder(dir, user, permissions)
+    await system.fs.writeFolder(dir, user)
     return 0
 }
 c.mount
