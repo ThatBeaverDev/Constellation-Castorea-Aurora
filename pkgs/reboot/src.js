@@ -2,14 +2,13 @@
 
 async function init(args) {
 
-    try {
-        system
-    } catch(e) {
-        std.out = "[ERR]Reboot can only be ran by superuser."
+    const user = await call.whoami()
+    if (user !== "root") {
+        std.out = "[ERR]Reboot is only available to root."
         return
     }
 
     await system.localFS.commit()
     
-    location.reload()
+    await system.reboot()
 }

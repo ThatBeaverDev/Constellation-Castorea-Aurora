@@ -26,10 +26,7 @@ system.registerUser = async function (name, object) {
         baseDir: "/",
         shell: "/System/apps/utils/aquila.js",
         permissions: {
-            all: false,
-            read: false,
-            write: false,
-            delete: false
+            reboot: false
         }
     }
 
@@ -80,10 +77,8 @@ if (system.isNew) {
         shell: "/System/apps/utils/aquila.js",
         fullName: "root",
         permissions: {
-            all: true,
-            read: true,
-            write: true,
-            delete: true
+            reboot: false,
+
         }
     })
 }

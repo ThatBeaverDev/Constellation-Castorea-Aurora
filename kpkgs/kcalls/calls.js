@@ -133,7 +133,7 @@ c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}
 }
 c.kill = (PID, targetPID) => {
     if (targetPID == ".") {
-        system.stopProcess(targetPID)
+        system.stopProcess(PID)
         return;
     }
 
