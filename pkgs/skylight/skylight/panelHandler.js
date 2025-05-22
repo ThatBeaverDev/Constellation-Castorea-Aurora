@@ -59,15 +59,21 @@ async function createWindow(PID) {
     total.id = `skylightWindow${PID}`;
     total.className = "skylightTotal"
     total.innerHTML = top.outerHTML + "\n" + body.outerHTML;
-    total.style.width = "750px";
-    total.style.height = "500px";
+
+    const width = 750
+    const height = 500
+
+    const leftPx = (window.innerWidth - width) / 2
+    const topPx = (window.innerHeight - height) / 2
+
+    total.style.width = width + "px";
+    total.style.height = height + "px";
 
     // for window movement
-    total.left = 0;
-    total.style.left = "0px"
-    total.top = 100;
-    total.style.top = "100px";
-
+    total.left = leftPx;
+    total.style.left = total.left + "px"
+    total.top = topPx;
+    total.style.top = total.top + "px";
 
     local.display.appendChild(total);
 
@@ -143,6 +149,11 @@ async function createWindow(PID) {
 }
 
 function closeWindow(PID) {
+
+    if (local.windows[PID] == undefined) {
+        return;
+    }
+
     local.windows[PID].total.remove() // remove window elements
 
     system.focus.splice(system.focus.indexOf(PID), 1) // remove from focus list
@@ -154,12 +165,7 @@ async function init() {
 
     const PID = await call.getpid()
 
-    const displayOwner = await call.deviceOwner("display");
-
-    //if (displayOwner !== PID) {
     await call.claimDevice("display")
-    //    return
-    //}
 
     system.focus = [];
 
@@ -174,15 +180,15 @@ async function init() {
 
     local.contextBox = document.getElementById("skylightContextBox");
 
-    const style = document.createElement("style")
-    style.textContent = await call.read("/System/apps/data/skylight/styles.css")
-    document.body.appendChild(style)
+    const style = document.createElement("style");
+    style.textContent = await call.read("/System/apps/data/skylight/styles.css");
+    document.body.appendChild(style);
 
     document.addEventListener('mousemove', (event) => {
 
         if (local.xDiff !== 0 || local.yDiff !== 0) {
-            return
-        }
+            return;
+        };
 
         local.oldmsX = Number(local.msX);
         local.oldmsY = Number(local.msY);
@@ -190,16 +196,16 @@ async function init() {
         local.msX = Number(event.clientX);
         local.msY = Number(event.clientY);
 
-        local.xDiff = Number(local.msX) - Number(local.oldmsX)
-        local.yDiff = Number(local.oldmsY) - Number(local.msY)
+        local.xDiff = Number(local.msX) - Number(local.oldmsX);
+        local.yDiff = Number(local.oldmsY) - Number(local.msY);
     })
 
     document.addEventListener('mouseup', (event) => {
-        local.drag = undefined
+        local.drag = undefined;
     });
 
     await call.shout("skylightWindowSystem");
-}
+};
 
 async function frame() {
 
