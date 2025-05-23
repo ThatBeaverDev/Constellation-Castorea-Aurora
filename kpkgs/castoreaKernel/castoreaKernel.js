@@ -30,6 +30,10 @@ async function start_kernel() {
 		}
 
 		if (content == undefined) {
+			try {
+				system.log(Name, `Downloading Kernel module ${name}`)
+			} catch {}
+
 			content = await system.fetchURL(system.auroraURI + "/kpkgs/k" + name + "/" + name + ".js");
 
 			if (content == undefined) {
@@ -51,7 +55,11 @@ async function start_kernel() {
 			}
 			try {
 				system.log(Name, `Kernel module ${name} now present (downloaded)`)
-			} catch { }
+			} catch {};
+		} else {
+			try {
+				system.log(Name, `Kernel module ${name} present`)
+			} catch {};
 		};
 
 		content = `const moduleName = "/System/kernel/modules/${name}.js";\n\n${content}`

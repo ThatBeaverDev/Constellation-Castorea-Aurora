@@ -3,6 +3,8 @@ system.memory.kernel.lib.calls = {}
 system.syscalls = system.memory.kernel.lib.calls
 const c = system.memory.kernel.lib.calls
 
+try {
+
 async function passwordCheck(username, password) {
     const user = await c.usrinf(0, username);
 
@@ -21,7 +23,7 @@ async function passwordCheck(username, password) {
 c.read = (PID, directory, attribute = "contents") => {
     const dir = system.toDir(directory, c.getcwd(PID))
 
-    if (sse.manyDebug == true) {
+    if (system.manyDebug == true) {
         system.debug(PID, "readFile " + dir)
     }
 
@@ -375,4 +377,8 @@ c.usrinf = async (PID, name) => {
     const inf = system.users[user];
 
     return structuredClone(inf);
+}
+
+} catch(e) {
+    console.warn(e)
 }
