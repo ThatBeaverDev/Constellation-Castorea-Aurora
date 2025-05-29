@@ -145,7 +145,7 @@ async function start_kernel() {
 		return parent
 	}
 
-	system.toDir = (target, base) => {
+	system.toDir = (target, base = "/") => {
 		if (target.startsWith('/')) return target;
 
 		const baseParts = base.split('/').filter(Boolean);
@@ -170,6 +170,12 @@ async function start_kernel() {
 	await include("processes")
 	await include("vfs")
 	await include("fs")
+
+	const faviconSVG = await system.fs.readFile("/System/icons/.favicon.svg")
+	if (faviconSVG !== undefined) {
+		const favicon = document.getElementById("pg_favicon")
+		favicon.href = faviconSVG
+	}
 
 	let sysState = await system.fs.readFile("/sysState.json")
 
