@@ -7,7 +7,7 @@ async function compileSourceCode(directory, src) {
         return src
     }
 
-    const compilerdir = "/" + shebang.textAfter("/")
+    const compilerdir = await system.syscalls.fullDirectory(0, "/" + shebang.textAfter("/"))
 
     const lines = src.split("\n")
     lines.splice(0, 1)
