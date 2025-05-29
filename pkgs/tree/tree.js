@@ -59,8 +59,8 @@ async function init(args) {
 				break;
 			default:
 				// if the token is the first one, it's the directory
-				if (args[i][i] !== "-") {
-					dir = await call.fullDirectory(args[1], parent.dir)
+				if (args[i][0] !== "-") {
+					dir = await call.fullDirectory(args[i], parent.dir)
 				} else {
 					std.out += "[WRN]Unknown Flag: " + args[i] + "\n";
 				};
