@@ -27,8 +27,7 @@
     },
     "dependencies": [
         "skylight",
-        "keystone",
-        "ssmconf"
+        "keystone"
     ],
     "desc": "Desktop Environment for Skylight Window System"
 }
