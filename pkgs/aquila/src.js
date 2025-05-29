@@ -156,7 +156,8 @@ async function init([dr]) {
 		local.history.push(code); // append to history
 
 		const path = [
-			"/System/apps/utils"
+			"/System/apps/utils",
+			await call.fullDirectory("§/apps/utils")
 		];
 
 		let cmd = await resolveLocation(binName, path)
@@ -176,7 +177,7 @@ async function init([dr]) {
 			try {
 				result = await call.exec(cmd, args.slice(1), stdin, true);
 			} catch(e) {
-				result.stdout = `[ERR]${e}`;
+				result.stdout = e.stack;
 			};
 
 			delete local.runner;
@@ -185,7 +186,8 @@ async function init([dr]) {
 			if (redirect == undefined) {
 				const stdout = local.stdToLogs(result.stdout);
 
-				let process = result.process;
+				let process = (result.process || {});
+
 				const name = String(process.name)
 				for (const i in stdout) {
 					const type = stdout[i].type;
@@ -576,7 +578,7 @@ async function init([dr]) {
 		if (await call.isFolder(dir)) {
 			local.shared.dir = dir
 		} else {
-			return `not a directory: ${directory}`
+			return `not a directory: ${dir}`
 		}
 	}
 
