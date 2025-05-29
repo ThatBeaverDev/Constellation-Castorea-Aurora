@@ -16,5 +16,6 @@
         "/fortunes/miscellaneous": "/System/apps/utils/fortune/fortunes/games/fortunes/miscellaneous",
         "/fortunes/pets": "/System/apps/utils/fortune/fortunes/games/fortunes/pets",
         "/fortunes/wisdom": "/System/apps/utils/fortune/fortunes/games/fortunes/wisdom"
-    }
+    },
+    "desc": "Infamous electronic fortune-cookie generator"
 }

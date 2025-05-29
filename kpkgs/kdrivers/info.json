@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/drivers.js": "/System/kernel/modules/drivers.js"
-    }
+    },
+    "desc": "Driver initialiser for castoreaKernel."
 }

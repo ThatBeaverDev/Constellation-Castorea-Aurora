@@ -7,5 +7,6 @@
     "files": {
         "DATAU/SourceCodePro-VariableFont_wght.ttf": "/System/fonts/Source Code Pro.ttf",
         "DATAU/NotoSans-VariableFont_wdth,wght.ttf": "/System/fonts/Noto Sans.ttf"
-    }
+    },
+    "desc": "System fonts (Noto Sans and Source Code Pro)"
 }

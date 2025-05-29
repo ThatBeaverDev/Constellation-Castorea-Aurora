@@ -5,5 +5,6 @@
     "directory":"/System/apps/utils",
     "directories": [
         "/System/config/aurora"
-    ]
+    ],
+    "desc": "The package manager client for Constellation"
 }

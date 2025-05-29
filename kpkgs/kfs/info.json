@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/fs.js": "/System/kernel/modules/fs.js"
-    }
+    },
+    "desc": "Filesystem API provider for castoreaKernel."
 }

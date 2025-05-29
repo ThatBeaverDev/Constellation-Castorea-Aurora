@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/users.js": "/System/kernel/modules/users.js"
-    }
+    },
+    "desc": "User registration and password hashing for castoreaKernel."
 }

@@ -13,5 +13,6 @@
     },
     "dependencies": [
         "keystone-core-exts"
-    ]
+    ],
+    "desc": "A Search Utility for searching files using an index over specified locations."
 }

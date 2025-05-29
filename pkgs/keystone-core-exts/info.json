@@ -8,5 +8,6 @@
     "files": {
         "/text.js": "/System/apps/data/keystone/extensions/text.js",
         "PARSE/text.json": "/System/apps/data/keystone/extensions/text.json"
-    }
+    },
+    "desc": "Extensions for Keystone providing basic functionality with text files."
 }

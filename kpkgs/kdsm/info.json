@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/dsm.js": "/System/kernel/modules/dsm.js"
-    }
+    },
+    "desc": "Automatic fallback display manager for castoreaKernel"
 }

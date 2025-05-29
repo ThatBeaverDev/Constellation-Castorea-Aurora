@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/calls.js": "/System/kernel/modules/calls.js"
-    }
+    },
+    "desc": "System calls library for castoreaKernel."
 }

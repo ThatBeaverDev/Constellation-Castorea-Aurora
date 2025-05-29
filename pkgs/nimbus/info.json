@@ -29,5 +29,6 @@
         "skylight",
         "keystone",
         "ssmconf"
-    ]
+    ],
+    "desc": "Desktop Environment for Skylight Window System"
 }

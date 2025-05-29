@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/libmsg.js": "/System/apps/libraries/libmsg.js"
-    }
+    },
+    "desc": "A library providing utilities surrounding IPC messaging functionality of kcalls."
 }

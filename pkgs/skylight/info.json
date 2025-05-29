@@ -24,5 +24,6 @@
     },
     "dependencies": [
         "systemfonts"
-    ]
+    ],
+    "desc": "Window server, Font-applier and loginUI."
 }

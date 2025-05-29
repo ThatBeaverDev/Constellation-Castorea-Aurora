@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/devsys.js": "/System/kernel/modules/devsys.js"
-    }
+    },
+    "desc": "Device initialiser for castoreaKernel."
 }

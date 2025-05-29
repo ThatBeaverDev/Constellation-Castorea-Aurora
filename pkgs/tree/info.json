@@ -4,5 +4,6 @@
     "files": {
         "/tree.js": "/System/apps/utils/tree.js",
         "/manpage.1": "/System/apps/data/manpages/tree.1"
-    }
+    },
+    "desc": "Display directories as trees"
 }
