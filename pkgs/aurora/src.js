@@ -376,7 +376,14 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 
 			// create directories
 			for (const i in data.directories) {
-				await call.mkdir(data.directories[i])
+
+				let dir = data.directories[i]
+
+				if (dir.startsWith("/System/")) {
+					dir = "§/" + dir.substring(8, Infinity);
+				};
+
+				await call.mkdir(dir)
 			}
 
 			// install dependencies
@@ -397,6 +404,14 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				const type = file.substring(0, 5);
 				const afterType = file.substring(5, Infinity);
 
+				let dir = data.files[file];
+
+				if (dir.startsWith("/System/")) {
+					dir = "§/" + dir.substring(8, Infinity);
+				};
+
+				console.debug(dir)
+
 				switch (type) {
 					case "PARSE":
 						uri = url + args[1] + afterType;
@@ -413,8 +428,6 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 							reader.readAsDataURL(blob);
 						});
 
-						const dir = data.files[file];
-
 						queue.push(call.write(dir, dataURL));
 						writtenFiles.push(dir)
 						continue;
@@ -429,7 +442,6 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 
 				// download
 				let content = await local.fetch(uri);
-				const dir = data.files[file];
 				if (file.substring(0, 5) == "PARSE") {
 					content = JSON.parse(content);
 				};
@@ -455,7 +467,11 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				if (data.directory !== undefined) {
 					// write the file to it's specific directory
 					// I intend to require elevated permissions for this in future
-					const dir = data.directory + "/" + data.name + data.lang;
+					let dir = data.directory + "/" + data.name + data.lang;
+
+					if (dir.startsWith("/System/")) {
+						dir = "§/" + dir.substring(8, Infinity);
+					};
 
 					local.fileStorage[args[1]].push(dir);
 
@@ -463,7 +479,11 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					queue.push(call.write(dir, file));
 				} else {
 					// write the file
-					const dir = local.aurora.directory + "/" + data.name + data.lang;
+					let dir = local.aurora.directory + "/" + data.name + data.lang;
+
+					if (dir.startsWith("/System/")) {
+						dir = "§/" + dir.substring(8, Infinity);
+					};
 
 					local.fileStorage[args[1]].push(dir);
 

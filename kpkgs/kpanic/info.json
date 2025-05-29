@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/panic.js": "/System/kernel/modules/panic.js"
-    }
+    },
+    "desc": "Scripts for handling a kernel panic for castoreaKernel."
 }

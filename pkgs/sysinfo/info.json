@@ -5,5 +5,6 @@
     "directory":"/System/apps/utils",
     "dependencies": [
         "libmsg"
-    ]
+    ],
+    "desc": "System information script"
 }

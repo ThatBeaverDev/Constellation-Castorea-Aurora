@@ -22,5 +22,6 @@
         "kusers",
         "kvfs",
         "kdevmode"
-    ]
+    ],
+    "desc": "The default kernel for Constellation"
 }

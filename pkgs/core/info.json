@@ -1,6 +1,6 @@
 {
-    "name":"core",
-    "author":"ThatBeaverDev",
+    "name": "core",
+    "author": "ThatBeaverDev",
     "files": {
         "/src/basename.js": "/System/apps/utils/basename",
         "/src/cat.js": "/System/apps/utils/cat.js",
@@ -21,7 +21,8 @@
         "/src/chroot.yak": "/System/apps/utils/chroot.yak",
         "/src/me.js": "/System/apps/utils/me"
     },
+    "/man/rm.1": "/System/apps/data/manpages/rm.1",
+    "/man/whoami.1": "/System/apps/data/manpages/whoami.1",
 
-        "/man/rm.1": "/System/apps/data/manpages/rm.1",
-        "/man/whoami.1": "/System/apps/data/manpages/whoami.1"
+    "desc": "Core utility packages, like ls and cd."
 }

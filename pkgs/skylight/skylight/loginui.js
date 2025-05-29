@@ -308,7 +308,7 @@ async function init() {
     });
 
     try {
-        await call.exec("/System/apps/gui/skylightLoginUIWallpaper");
+        await call.exec("§/apps/gui/skylightLoginUIWallpaper");
     } catch (e) {
         console.warn(e)
     }

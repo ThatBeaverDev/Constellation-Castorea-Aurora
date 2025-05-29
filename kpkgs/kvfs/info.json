@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/vfs.js": "/System/kernel/modules/vfs.js"
-    }
+    },
+    "desc": "Filesystem mounter for castoreaKernel."
 }

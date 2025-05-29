@@ -4,5 +4,6 @@
     "directory":"/System/apps/background",
     "files": {
         "PARSE/pgext.service": "/System/services/pgext.service"
-    }
+    },
+    "desc": "A Program to update the page title with different information."
 }

@@ -114,6 +114,11 @@ async function init(args) {
         "§/apps/libraries",
         "§/apps/utils",
         "§/config",
+        "§/services",
+        "§/fonts",
+        "§/icons",
+        "§/logs",
+        "§/wallpapers",
     ]
 
     const exec = [

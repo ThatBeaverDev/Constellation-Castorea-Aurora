@@ -3,5 +3,6 @@
     "author":"ThatBeaverDev",
     "files": {
         "/processes.js": "/System/kernel/modules/processes.js"
-    }
+    },
+    "desc": "Process handling scripts for castoreaKernel."
 }

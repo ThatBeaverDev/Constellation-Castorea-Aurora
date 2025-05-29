@@ -10,7 +10,7 @@ async function getConfig() {
 
 async function init([command, ...args]) {
 
-    local.configDir = (await call.usrinf()).homeDir + "/Config/keystone.json";
+    local.configDir = await call.fullDirectory("/System/config/keystone.json");
 
     switch (command) {
         case "search":
