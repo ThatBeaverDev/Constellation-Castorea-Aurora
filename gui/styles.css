@@ -1,0 +1,53 @@
+html {
+    height: 100vh;
+}
+
+body {
+    height: 100%;
+    background: #2A7B9B;
+    background: linear-gradient(rgba(219, 162, 250, 1), rgba(42, 123, 155, 1));
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    color: white;
+
+    font-family: 'Source Code Pro', monospace;
+
+    margin: 0;
+}
+
+#container {
+    width: calc(100% - 200px);
+    margin: 100px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    padding: 0;
+    border-radius: 10px;
+    border-collapse: collapse;
+}
+
+tr {
+    margin: 0;
+    padding: 0;
+    border: solid rgba(89, 0, 116, 0.1);
+}
+
+th {
+    margin: 0;
+    padding: 0;
+}
+
+
+
+h1 {
+    font-size: 3em;
+    margin: 0;
+}
+
+a {
+    color: rgb(144, 214, 255);
+}
