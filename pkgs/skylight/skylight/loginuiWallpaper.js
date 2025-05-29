@@ -8,7 +8,7 @@ async function init() {
         intent: "newWindow"
     });
 
-    const wallpaperFile = await call.read("/System/wallpapers/sonomaOrange.jpg");
+    const wallpaperFile = await call.read("§/wallpapers/sonomaOrange.jpg");
 
     const wallpaper = document.createElement("img")
     wallpaper.id = "skylightLoginUIWallpaperImg";

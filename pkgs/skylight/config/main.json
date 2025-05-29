@@ -1,7 +1,7 @@
 {
     "subsystems": [
-        "/System/apps/gui/skylightPanelHandler",
-        "/System/apps/gui/skylightFontSystem",
-        "/System/apps/gui/skylightLoginUI"
+        "§/apps/gui/skylightPanelHandler",
+        "§/apps/gui/skylightFontSystem",
+        "§/apps/gui/skylightLoginUI"
     ]
 }

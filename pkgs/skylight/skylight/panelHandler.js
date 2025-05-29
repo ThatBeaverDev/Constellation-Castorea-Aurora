@@ -35,9 +35,9 @@ async function createWindow(PID) {
     system.focus.push(PID)
 
     const systemButtons = {
-        box: await call.read("/System/icons/box.svg"),
-        close: await call.read("/System/icons/close.svg"),
-        minimise: await call.read("/System/icons/minimise.svg")
+        box: await call.read("§/icons/box.svg"),
+        close: await call.read("§/icons/close.svg"),
+        minimise: await call.read("§/icons/minimise.svg")
     }
 
     const buttons = {
@@ -181,7 +181,7 @@ async function init() {
     local.contextBox = document.getElementById("skylightContextBox");
 
     const style = document.createElement("style");
-    style.textContent = await call.read("/System/apps/data/skylight/styles.css");
+    style.textContent = await call.read("§/apps/data/skylight/styles.css");
     document.body.appendChild(style);
 
     document.addEventListener('mousemove', (event) => {
@@ -306,20 +306,20 @@ async function frame() {
                 //{
                 //    intent: "claimFileType",
                 //    type: "png",
-                //    entrypoint: "/System/apps/utils/pngapp"
+                //    entrypoint: "§/apps/utils/pngapp"
                 //}
 
-                associations = await call.read("/System/apps/data/skylight/filetypes.json")
+                associations = await call.read("§/apps/data/skylight/filetypes.json")
                 if (associations == undefined) {
                     associations = {}
                 }
 
                 associations[data.type] = data.entrypoint
 
-                await call.write("/System/apps/data/skylight/filetypes.json", association)
+                await call.write("§/apps/data/skylight/filetypes.json", association)
                 break;
             case "openFile":
-                associations = await call.read("/System/apps/data/skylight/filetypes.json")
+                associations = await call.read("§/apps/data/skylight/filetypes.json")
                 if (associations == undefined) {
                     continue;
                 }
