@@ -19,9 +19,11 @@
         "/styles.css": "/System/apps/data/nimbus/styles.css",
         "/nimbusctl.js": "/System/apps/utils/nimbusctl",
 
-        "DATAU/icons/system.svg": "/System/icons/system.svg",
         "DATAU/icons/telescope.svg": "/System/icons/telescope.svg",
-        "DATAU/icons/satellite.svg": "/System/icons/satellite.svg"
+        "DATAU/icons/satellite.svg": "/System/icons/satellite.svg",
+
+        "DATAU/icons/telescope.ico": "/System/icons/telescope.ico",
+        "DATAU/icons/satellite.ico": "/System/icons/satellite.ico"
     },
     "dependencies": [
         "skylight",

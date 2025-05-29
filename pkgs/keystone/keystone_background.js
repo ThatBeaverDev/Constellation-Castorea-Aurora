@@ -76,7 +76,7 @@ async function index() {
 
 async function init() {
 
-    local.configDir = (await call.usrinf()).homeDir + "/Config/keystone.json";
+    local.configDir = await call.fullDirectory("/System/config/keystone.json");
 
     await call.shout("keystoned")
 

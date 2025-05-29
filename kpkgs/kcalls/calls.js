@@ -3,6 +3,8 @@ system.memory.kernel.lib.calls = {}
 system.syscalls = system.memory.kernel.lib.calls
 const c = system.memory.kernel.lib.calls
 
+try {
+
 async function passwordCheck(username, password) {
     const user = await c.usrinf(0, username);
 
@@ -18,17 +20,17 @@ async function passwordCheck(username, password) {
 }
 
 // filesystem
-c.read = (PID, directory, attribute = "contents") => {
-    const dir = system.toDir(directory, c.getcwd(PID))
+c.read = async (PID, directory, attribute = "contents") => {
+    const dir = await c.fullDirectory(PID, directory, c.getcwd(PID))
 
-    if (sse.manyDebug == true) {
+    if (system.manyDebug == true) {
         system.debug(PID, "readFile " + dir)
     }
 
     return system.fs.readFile(dir, attribute)
 }
 c.write = async (PID, directory, content) => {
-    const dir = system.toDir(directory, c.getcwd(PID))
+    const dir = await c.fullDirectory(PID, directory, c.getcwd(PID))
     await system.fs.writeFile(dir, content, c.whoami(PID))
     return 0
 }
@@ -36,7 +38,7 @@ c.write = async (PID, directory, content) => {
 
 //}
 c.unlink = async (PID, directory) => {
-    const dir = system.toDir(directory, c.getcwd(PID));
+    const dir = await c.fullDirectory(PID, directory, c.getcwd(PID));
     if (await system.fs.isFolder(dir)) {
         await system.fs.deleteFolder(dir, c.whoami(PID), c.whoami(PID))
     } else {
@@ -44,7 +46,7 @@ c.unlink = async (PID, directory) => {
     }
 }
 c.isFolder = async (PID, directory) => {
-    const dir = system.toDir(directory, c.getcwd(PID));
+    const dir = await c.fullDirectory(PID, directory, c.getcwd(PID));
     return system.fs.isFolder(dir)
 }
 //c.utime = (directory) => {
@@ -68,7 +70,8 @@ c.chusr = async (PID, username, password) => {
     }
 }
 
-c.readdir = async function (PID, directory, attribute = "children") {
+c.readdir = async function (PID, dir, attribute = "children") {
+    const directory = await c.fullDirectory(PID, dir)
     switch (attribute) {
         case "children":
             return await system.fs.listFolder(directory, c.whoami(PID))
@@ -84,16 +87,16 @@ c.readdir = async function (PID, directory, attribute = "children") {
 c.mkdir = async function (PID, directory) {
     let user = await c.whoami(PID)
 
-    const dir = system.toDir(directory, c.getcwd(PID))
+    const dir = await c.fullDirectory(PID, directory, c.getcwd(PID))
     await system.fs.writeFolder(dir, user)
     return 0
 }
 c.mount
 c.umount
 
-c.chdir = (PID, target) => {
+c.chdir = async (PID, target) => {
     try {
-        const newDir = system.toDir(target, c.getcwd(PID))
+        const newDir = await c.fullDirectory(PID, target, c.getcwd(PID))
         system.processes[PID].cwd = newDir
     } catch (e) {
         return -1
@@ -104,10 +107,12 @@ c.getcwd = (PID) => {
     return String(system.processes[PID].cwd);
 }
 c.exists = async (PID, location) => {
-    return await system.fs.exists(location)
+    const dir = await c.fullDirectory(PID, location)
+    return await system.fs.exists(dir)
 }
 c.isDir = async (PID, location) => {
-    return await system.fs.isFolder(location)
+    const dir = await c.fullDirectory(PID, location)
+    return await system.fs.isFolder(dir)
 }
 
 c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}) {
@@ -129,7 +134,9 @@ c.exec = async function (PID, directory, args, stdin, sharedMemory, options = {}
         }
     }
 
-    return system.startProcess(PID, directory, args, stdin, opt.username, sharedMemory)
+    const dir = await c.fullDirectory(PID, directory)
+
+    return system.startProcess(PID, dir, args, stdin, opt.username, sharedMemory)
 }
 c.kill = (PID, targetPID) => {
     if (targetPID == ".") {
@@ -140,7 +147,7 @@ c.kill = (PID, targetPID) => {
     // to future me!
     // insure processes can kill child processes when they are not root!
 
-    console.debug(PID, 'is killing', targetPID)
+    console.debug(PID + " is killing " + targetPID)
     const user = c.whoami(PID)
     //if (user !== "root") {
     //    return -1              // replace in future with actual logic
@@ -151,22 +158,6 @@ c.kill = (PID, targetPID) => {
 
 c.getpid = (PID) => {
     return PID
-}
-c.getuid = (PID) => ""
-
-c.chroot = (PID, dir) => {
-    const user = c.whoami(PID)
-    if (user !== "root") {
-        return -1
-    }
-
-    try {
-        const root = system.toDir(dir, c.getcwd(PID))
-        system.processes[PID].token.root = String(root)
-    } catch (e) {
-        return -1
-    }
-    return 0
 }
 
 c.uname = (PID) => {
@@ -210,8 +201,26 @@ c.reboot = async function (PID) {
     return 0
 }
 
-c.fullDirectory = (PID, location, relative) => {
-    return system.toDir(location, relative);
+c.fullDirectory = async (PID, location, relative) => {
+
+    let loc = String(location)
+
+    switch(loc[0]) {
+        case "§":
+            loc = loc.split("")
+            loc[0] = (await c.usrinf(PID)).sysDir
+            loc = loc.join("")
+            break;
+        case "~":
+            loc = loc.split("")
+            loc[0] = (await c.usrinf(PID)).homeDir
+            loc = loc.join("")
+            break;
+    }
+
+    let rel = String(relative)
+
+    return system.toDir(loc, rel);
 };
 
 system.memory.kernel.lib.messages = {};
@@ -375,4 +384,8 @@ c.usrinf = async (PID, name) => {
     const inf = system.users[user];
 
     return structuredClone(inf);
+}
+
+} catch(e) {
+    console.warn(e)
 }

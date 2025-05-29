@@ -3,10 +3,9 @@
 // nimbus desktop environment
 
 const configDir = async () => {
-        const userinf = await call.usrinf()
-        const nimbusCfgDir = await call.fullDirectory("Config/nimbus.json", userinf.homeDir);
+    const nimbusCfgDir = await call.fullDirectory("§/config/nimbus.json");
 
-        return nimbusCfgDir;
+    return nimbusCfgDir;
 }
 
 async function getConfig() {
@@ -30,30 +29,30 @@ async function insureConfig() {
         cfg = {};
         console.debug("Config not present - new config created.");
     };
-    
+
     if (cfg.wallpaper == undefined) {
         console.debug("wallpaper not set - setting default.");
         cfg.wallpaper = "MountainUnderStars.jpg";
     };
-    
+
     if (typeof cfg.icons !== "object") {
         console.debug("icons not created - creating.");
         cfg.icons = {};
     };
-    
+
     if (cfg.icons.system == undefined) {
         console.debug("systemIcon not set - setting default.");
-        cfg.icons.system = "satellite.svg";
+        cfg.icons.system = "satellite";
     };
-    
+
     if (cfg.icons.close == undefined) {
         console.debug("closeIcon not set - setting default.");
-        cfg.icons.close = "close.svg";
+        cfg.icons.close = "close";
     };
-    
+
     if (cfg.icons.box == undefined) {
         console.debug("boxIcon not set - setting default.");
-        cfg.icons.box = "box.svg";
+        cfg.icons.box = "box";
     };
 
     console.debug(cfg);
@@ -80,7 +79,7 @@ async function init() {
     await call.shout("nimbusDE");
 
     console.debug("Config Dir:", await configDir());
-    
+
     await insureConfig();
 
     local.libmsg = await call.getLibrary("libmsg")
@@ -127,14 +126,17 @@ async function init() {
     document.getElementById("display").style.overflow = ""
 
     style = document.getElementById("nimbusStyles")
+
     local.refreshStyles = async () => {
         style.textContent = await call.read("/System/apps/data/nimbus/styles.css")
     }
     await local.refreshStyles();
 
+
+
     // Load icon
     const ssmIcon = document.createElement("img");
-    ssmIcon.src = await call.read(`/System/icons/${local.config.icons.system}`);
+    ssmIcon.src = await call.read(`/System/icons/${local.config.icons.system}.svg`);
     ssmIcon.style.width = "100%";
     ssmIcon.style.filter = "invert(100%) brightness(10000%)";
     ssmIcon.style.height = "auto";
@@ -291,7 +293,7 @@ async function init() {
     await applyConfig();
 
     async function getMainFcs() {
-        const response =  await local.libmsg.request(local.sky, {
+        const response = await local.libmsg.request(local.sky, {
             intent: "getMainFcs"
         })
 

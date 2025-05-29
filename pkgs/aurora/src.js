@@ -19,34 +19,38 @@ async function downloadAndConvert(URL) {
 }
 
 async function fetchLocation(URL) {
-	const networkd = local.networkd
+	try {
+		const networkd = local.networkd
 
-	if (isNaN(networkd)) {
-		return await call.deviceRope("eth0", "get", [URL]);
-	};
+		if (isNaN(networkd)) {
+			return await call.deviceRope("eth0", "get", [URL]);
+		};
 
-	await call.send(networkd, {
-		intent: "networkRequest",
-		type: "GET",
-		target: URL
-	});
+		await call.send(networkd, {
+			intent: "networkRequest",
+			type: "GET",
+			target: URL
+		});
 
-	return new Promise(function (resolve) {
-		let interval = setInterval(async function () {
-			const msgs = await call.readMsgs(true);
+		return new Promise(function (resolve) {
+			let interval = setInterval(async function () {
+				const msgs = await call.readMsgs(true);
 
-			for (const i in msgs) {
-				if (msgs[i].origin == networkd) {
-					const msg = msgs[i];
+				for (const i in msgs) {
+					if (msgs[i].origin == networkd) {
+						const msg = msgs[i];
 
-					if (msg.origin == networkd) {
-						clearInterval(interval)
-						resolve(msg.content)
-					}
+						if (msg.origin == networkd) {
+							clearInterval(interval)
+							resolve(msg.content)
+						}
+					};
 				};
-			};
-		}, 10);
-	});
+			}, 10);
+		});
+	} catch (e) {
+		return undefined
+	}
 };
 
 async function setup() {
@@ -58,22 +62,22 @@ async function setup() {
 	};
 
 	try {
-		await call.readdir("/System/apps/data/aurora");
+		await call.readdir("§/apps/data/aurora");
 	} catch (e) {
 		const directories = [
-			"/System/config/aurora",
-			"/System/apps/data/aurora",
-			"/System/apps/data/aurora/lists"
+			"§/config/aurora",
+			"§/apps/data/aurora",
+			"§/apps/data/aurora/lists"
 		];
 
 		for (const i in directories) {
 			await call.mkdir(directories[i]);
 		};
 
-		await call.write("/System/config/aurora/sources.json", {});
-		await call.write("/System/apps/data/aurora/files.json", {});
-		await call.write("/System/apps/data/aurora/sourceInf.json", {});
-		await call.write("/System/apps/data/aurora/installed.json", []);
+		await call.write("§/config/aurora/sources.json", {});
+		await call.write("§/apps/data/aurora/files.json", {});
+		await call.write("§/apps/data/aurora/sourceInf.json", {});
+		await call.write("§/apps/data/aurora/installed.json", []);
 	};
 
 	local.networkd = await call.pidOfName("networkd");
@@ -85,12 +89,12 @@ async function setup() {
 		await call.claimDevice("eth0");
 	};
 
-	local.aurora = await call.read("/System/apps/data/aurora/state.json");
+	local.aurora = await call.read("§/apps/data/aurora/state.json");
 
 
 	if (local.aurora == undefined) {
 		local.aurora = {};
-		local.aurora.directory = "/System/apps/data/aurora";
+		local.aurora.directory = "§/apps/data/aurora";
 
 		// set state
 		local.aurora.index = {};
@@ -100,20 +104,20 @@ async function setup() {
 
 	const queue = [];
 
-	queue.push(call.write("/System/apps/data/aurora/state.json", local.aurora));
+	queue.push(call.write("§/apps/data/aurora/state.json", local.aurora));
 
-	local.fileStorage = await call.read("/System/apps/data/aurora/files.json");
+	local.fileStorage = await call.read("§/apps/data/aurora/files.json");
 
 
 	if (local.fileStorage == undefined) {
-		queue.push(call.write("/System/apps/data/aurora/files.json", {}));
+		queue.push(call.write("§/apps/data/aurora/files.json", {}));
 	};
 
 	for (const i in queue) {
 		await queue[i]
 	}
 
-	local.fileStorage = await call.read("/System/apps/data/aurora/files.json");
+	local.fileStorage = await call.read("§/apps/data/aurora/files.json");
 
 	local.index = local.aurora.index;
 	local.sources = local.aurora.sources;
@@ -184,7 +188,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 
 	local.isSilent = flags.includes("-s")
 
-	const sources = await call.read("/System/config/aurora/sources.json")
+	const sources = await call.read("§/config/aurora/sources.json")
 
 	const packageName = args[1]
 
@@ -192,24 +196,31 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "sources":
 			switch (args[1]) {
 				case "add":
+					try {
+						let repos = await local.fetch(args[2] + "/repositories.json")
 
-					let repos = await local.fetch(args[2] + "/repositories.json")
+						if (repos == undefined) {
+							std.out = "[ERR]the repository did not respond and has not been sourced."
+							return
+						}
 
-					if (repos == undefined) {
-						std.out = "[ERR]the repository did not respond and has not been sourced."
-						return
+						repos = JSON.parse(repos)
+
+						if (args[3] == undefined) {
+							args[3] = encodeURIComponent(args[2])
+						}
+
+						for (const i in repos) {
+							const repo = repos[i]
+
+							const identifier = (args[3] + "/" + repo || encodeURIComponent(new URL(repo, args[2]).href))
+							sources[identifier] = args[2] + "/" + repo
+						}
+
+						await call.write("§/config/aurora/sources.json", sources)
+					} catch (e) {
+						std.out = String(e)
 					}
-
-					repos = JSON.parse(repos)
-
-					for (const i in repos) {
-						const repo = repos[i]
-
-						const identifier = (args[3] + "/" + repo || encodeURIComponent(new URL(repo, args[2]).href))
-						sources[identifier] = args[2] + "/" + repo
-					}
-
-					await call.write("/System/config/aurora/sources.json", sources)
 
 					break;
 				case "list":
@@ -221,10 +232,10 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "index":
 			const sourceInf = {}
 
-			const sourceItems = await call.readdir("/System/apps/data/aurora/lists")
+			const sourceItems = await call.readdir("§/apps/data/aurora/lists")
 			for (const i in sourceItems) {
 				const item = sourceItems[i]
-				await call.unlink("/System/apps/data/aurora/lists/" + item)
+				await call.unlink("§/apps/data/aurora/lists/" + item)
 			}
 
 			for (const i in sources) {
@@ -243,7 +254,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 					const manifest = JSON.parse(manifestTxt)
 
 					const packages = manifest.packages;
-					await call.write("/System/apps/data/aurora/lists/" + sourceURI + ".json", packages)
+					await call.write("§/apps/data/aurora/lists/" + sourceURI + ".json", packages)
 
 					const info = structuredClone(manifest);
 					delete info.packages;
@@ -255,7 +266,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				};
 			};
 
-			await call.write("/System/apps/data/aurora/sourceInf.json", sourceInf);
+			await call.write("§/apps/data/aurora/sourceInf.json", sourceInf);
 			break;
 		case "full-upgrade":
 			await init(["index"], false, false);
@@ -265,7 +276,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "force-upgrade-all":
 			await init(["index"]);
 
-			const packages = await call.read("/System/apps/data/aurora/installed.json");
+			const packages = await call.read("§/apps/data/aurora/installed.json");
 
 			for (const i in packages) {
 				await init(["upgrade", packages[i].name]);
@@ -274,14 +285,14 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 		case "upgrade":
 			if (packageName == undefined) {
 				// update everything.
-				const installed = await call.read("/System/apps/data/aurora/installed.json");
+				const installed = await call.read("§/apps/data/aurora/installed.json");
 
 				for (const i in installed) {
 					const item = installed[i];
 					const localVersion = item.version
 
 
-					const itemSource = await call.read("/System/apps/data/aurora/lists/" + item.source + ".json");
+					const itemSource = await call.read("§/apps/data/aurora/lists/" + item.source + ".json");
 					const remoteVersion = itemSource[item.name];
 
 					if (remoteVersion !== localVersion) {
@@ -313,7 +324,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 				const source = sources[i];
 				const sourceURI = encodeURIComponent(i);
 
-				const sourcePackages = await call.read("/System/apps/data/aurora/lists/" + sourceURI + ".json");
+				const sourcePackages = await call.read("§/apps/data/aurora/lists/" + sourceURI + ".json");
 
 				if (sourcePackages == undefined) {
 					continue;
@@ -335,13 +346,13 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			}
 
 			if (manualInstall == true) {
-				const installed = await call.read("/System/apps/data/aurora/installed.json");
+				const installed = await call.read("§/apps/data/aurora/installed.json");
 				installed.push({
 					name: packageName,
 					source: repoName,
 					version: version
 				});
-				await call.write("/System/apps/data/aurora/installed.json", installed);
+				await call.write("§/apps/data/aurora/installed.json", installed);
 			}
 
 			const url = repo + "/"
@@ -466,7 +477,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			};
 
 
-			const installationFiles = await call.read("/System/apps/data/aurora/files.json");
+			const installationFiles = await call.read("§/apps/data/aurora/files.json");
 
 			if (typeof installationFiles[args[1]] == "undefined") {
 				installationFiles[args[1]] = [];
@@ -475,7 +486,7 @@ async function init(arguements, startup = true, manualInstall = true, isForUpgra
 			for (const i in writtenFiles) {
 				installationFiles[args[1]].push(writtenFiles[i]);
 			};
-			await call.write("/System/apps/data/aurora/files.json", installationFiles);
+			await call.write("§/apps/data/aurora/files.json", installationFiles);
 
 			editLogs("installation of " + args[1] + " 100% completed", `####################`)
 

@@ -24,6 +24,7 @@ system.registerUser = async function (name, object) {
         groupID: 0,
         otherInfo: {},
         baseDir: "/",
+        homeDir: "/Users/" + name,
         shell: "/System/apps/utils/aquila.js",
         permissions: {
             reboot: false
@@ -31,6 +32,10 @@ system.registerUser = async function (name, object) {
     }
 
     const obj = { ...deflt, ...object }
+
+    if (obj.sysDir == undefined) {
+        obj.sysDir = system.toDir(".System", obj.homeDir)
+    }
 
     if (system.users[name] !== undefined) {
         throw new Error("user named " + name + " already exists!")
@@ -73,7 +78,8 @@ if (system.isNew) {
         groupID: 0,
         otherInfo: {},
         baseDir: "/",
-        homeDir: "/System",
+        homeDir: "/System/user",
+        sysDir: "/System",
         shell: "/System/apps/utils/aquila.js",
         fullName: "root",
         permissions: {
