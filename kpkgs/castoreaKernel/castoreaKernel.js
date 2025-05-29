@@ -11,7 +11,12 @@ async function start_kernel() {
 		return (await fetch(url)).text()
 	}
 	system.baseURI = "."
-	system.auroraURI = new URL("../aurora", window.location.href).href
+
+	system.auroraURI = "https://aurora-pkgs.vercel.app";
+    if (new URL(window.location.href).searchParams.get("auroraLocal") === "true") {
+        system.auroraURI = "http://localhost:5079"
+    }
+
 	system.writeFileQueue = []
 	system.volumeGUID = initram.volumeGUID
 
@@ -199,17 +204,17 @@ async function start_kernel() {
 		system.index = JSON.parse(packages).packages
 	}
 
-	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "http://localhost:555/aurora"], true) // source local for devs
-	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "https://thatbeaverdev.github.io/aurora"], true) // source the repo for installs
+	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "http://localhost:5079"]) // source local for devs
+	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "https://aurora-pkgs.vercel.app"]) // source the repo for installs
 
 
 	if (system.isNew) {
-		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["index"], true) // update package repositories
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["index"]) // update package repositories
 
-		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", "aurora", "-s"], true)
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", "aurora", "-s"])
 
 		// install
-		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", system.index, "-s"], true)
+		await system.startProcess(PID, "/System/apps/utils/aurora.js", ["install", system.index, "-s"])
 
 		delete system.index // remove the index from memory
 
