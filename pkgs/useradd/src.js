@@ -98,21 +98,34 @@ async function init(args) {
     const base = obj.homeDir
 
     const places = [
-        "./Desktop",
-        "./Documents",
-        "./Media",
-        "./Media/Music",
-        "./Media/Photos",
-        "./Media/Photos/Wallpapers",
-        "./Media/Videos",
-        "./Media/Videos/Wallpapers",
-        "./.System",
-        "./.System/apps",
-        "./.System/apps/background",
-        "./.System/apps/gui",
-        "./.System/apps/libraries",
-        "./.System/apps/utils",
-        "./Config",
+        "~/Desktop",
+        "~/Documents",
+        "~/Media",
+        "~/Media/Music",
+        "~/Media/Photos",
+        "~/Media/Photos/Wallpapers",
+        "~/Media/Videos",
+        "~/Media/Videos/Wallpapers",
+        "§",
+        "§/apps",
+        "§/apps/background",
+        "§/apps/data",
+        "§/apps/gui",
+        "§/apps/libraries",
+        "§/apps/utils",
+        "§/config",
+    ]
+
+    const exec = [
+        {
+            dir: "/System/apps/utils/aurora.js",
+            args: ["sources", "add", "https://aurora-pkgs.vercel.app"]
+        },
+        {
+            dir: "/System/apps/utils/aurora.js",
+            args: ["index"]
+        }
+
     ]
 
     for (const i in places) {
@@ -120,4 +133,15 @@ async function init(args) {
 
         await call.mkdir(dir)
     }
+
+    for (const i in exec) {
+        const dir = exec[i].dir
+        const args = exec[i].args
+
+        await call.exec(dir, args)
+    }
+
+    await new Promise((resolve) => {
+        setTimeout(resolve, 500)
+    })
 }
