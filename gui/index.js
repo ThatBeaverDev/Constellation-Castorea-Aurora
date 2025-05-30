@@ -49,19 +49,25 @@ async function main() {
 
         const versions = inf[repo].packages;
 
+        const infa = {}
+
+        // prefetch the info at the same time, so that it's all present faster.
+
         for (const pkg in versions) {
-
             const pkginfURI = "/" + repo + "/" + pkg + "/info.json"
-            let pkginf
-
             try {
-                pkginf = await fetchURL(pkginfURI, true);
+                infa[pkg] = fetchURL(pkginfURI, true); // no await, this can be managed layer
             } catch (e) {
                 const cont = document.getElementById("container");
                 document.body.style.background = "black"
                 cont.innerHTML = "<p>Repository " + repo + " has a non existent package listed: " + pkg + ".</p>";
                 return;
             };
+        }
+
+        for (const pkg in versions) {
+
+            let pkginf = await infa[pkg] // await now to insure request is finished
 
             packages[repo + "-" + pkg] = {
                 ...pkginf,
