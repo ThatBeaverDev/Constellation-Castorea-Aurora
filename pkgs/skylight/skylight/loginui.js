@@ -188,7 +188,24 @@ async function newUserUI() {
         contents: html
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => {
+      let interval = setInterval(() => {
+        const elements = {
+          pfp: document.getElementById("loginuiPfp"),
+          username: document.getElementById("loginuiUsername"),
+          password: document.getElementById("loginuiPassword"),
+          passwordVerify: document.getElementById("loginuiPasswordVerify"),
+          belowText: document.getElementById("loginuiText"),
+          button: document.getElementById("loginuiButton"),
+        };
+
+        for (const i in elements) {
+          if (elements[i] == null) return;
+        }
+        clearInterval(interval);
+        resolve();
+      });
+    });
 
     local.elements = {
         pfp: document.getElementById("loginuiPfp"),
