@@ -80,7 +80,7 @@ system.kernelPanic = function (e, when) {
 
 	const reportIssue = document.createElement("a")
 
-	reportIssue.href = `https://github.com/ThatBeaverDev/Constellation/issues/new?title=${encodeURIComponent("Automatically Generated Error" + e)
+	reportIssue.href = `https://github.com/ThatBeaverDev/Constellation-Castorea/issues/new?title=${encodeURIComponent("Automatically Generated Error" + e)
 		}&body=${encodeURIComponent(panic + "\n\n" + JSON.stringify(systemPurged, null, 4))
 		}`;
 

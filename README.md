@@ -1,6 +1,12 @@
-# Aurora
+# Constellation Castorea (Aurora)
 
-[![GitHub release](https://img.shields.io/github/release/ThatBeaverDev/aurora.svg)](https://github.com/ThatBeaverDev/aurora/releases)
-[![License](https://img.shields.io/github/license/ThatBeaverDev/aurora)](https://github.com/ThatBeaverDev/nordOS/blob/master/LICENSE)
+Constellation Castorea was the first version of Constellation to have a largely-featured Terminal and to be written entirely in Javascript. It was terminal-only initially, and a GUI was added later on called Nimbus. It was briefly called nordOS.
 
-The Package manager for [Constellation](https://github.com/ThatBeaverDev/Constellation)
+Aurora is the package manager for this OS, and even contained the kernel code itself, split into multiple packages. This is what the `kpkgs` and `pkgs` directories are, the `k` in `kpkgs` means 'kernel'.
+
+## Old README.md:
+
+[![GitHub release](https://img.shields.io/github/release/ThatBeaverDev/Constellation-Castorea-Aurora.svg)](https://github.com/ThatBeaverDev/Constellation-Castorea-Aurora/releases)
+[![License](https://img.shields.io/github/license/ThatBeaverDev/Constellation-Castorea-Aurora)](https://github.com/ThatBeaverDev/Constellation-Castorea-Aurora/blob/master/LICENSE)
+
+The Package manager for [Constellation](https://github.com/ThatBeaverDev/Constellation-Castorea)

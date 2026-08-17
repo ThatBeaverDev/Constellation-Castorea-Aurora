@@ -42,10 +42,10 @@ async function init() {
     let kernel = await call.read("/System/kernel/castoreaKernel.js")
 
     // patch over kernel
-    kernel = kernel.replaceAll('system.aurora.url = "../aurora" // aurora URL set', 'system.aurora.url = "https://raw.githubusercontent.com/ThatBeaverDev/aurora/refs/heads/main"')
+    kernel = kernel.replaceAll('system.aurora.url = "../aurora" // aurora URL set', 'system.aurora.url = "https://raw.githubusercontent.com/ThatBeaverDev/Constellation-Castorea-Aurora/refs/heads/main"')
 
     // patch over loader
-    ldr = ldr.replaceAll('system.baseURI = "."', 'system.baseURI = "https://raw.githubusercontent.com/ThatBeaverDev/Constellation/refs/heads/main"')
+    ldr = ldr.replaceAll('system.baseURI = "."', 'system.baseURI = "https://raw.githubusercontent.com/ThatBeaverDev/Constellation-Castorea/refs/heads/main"')
 
     // patch over HTML page to include embedded styles and loader
     html = html.replaceAll('<script src="./boot/loader.js"></script><!--bootloader-->', '<script>' + ldr + '</script><!--modified origin bootloader! :D-->')

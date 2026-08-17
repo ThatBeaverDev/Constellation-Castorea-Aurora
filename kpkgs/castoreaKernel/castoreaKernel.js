@@ -12,7 +12,7 @@ async function start_kernel() {
 	}
 	system.baseURI = "."
 
-	system.auroraURI = "https://aurora-pkgs.vercel.app";
+	system.auroraURI = "/Constellation-Castorea-Aurora";
     if (new URL(window.location.href).searchParams.get("auroraLocal") === "true") {
         system.auroraURI = "http://localhost:5079"
     }
@@ -211,7 +211,7 @@ async function start_kernel() {
 	}
 
 	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "http://localhost:5079"]) // source local for devs
-	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "https://aurora-pkgs.vercel.app"]) // source the repo for installs
+	await system.startProcess(PID, "/System/apps/utils/aurora.js", ["sources", "add", "/Constellation-Castorea-Aurora"]) // source the repo for installs
 
 
 	if (system.isNew) {

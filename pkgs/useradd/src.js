@@ -124,7 +124,7 @@ async function init(args) {
     const exec = [
         {
             dir: "/System/apps/utils/aurora.js",
-            args: ["sources", "add", "https://aurora-pkgs.vercel.app"]
+            args: ["sources", "add", "/Constellation-Castorea-Aurora"]
         },
         {
             dir: "/System/apps/utils/aurora.js",

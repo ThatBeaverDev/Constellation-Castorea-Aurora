@@ -37,7 +37,7 @@ async function main() {
         return result;
     };
 
-    const repos = await fetchURL("/repositories.json", true);
+    const repos = await fetchURL("../repositories.json", true);
     const inf = {};
 
     let packages = {}
@@ -45,7 +45,7 @@ async function main() {
     for (const i in repos) {
         const repo = repos[i];
 
-        inf[repo] = await fetchURL("/" + repo + "/repository.json", true);
+        inf[repo] = await fetchURL("../" + repo + "/repository.json", true);
 
         const versions = inf[repo].packages;
 
@@ -54,7 +54,7 @@ async function main() {
         // prefetch the info at the same time, so that it's all present faster.
 
         for (const pkg in versions) {
-            const pkginfURI = "/" + repo + "/" + pkg + "/info.json"
+            const pkginfURI = "../" + repo + "/" + pkg + "/info.json"
             try {
                 infa[pkg] = fetchURL(pkginfURI, true); // no await, this can be managed layer
             } catch (e) {
